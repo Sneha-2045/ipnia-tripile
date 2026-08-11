@@ -1,0 +1,7 @@
+<svg width="48" height="30" viewBox="0 0 48 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="48" height="30" fill="#fff"/>
+  <text x="7" y="20" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" fill="#1B3A7A">Ru</text>
+  <text x="23" y="20" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" fill="#F68B1F">Pay</text>
+  <polygon points="40,10 47,15 40,20" fill="#1B3A7A"/>
+  <polygon points="41,12 46,15 41,18" fill="#F68B1F"/>
+</svg>

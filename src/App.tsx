@@ -1,0 +1,72 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import ChatWidget from "@/components/ChatWidget";
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
+import PaymentPage from "./pages/PaymentPage";
+import ThankYou from "./pages/ThankYou";
+import AboutUs from "./pages/AboutUs";
+import ContactUs from "./pages/ContactUs";
+import Pricing from "./pages/Pricing";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import BusinessTravel from "./pages/BusinessTravel";
+import EducationTravel from "./pages/EducationTravel";
+import ExperienceTravel from "./pages/ExperienceTravel";
+import PilgrimTravel from "./pages/PilgrimTravel";
+import ForexTravel from "./pages/ForexTravel";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/business-travel" element={<BusinessTravel />} />
+            <Route path="/education-travel" element={<EducationTravel />} />
+            <Route path="/experience-travel" element={<ExperienceTravel />} />
+            <Route path="/pilgrim-travel" element={<PilgrimTravel />} />
+            <Route path="/forex" element={<ForexTravel />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
+            <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            {/* Payment routes */}
+            <Route path="/payment/:course" element={<PaymentPage />} />
+            <Route path="/thankyou/:course" element={<ThankYou />} />
+            <Route path="/thankyou" element={<ThankYou />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          {/* Global AI Chat Widget */}
+          <ChatWidget />
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;
