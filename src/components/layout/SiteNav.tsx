@@ -22,6 +22,9 @@ const businessLinks = [
 ];
 
 const navLinks = [
+  { label: "Flights", href: "/" },
+  { label: "Hotels", href: "/hotels/search" },
+  { label: "Travel Ecosystem", href: "/travel-ecosystem" },
   { label: "Education Travel", href: "/education-travel" },
   { label: "Experience Travel", href: "/experience-travel" },
   { label: "Pilgrim Travel", href: "/pilgrim-travel" },

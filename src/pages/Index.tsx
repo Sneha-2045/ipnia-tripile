@@ -2,349 +2,274 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight,
   Briefcase,
-  GraduationCap,
   Compass,
+  GraduationCap,
   Landmark,
-  Wallet,
-  Globe2,
+  Plane,
   ShieldCheck,
-  Users,
+  Star,
+  Wallet,
 } from "lucide-react";
-import { PageShell } from "@/components/layout/PageShell";
+import { BookingNav } from "@/components/layout/BookingNav";
+import { SiteFooter } from "@/components/layout/SiteFooter";
+import { BookingSearchCard } from "@/components/booking/BookingSearchCard";
 import SEO from "@/components/SEO";
 import StickyCTA from "@/components/StickyCTA";
-import SignUpSection from "@/components/SignUpSection";
+import { WhyBookWithUs } from "@/components/WhyBookWithUs";
 import { Button } from "@/components/ui/button";
+import { hotels } from "@/data/hotels";
 
-const segments = [
-  {
-    title: "Business Travel",
-    description: "Travel with a business purpose.",
-    cta: "Explore Business Travel",
-    href: "/business-travel",
-    icon: Briefcase,
-    image: "/assets/ipnia/china-business-tour.jpg",
-  },
-  {
-    title: "Education Travel",
-    description: "Learn beyond the classroom.",
-    cta: "Explore Education Travel",
-    href: "/education-travel",
-    icon: GraduationCap,
-    image: "/assets/ipnia/education-travel.jpg",
-  },
-  {
-    title: "Experience Travel",
-    description: "Discover the world differently.",
-    cta: "Explore Experiences",
-    href: "/experience-travel",
-    icon: Compass,
-    image: "/assets/ipnia/experience-travel.jpg",
-  },
-  {
-    title: "Pilgrim Travel",
-    description: "Journeys of faith and devotion.",
-    cta: "Explore Pilgrimage",
-    href: "/pilgrim-travel",
-    icon: Landmark,
-    image: "/assets/ipnia/pilgrim-travel.jpg",
-  },
-  {
-    title: "Forex Travel",
-    description: "Travel money made simple.",
-    cta: "Explore Forex",
-    href: "/forex",
-    icon: Wallet,
-    image: "/assets/ipnia/forex-travel.jpg",
-  },
+const destinations = [
+  { name: "New Delhi", image: "/assets/destinations/dest-delhi.jpg", code: "DEL" },
+  { name: "Mumbai", image: "/assets/destinations/dest-mumbai.jpg", code: "BOM" },
+  { name: "Dubai", image: "/assets/destinations/dest-dubai.jpg", code: "DXB" },
+  { name: "London", image: "/assets/destinations/dest-london.jpg", code: "LHR" },
+  { name: "Singapore", image: "/assets/destinations/dest-singapore.jpg", code: "SIN" },
+  { name: "New York", image: "/assets/destinations/dest-newyork.jpg", code: "JFK" },
 ];
 
-const chinaCreatives = [
-  {
-    src: "/assets/ipnia/china-business-tour.jpg",
-    label: "China Business Tours",
-    href: "/business-travel#china-business-tours",
-  },
-  {
-    src: "/assets/ipnia/canton-fair-2026.jpg",
-    label: "Canton Fair 2026",
-    href: "/business-travel#canton-fair",
-  },
-  {
-    src: "/assets/ipnia/supplier-verification.jpg",
-    label: "Supplier Verification",
-    href: "/business-travel#supplier-verification",
-  },
-  {
-    src: "/assets/ipnia/business-delegation.jpg",
-    label: "Business Delegations",
-    href: "/business-travel#business-delegations",
-  },
-  {
-    src: "/assets/ipnia/china-usa-dropshipping.jpg",
-    label: "USA Dropshipping",
-    href: "/business-travel#usa-dropshipping",
-  },
-  {
-    src: "/assets/ipnia/china-factory.jpg",
-    label: "Factory Visits & Sourcing",
-    href: "/business-travel#factory-visits",
-  },
-  {
-    src: "/assets/ipnia/china-business-networking.jpg",
-    label: "China–USA Trade Journey",
-    href: "/business-travel#usa-dropshipping",
-  },
+const routes = [
+  { from: "DEL", to: "BOM", label: "Delhi → Mumbai", price: 5908 },
+  { from: "BOM", to: "DEL", label: "Mumbai → Delhi", price: 6120 },
+  { from: "DEL", to: "BLR", label: "Delhi → Bangalore", price: 6450 },
+  { from: "BOM", to: "BLR", label: "Mumbai → Bangalore", price: 5380 },
+  { from: "DEL", to: "DXB", label: "Delhi → Dubai", price: 14890 },
+  { from: "BOM", to: "DXB", label: "Mumbai → Dubai", price: 13950 },
+];
+
+const verticals = [
+  { title: "Business Travel", href: "/business-travel", icon: Briefcase, text: "China tours, Canton Fair & sourcing." },
+  { title: "Education Travel", href: "/education-travel", icon: GraduationCap, text: "Learn beyond the classroom." },
+  { title: "Experience Travel", href: "/experience-travel", icon: Compass, text: "Discover the world differently." },
+  { title: "Pilgrim Travel", href: "/pilgrim-travel", icon: Landmark, text: "Journeys of faith and devotion." },
+  { title: "Forex", href: "/forex", icon: Wallet, text: "Travel money made simple." },
 ];
 
 const Index = () => {
-  const jsonLd = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      name: "IPNIA",
-      legalName: "Ipnia Services Pvt Ltd",
-      url: typeof window !== "undefined" ? window.location.origin : "https://ipnia.com",
-      email: "Help@ipnia.com",
-      telephone: "01145534440",
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: "A199 Gujranwala Town Part 01",
-        addressLocality: "Delhi",
-        postalCode: "110009",
-        addressCountry: "IN",
-      },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      name: "IPNIA",
-      url: typeof window !== "undefined" ? window.location.origin : "https://ipnia.com",
-      description:
-        "IPNIA connects people, businesses, students and travelers with meaningful journeys across business, education, experience, pilgrimage and forex.",
-    },
-  ];
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const departure = tomorrow.toISOString().slice(0, 10);
 
   return (
-    <PageShell>
+    <div className="min-h-screen bg-[#0a1628] text-white">
       <SEO
-        title="IPNIA — One Platform. Every Journey."
-        description="IPNIA connects people, businesses, students and travelers with meaningful journeys, global experiences and complete travel support across business, education, experience, pilgrimage and forex."
+        title="Book Flights & Hotels | IPNIA Travel"
+        description="Book flights, hotels and plan your journey with IPNIA. Search domestic and international routes, compare fares, and explore IPNIA's complete travel ecosystem."
         path="/"
-        keywords="IPNIA travel, business travel India, China business tours, education travel, pilgrimage tours, forex travel"
-        image="/assets/ipnia/china-business-tour.jpg"
-        jsonLd={jsonLd}
+        keywords="IPNIA flights, book hotels India, flight search, hotel booking, travel booking IPNIA"
+        image="/assets/destinations/hero-travel.jpg"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "IPNIA",
+            url: typeof window !== "undefined" ? window.location.origin : "https://ipnia.com",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: `${typeof window !== "undefined" ? window.location.origin : "https://ipnia.com"}/flights/search?from={from}&to={to}`,
+              "query-input": "required name=from",
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "IPNIA",
+            legalName: "Ipnia Services Pvt Ltd",
+            url: typeof window !== "undefined" ? window.location.origin : "https://ipnia.com",
+          },
+        ]}
       />
 
-      {/* Hero — copy + full creative, no overlay crop */}
-      <section className="border-b border-[#d4a853]/20 bg-[#07111f]">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
+      <BookingNav />
+
+      {/* Hero + booking */}
+      <section id="booking" className="relative overflow-hidden pt-16">
+        <div className="absolute inset-0">
+          <img
+            src="/assets/destinations/hero-travel.jpg"
+            alt="Your journey starts with IPNIA"
+            className="h-full w-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#07111f] via-[#07111f]/75 to-[#07111f]/35" />
+        </div>
+
+        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:px-8 lg:py-20">
           <div>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-[#d4a853]">
-              India&apos;s Complete Travel Ecosystem
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#d4a853]">
+              Flights · Hotels · Travel Services
             </p>
-            <h1 className="max-w-4xl text-5xl font-bold tracking-tight text-white md:text-6xl">
-              ONE PLATFORM.
-              <br />
-              <span className="text-[#d4a853]">EVERY JOURNEY.</span>
-            </h1>
-            <p className="mt-5 text-lg font-medium text-white/90 md:text-2xl">
-              Business. Education. Experience. Pilgrimage. Forex.
+            <h1 className="mt-4 text-4xl font-bold text-white md:text-6xl">Your Journey Starts Here.</h1>
+            <p className="mt-4 max-w-xl text-lg text-white/75">
+              Flights, hotels and travel services — all in one place.
             </p>
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg">
-              IPNIA connects people, businesses, students and travelers with meaningful journeys,
-              global experiences and complete travel support.
+            <p className="mt-3 max-w-lg text-sm text-white/55">
+              Book with IPNIA and unlock business, education, experience, pilgrimage and forex
+              support whenever you need it.
             </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Button
-                asChild
-                size="lg"
-                className="bg-[#d4a853] px-8 font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
-              >
-                <Link to="/contact">
-                  Plan Your Journey <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-[#d4a853]/50 bg-transparent px-8 text-white hover:bg-[#d4a853]/10 hover:text-white"
-              >
-                <a href="#services">Explore Our Services</a>
-              </Button>
-            </div>
           </div>
-          <div className="overflow-hidden rounded-2xl border border-[#d4a853]/35 bg-[#0a1628]">
-            <img
-              src="/assets/ipnia/experience-travel.jpg"
-              alt="IPNIA — every journey, one platform"
-              className="h-full w-full object-cover object-center"
-            />
-          </div>
+          <BookingSearchCard />
         </div>
       </section>
 
-      {/* Segment cards */}
-      <section id="services" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mb-12 max-w-2xl">
-          <h2 className="text-3xl font-bold text-white md:text-5xl">Five ways to travel with IPNIA</h2>
-          <p className="mt-3 text-white/65">
-            Choose the journey that matches your purpose — each vertical is designed with dedicated
-            expertise, partners and support.
-          </p>
-        </div>
-
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {segments.map((segment, index) => {
-            const Icon = segment.icon;
-            const wide = index === 0;
-            return (
-              <Link
-                key={segment.href}
-                to={segment.href}
-                className={`segment-card group ${wide ? "md:col-span-2 xl:col-span-1" : ""}`}
-              >
-                <div className="mb-5 aspect-[16/10] overflow-hidden rounded-xl border border-white/10 bg-[#07111f]">
-                  <img
-                    src={segment.image}
-                    alt={segment.title}
-                    loading="lazy"
-                    className="h-full w-full object-cover object-center"
-                  />
-                </div>
-                <div className="mb-3 flex items-center gap-2 text-[#d4a853]">
-                  <Icon className="h-5 w-5" />
-                  <span className="text-xs font-semibold uppercase tracking-wider">Vertical</span>
-                </div>
-                <h3 className="text-2xl font-bold text-white">{segment.title}</h3>
-                <p className="mt-2 text-white/65">{segment.description}</p>
-                <span className="mt-5 inline-flex items-center text-sm font-semibold text-[#d4a853]">
-                  {segment.cta} <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Trust strip */}
+      {/* Trust */}
       <section className="border-y border-[#d4a853]/20 bg-[#07111f]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 md:grid-cols-3 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
           {[
-            {
-              icon: Globe2,
-              title: "Global Coordination",
-              text: "End-to-end planning across borders, fairs, campuses and sacred destinations.",
-            },
-            {
-              icon: ShieldCheck,
-              title: "Trusted Partners",
-              text: "Verified networks for sourcing, education, hospitality and travel money support.",
-            },
-            {
-              icon: Users,
-              title: "Purpose-Led Travel",
-              text: "Every vertical is built around outcomes — business, learning, experience or faith.",
-            },
+            "Multiple travel services",
+            "Trusted travel support",
+            "Competitive prices",
+            "Secure booking",
           ].map((item) => (
-            <div key={item.title} className="flex gap-4">
-              <item.icon className="mt-1 h-6 w-6 shrink-0 text-[#d4a853]" />
-              <div>
-                <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                <p className="mt-2 text-sm text-white/60">{item.text}</p>
-              </div>
+            <div key={item} className="flex items-center gap-2 text-sm text-white/80">
+              <ShieldCheck className="h-4 w-4 text-[#d4a853]" />
+              {item}
             </div>
           ))}
         </div>
       </section>
 
-      {/* Featured Business spotlight */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="grid items-start gap-10 lg:grid-cols-2">
-          <div className="overflow-hidden rounded-2xl border border-[#d4a853]/30 bg-[#07111f]">
-            <img
-              src="/assets/ipnia/canton-fair-2026.jpg"
-              alt="China Business Travel with IPNIA"
-              loading="lazy"
-              className="mx-auto block h-auto w-full object-contain"
-            />
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d4a853]">
-              Featured Vertical
-            </p>
-            <h2 className="mt-3 text-3xl font-bold text-white md:text-5xl">
-              Go beyond buying from China.
-            </h2>
-            <p className="mt-4 text-white/65">
-              Meet manufacturers. Verify suppliers. Visit factories. Attend Canton Fair. IPNIA
-              coordinates complete China business journeys for Indian entrepreneurs and trade teams.
-            </p>
-            <ul className="mt-6 space-y-2 text-sm text-white/75">
-              <li>• Canton Fair 2026 assistance</li>
-              <li>• Factory visits & supplier verification</li>
-              <li>• Business delegations & USA dropshipping support</li>
-            </ul>
-            <Button
-              asChild
-              className="mt-8 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+      {/* Popular destinations */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-bold text-white md:text-4xl">Popular Destinations</h2>
+        <p className="mt-2 text-white/60">Quick-start flight searches to cities travelers love.</p>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {destinations.map((city) => (
+            <Link
+              key={city.code}
+              to={`/flights/search?from=DEL&to=${city.code}&departure=${departure}&travellers=1&cabin=economy&tripType=oneway`}
+              className="group relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/10"
             >
-              <Link to="/business-travel">
-                Explore Business Travel <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
+              <img
+                src={city.image}
+                alt={city.name}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+              <p className="absolute bottom-4 left-4 text-xl font-bold text-white">{city.name}</p>
+            </Link>
+          ))}
         </div>
       </section>
 
-      {/* All China business creatives kept on homepage */}
-      <section className="border-t border-[#d4a853]/20 bg-[#07111f] py-20">
+      {/* Popular routes */}
+      <section className="bg-[#07111f] py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d4a853]">
-              Business Travel Gallery
-            </p>
-            <h2 className="mt-3 text-3xl font-bold text-white md:text-4xl">
-              China business creatives
-            </h2>
-            <p className="mt-3 text-white/60">
-              Full promotional visuals for tours, Canton Fair, verification, delegations and
-              dropshipping — each linked to its Business Travel section.
-            </p>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {chinaCreatives.map((item) => (
+          <h2 className="text-3xl font-bold text-white md:text-4xl">Popular Flight Routes</h2>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {routes.map((route) => (
               <Link
-                key={item.src}
-                to={item.href}
-                className="group overflow-hidden rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e] transition-all hover:-translate-y-1 hover:border-[#d4a853]/55"
+                key={route.label}
+                to={`/flights/search?from=${route.from}&to=${route.to}&departure=${departure}&travellers=1&cabin=economy&tripType=oneway`}
+                className="rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e] p-5 transition hover:border-[#d4a853]/55"
               >
-                <div className="bg-[#07111f]">
-                  <img
-                    src={item.src}
-                    alt={item.label}
-                    loading="lazy"
-                    className="mx-auto block h-auto w-full object-contain"
-                  />
+                <div className="mb-4 flex items-center gap-2 text-[#d4a853]">
+                  <Plane className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-wider">Route</span>
                 </div>
-                <div className="flex items-center justify-between gap-3 p-4">
-                  <p className="font-semibold text-white">{item.label}</p>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-[#d4a853] transition-transform group-hover:translate-x-1" />
-                </div>
+                <p className="text-lg font-bold text-white">{route.label}</p>
+                <p className="mt-3 text-sm text-white/55">Starting from</p>
+                <p className="text-2xl font-bold text-[#d4a853]">
+                  ₹ {route.price.toLocaleString("en-IN")}
+                </p>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Lead capture — preserve existing SignUpSection */}
-      <section id="signup" className="pb-24 md:pb-16">
-        <SignUpSection />
+      {/* Hotels */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-white md:text-4xl">Popular Hotels</h2>
+            <p className="mt-2 text-white/60">Handpicked stays with IPNIA travel support.</p>
+          </div>
+          <Button asChild variant="outline" className="hidden border-[#d4a853]/40 text-white sm:inline-flex">
+            <Link to={`/hotels/search?destination=mumbai&checkIn=${departure}&checkOut=${departure}&guests=2&rooms=1`}>
+              View all
+            </Link>
+          </Button>
+        </div>
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {hotels.slice(0, 3).map((hotel) => (
+            <article
+              key={hotel.id}
+              className="overflow-hidden rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e]"
+            >
+              <div className="aspect-[16/10]">
+                <img src={hotel.image} alt={hotel.name} loading="lazy" className="h-full w-full object-cover" />
+              </div>
+              <div className="p-5">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h3 className="text-xl font-bold text-white">{hotel.name}</h3>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#d4a853] px-2 py-0.5 text-xs font-bold text-[#0a1628]">
+                    <Star className="h-3 w-3" /> {hotel.rating}
+                  </span>
+                </div>
+                <p className="text-sm text-white/60">{hotel.location}</p>
+                <p className="mt-3 text-sm text-white/50">Starting from</p>
+                <p className="text-xl font-bold text-[#d4a853]">
+                  ₹ {hotel.priceFrom.toLocaleString("en-IN")}
+                </p>
+                <Button asChild className="mt-4 w-full bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+                  <Link
+                    to={`/hotels/search?destination=${hotel.city}&checkIn=${departure}&checkOut=${departure}&guests=2&rooms=1`}
+                  >
+                    View Hotel
+                  </Link>
+                </Button>
+              </div>
+            </article>
+          ))}
+        </div>
       </section>
 
-      <StickyCTA />
-    </PageShell>
+      <WhyBookWithUs />
+
+      {/* Explore verticals */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-bold text-white md:text-4xl">Explore IPNIA</h2>
+        <p className="mt-2 text-white/60">Beyond booking — purpose-led travel verticals.</p>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {verticals.map((v) => (
+            <Link
+              key={v.href}
+              to={v.href}
+              className="rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e] p-5 transition hover:border-[#d4a853]/55"
+            >
+              <v.icon className="mb-3 h-6 w-6 text-[#d4a853]" />
+              <h3 className="text-xl font-bold text-white">{v.title}</h3>
+              <p className="mt-2 text-sm text-white/60">{v.text}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Ecosystem CTA */}
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+        <div className="rounded-3xl border border-[#d4a853]/40 bg-gradient-to-br from-[#0c1a2e] to-[#07111f] px-8 py-12 md:px-12">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d4a853]">
+            More Than Just Booking
+          </p>
+          <h2 className="mt-3 text-3xl font-bold text-white md:text-5xl">
+            Discover the complete IPNIA travel ecosystem
+          </h2>
+          <p className="mt-4 max-w-2xl text-white/65">
+            IPNIA connects business, education, experiences, pilgrimage and forex services in one
+            complete travel ecosystem.
+          </p>
+          <Button asChild size="lg" className="mt-8 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+            <Link to="/travel-ecosystem">
+              Explore the IPNIA Travel Ecosystem <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </section>
+
+      <SiteFooter />
+      <StickyCTA label="Plan Your Journey" to="/contact" />
+    </div>
   );
 };
 
