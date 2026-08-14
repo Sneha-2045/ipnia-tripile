@@ -27,8 +27,8 @@ jobs:
           echo "VITE_API_URL=${{ vars.VITE_API_URL }}" >> .env
           echo "VITE_CASHFREE_MODE=${{ vars.VITE_CASHFREE_MODE }}" >> .env
 
-        - name: Build
-          run: npm run build
+      - name: Build
+        run: npm run build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -46,6 +46,3 @@ jobs:
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"
-
-
-
