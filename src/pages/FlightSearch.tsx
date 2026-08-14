@@ -1,15 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Plane } from "lucide-react";
 import { BookingNav } from "@/components/layout/BookingNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BookingSearchCard } from "@/components/booking/BookingSearchCard";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
+import { useFlightBooking } from "@/contexts/FlightBookingContext";
 import { bookingApi, CabinClass, FlightResult, TripType } from "@/services/bookingApi";
 import { getAirportByCode } from "@/data/airports";
+import { splitFare } from "@/types/booking";
 
 const FlightSearch = () => {
+  const navigate = useNavigate();
+  const { setSelectedFlight } = useFlightBooking();
   const [params] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState<FlightResult[]>([]);
@@ -42,6 +46,36 @@ const FlightSearch = () => {
       active = false;
     };
   }, [query]);
+
+  const handleSelect = (flight: FlightResult) => {
+    const { fare, taxes } = splitFare(flight.price);
+    const isInternational =
+      flight.from.country !== "India" || flight.to.country !== "India";
+
+    setSelectedFlight({
+      id: flight.id,
+      airline: flight.airline,
+      flightNumber: flight.flightNumber,
+      origin: flight.from.code,
+      originCity: flight.from.city,
+      destination: flight.to.code,
+      destinationCity: flight.to.city,
+      originCountry: flight.from.country,
+      destinationCountry: flight.to.country,
+      departureDate: query.departure,
+      departureTime: flight.departureTime,
+      arrivalTime: flight.arrivalTime,
+      duration: flight.duration,
+      stops: flight.stops,
+      cabin: flight.cabin,
+      fare,
+      taxes,
+      totalAmount: flight.price,
+      travellerCount: Math.max(1, query.travellers),
+      isInternational,
+    });
+    navigate("/booking/traveller-details");
+  };
 
   return (
     <div className="min-h-screen bg-[#0a1628] text-white">
@@ -108,7 +142,11 @@ const FlightSearch = () => {
                     <p className="text-3xl font-bold text-[#d4a853]">
                       ₹ {flight.price.toLocaleString("en-IN")}
                     </p>
-                    <Button className="mt-3 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+                    <Button
+                      type="button"
+                      onClick={() => handleSelect(flight)}
+                      className="mt-3 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+                    >
                       Select <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
