@@ -20,10 +20,15 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Build website
-        run: npm run build
+      - name: Create production environment
+        run: |
+          echo "VITE_API_URL=${{ vars.VITE_API_URL }}" >> .env
+          echo "VITE_CASHFREE_MODE=${{ vars.VITE_CASHFREE_MODE }}" >> .env
+
+        - name: Build
+          run: npm run build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
