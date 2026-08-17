@@ -1,13 +1,18 @@
 import type { FlightSearchRequest, FlightSearchResponse } from "@/types/duffelFlight";
 
 function getApiBase() {
-  const raw = String(import.meta.env.VITE_API_URL || "http://localhost:5001").trim();
+  const raw = String(import.meta.env.VITE_API_URL || "").trim();
+  if (!raw) {
+    throw new Error("VITE_API_URL is not configured");
+  }
   // Take first valid absolute URL if the env value was accidentally written with "||"
   const match = raw.match(/https?:\/\/[^\s|]+/i);
-  return (match?.[0] || "http://localhost:5001").replace(/\/$/, "");
+  const base = (match?.[0] || raw).replace(/\/$/, "");
+  if (!/^https?:\/\//i.test(base)) {
+    throw new Error("VITE_API_URL must be an absolute URL");
+  }
+  return base;
 }
-
-const API_BASE = getApiBase();
 
 export async function searchFlightsViaApi(
   payload: FlightSearchRequest,
@@ -15,7 +20,7 @@ export async function searchFlightsViaApi(
 ): Promise<FlightSearchResponse> {
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}/api/flights/search`, {
+    res = await fetch(`${getApiBase()}/api/flights/search`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

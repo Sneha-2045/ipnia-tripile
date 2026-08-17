@@ -1,10 +1,15 @@
 function getApiBase() {
-  const raw = String(import.meta.env.VITE_API_URL || "http://localhost:5001").trim();
+  const raw = String(import.meta.env.VITE_API_URL || "").trim();
+  if (!raw) {
+    throw new Error("VITE_API_URL is not configured");
+  }
   const match = raw.match(/https?:\/\/[^\s|]+/i);
-  return (match?.[0] || "http://localhost:5001").replace(/\/$/, "");
+  const base = (match?.[0] || raw).replace(/\/$/, "");
+  if (!/^https?:\/\//i.test(base)) {
+    throw new Error("VITE_API_URL must be an absolute URL");
+  }
+  return base;
 }
-
-const API_BASE = getApiBase();
 
 export type CreateOrderResponse = {
   success: boolean;
@@ -38,7 +43,7 @@ export async function createPaymentOrder(payload: {
   currency?: string;
   customer: { name: string; email: string; phone: string };
 }): Promise<CreateOrderResponse> {
-  const res = await fetch(`${API_BASE}/api/payments/create-order`, {
+  const res = await fetch(`${getApiBase()}/api/payments/create-order`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -56,7 +61,7 @@ export async function createPaymentOrder(payload: {
 }
 
 export async function getPaymentStatus(orderId: string): Promise<PaymentStatusResponse> {
-  const res = await fetch(`${API_BASE}/api/payments/${encodeURIComponent(orderId)}/status`);
+  const res = await fetch(`${getApiBase()}/api/payments/${encodeURIComponent(orderId)}/status`);
   const data = await res.json();
   if (!res.ok || !data.success) {
     throw new Error(data.message || "Failed to fetch payment status");
