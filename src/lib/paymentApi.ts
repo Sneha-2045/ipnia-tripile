@@ -1,4 +1,10 @@
-const API_BASE = (import.meta.env.VITE_API_URL as string) || "http://localhost:5001";
+function getApiBase() {
+  const raw = String(import.meta.env.VITE_API_URL || "http://localhost:5001").trim();
+  const match = raw.match(/https?:\/\/[^\s|]+/i);
+  return (match?.[0] || "http://localhost:5001").replace(/\/$/, "");
+}
+
+const API_BASE = getApiBase();
 
 export type CreateOrderResponse = {
   success: boolean;

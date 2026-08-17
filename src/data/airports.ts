@@ -19,12 +19,26 @@ export const airports: Airport[] = [
   { code: "DXB", city: "Dubai", name: "Dubai International Airport", country: "UAE" },
   { code: "SIN", city: "Singapore", name: "Singapore Changi Airport", country: "Singapore" },
   { code: "LHR", city: "London", name: "Heathrow Airport", country: "UK" },
+  { code: "LGW", city: "London", name: "Gatwick Airport", country: "UK" },
   { code: "JFK", city: "New York", name: "John F. Kennedy International Airport", country: "USA" },
+  { code: "EWR", city: "Newark", name: "Newark Liberty International Airport", country: "USA" },
+  { code: "SNA", city: "Santa Ana", name: "John Wayne Airport", country: "USA" },
+  { code: "LAX", city: "Los Angeles", name: "Los Angeles International Airport", country: "USA" },
+  { code: "SFO", city: "San Francisco", name: "San Francisco International Airport", country: "USA" },
+  { code: "ORD", city: "Chicago", name: "O'Hare International Airport", country: "USA" },
+  { code: "AUH", city: "Abu Dhabi", name: "Abu Dhabi International Airport", country: "UAE" },
+  { code: "DOH", city: "Doha", name: "Hamad International Airport", country: "Qatar" },
+  { code: "FRA", city: "Frankfurt", name: "Frankfurt Airport", country: "Germany" },
+  { code: "CDG", city: "Paris", name: "Charles de Gaulle Airport", country: "France" },
+  { code: "AMS", city: "Amsterdam", name: "Amsterdam Airport Schiphol", country: "Netherlands" },
   { code: "BKK", city: "Bangkok", name: "Suvarnabhumi Airport", country: "Thailand" },
+  { code: "HKG", city: "Hong Kong", name: "Hong Kong International Airport", country: "Hong Kong" },
+  { code: "NRT", city: "Tokyo", name: "Narita International Airport", country: "Japan" },
+  { code: "SYD", city: "Sydney", name: "Sydney Kingsford Smith Airport", country: "Australia" },
 ];
 
 export const popularAirports = airports.filter((a) =>
-  ["DEL", "BOM", "BLR", "HYD", "CCU", "DXB"].includes(a.code)
+  ["DEL", "BOM", "BLR", "HYD", "CCU", "DXB", "JFK", "LHR", "SIN"].includes(a.code)
 );
 
 export function searchAirports(query: string): Airport[] {
@@ -34,7 +48,8 @@ export function searchAirports(query: string): Airport[] {
     (a) =>
       a.code.toLowerCase().includes(q) ||
       a.city.toLowerCase().includes(q) ||
-      a.name.toLowerCase().includes(q)
+      a.name.toLowerCase().includes(q) ||
+      a.country.toLowerCase().includes(q)
   );
 }
 

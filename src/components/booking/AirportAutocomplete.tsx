@@ -86,6 +86,10 @@ export function AirportAutocomplete({
                 <span>
                   <span className="block text-sm font-semibold text-white">{airport.city}</span>
                   <span className="block text-xs text-white/55">{airport.name}</span>
+                  <span className="block text-xs text-white/40">
+                    {airport.code}
+                    {airport.country ? ` · ${airport.country}` : ""}
+                  </span>
                 </span>
               </button>
             ))

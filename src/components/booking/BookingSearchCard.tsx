@@ -42,11 +42,14 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
 
   const [tripType, setTripType] = useState<TripType>("oneway");
   const [from, setFrom] = useState<Airport | null>(() => getAirportByCode("DEL") ?? null);
-  const [to, setTo] = useState<Airport | null>(() => getAirportByCode("BOM") ?? null);
+  const [to, setTo] = useState<Airport | null>(() => getAirportByCode("JFK") ?? null);
   const [departure, setDeparture] = useState(tomorrowISO());
   const [returnDate, setReturnDate] = useState(plusDaysISO(4));
-  const [travellers, setTravellers] = useState("1");
+  const [adults, setAdults] = useState("1");
+  const [children, setChildren] = useState("0");
+  const [infants, setInfants] = useState("0");
   const [cabin, setCabin] = useState<CabinClass>("economy");
+  const [maxConnections, setMaxConnections] = useState("any");
 
   const [destination, setDestination] = useState("mumbai");
   const [checkIn, setCheckIn] = useState(tomorrowISO());
@@ -77,16 +80,54 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
       toast({ title: "Select departure", description: "Please choose a departure date.", variant: "destructive" });
       return;
     }
+    if (tripType === "roundtrip") {
+      if (!returnDate) {
+        toast({ title: "Select return", description: "Return date is required for round trip.", variant: "destructive" });
+        return;
+      }
+      if (returnDate < departure) {
+        toast({
+          title: "Invalid return date",
+          description: "Return date must not be before departure.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    const adultsN = Number(adults);
+    const childrenN = Number(children);
+    const infantsN = Number(infants);
+    if (!Number.isInteger(adultsN) || adultsN < 1) {
+      toast({ title: "Passengers", description: "At least one adult is required.", variant: "destructive" });
+      return;
+    }
+    if (infantsN > adultsN) {
+      toast({
+        title: "Passengers",
+        description: "Infants cannot exceed the number of adults.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (adultsN + childrenN + infantsN > 9) {
+      toast({ title: "Passengers", description: "Maximum 9 passengers per search.", variant: "destructive" });
+      return;
+    }
 
     const params = new URLSearchParams({
       from: from.code,
       to: to.code,
       departure,
-      travellers,
+      adults: String(adultsN),
+      children: String(childrenN),
+      infants: String(infantsN),
+      travellers: String(adultsN + childrenN + infantsN),
       cabin,
       tripType,
     });
     if (tripType === "roundtrip" && returnDate) params.set("return", returnDate);
+    if (maxConnections !== "any") params.set("maxConnections", maxConnections);
     navigate(`/flights/search?${params.toString()}`);
   };
 
@@ -185,38 +226,77 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
                 className="h-12 border-white/15 bg-[#07111f] text-white focus-visible:ring-[#d4a853]"
               />
             </div>
-            <div>
-              <Label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#d4a853]">
-                Return
-              </Label>
-              <Input
-                type="date"
-                value={returnDate}
-                disabled={tripType === "oneway"}
-                onChange={(e) => setReturnDate(e.target.value)}
-                className="h-12 border-white/15 bg-[#07111f] text-white disabled:opacity-40 focus-visible:ring-[#d4a853]"
-              />
-            </div>
+            {tripType === "roundtrip" && (
+              <div>
+                <Label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#d4a853]">
+                  Return
+                </Label>
+                <Input
+                  type="date"
+                  value={returnDate}
+                  min={departure}
+                  onChange={(e) => setReturnDate(e.target.value)}
+                  className="h-12 border-white/15 bg-[#07111f] text-white focus-visible:ring-[#d4a853]"
+                />
+              </div>
+            )}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <Label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#d4a853]">
-                Travellers
+                Adults
               </Label>
-              <Select value={travellers} onValueChange={setTravellers}>
+              <Select value={adults} onValueChange={setAdults}>
                 <SelectTrigger className="h-12 border-white/15 bg-[#07111f] text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
                     <SelectItem key={n} value={String(n)}>
-                      {n} Traveller{n > 1 ? "s" : ""}
+                      {n} Adult{n > 1 ? "s" : ""}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#d4a853]">
+                Children
+              </Label>
+              <Select value={children} onValueChange={setChildren}>
+                <SelectTrigger className="h-12 border-white/15 bg-[#07111f] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                    <SelectItem key={n} value={String(n)}>
+                      {n} Child{n === 1 ? "" : "ren"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#d4a853]">
+                Infants
+              </Label>
+              <Select value={infants} onValueChange={setInfants}>
+                <SelectTrigger className="h-12 border-white/15 bg-[#07111f] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[0, 1, 2, 3, 4].map((n) => (
+                    <SelectItem key={n} value={String(n)}>
+                      {n} Infant{n === 1 ? "" : "s"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <Label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#d4a853]">
                 Cabin
@@ -230,6 +310,22 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
                   <SelectItem value="premium">Premium Economy</SelectItem>
                   <SelectItem value="business">Business</SelectItem>
                   <SelectItem value="first">First</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#d4a853]">
+                Maximum stops
+              </Label>
+              <Select value={maxConnections} onValueChange={setMaxConnections}>
+                <SelectTrigger className="h-12 border-white/15 bg-[#07111f] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  <SelectItem value="0">Non-stop</SelectItem>
+                  <SelectItem value="1">1 stop</SelectItem>
+                  <SelectItem value="2">2 stops</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -22,12 +22,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Create production environment
-        run: |
-          echo "VITE_API_URL=${{ vars.VITE_API_URL }}" >> .env
-          echo "VITE_CASHFREE_MODE=${{ vars.VITE_CASHFREE_MODE }}" >> .env
-
-      - name: Build
+      - name: Build frontend
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_CASHFREE_MODE: ${{ vars.VITE_CASHFREE_MODE }}
         run: npm run build
 
       - name: Configure AWS credentials

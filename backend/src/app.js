@@ -3,6 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const paymentRoutes = require("./routes/paymentRoutes");
+const flightRoutes = require("./routes/flightRoutes");
 const { notFoundHandler, errorHandler } = require("./middleware/errorHandler");
 
 function createApp() {
@@ -14,7 +15,7 @@ function createApp() {
 
   const allowedOrigins = [
     process.env.FRONTEND_URL || "https://ipnia.com",
-    process.env.FRONTEND_DEV_URL || "http://localhost:5173",
+    process.env.FRONTEND_DEV_URL || "http://localhost:8080",
   ].filter(Boolean);
 
   app.use(
@@ -46,14 +47,11 @@ function createApp() {
   app.get("/health", (req, res) => {
     res.status(200).json({
       status: "ok",
-      service: "IPNIA Payment API",
+      service: "IPNIA API",
     });
   });
 
-  // Future modules can mount here without touching payments:
-  // app.use("/api/flights", flightRoutes);
-  // app.use("/api/hotels", hotelRoutes);
-  // app.use("/api/bookings", bookingRoutes);
+  app.use("/api/flights", flightRoutes);
   app.use("/api/payments", paymentRoutes);
 
   app.use(notFoundHandler);
