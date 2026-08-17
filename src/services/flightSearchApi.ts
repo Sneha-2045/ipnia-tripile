@@ -67,15 +67,17 @@ export async function searchFlightsViaApi(
 export function formatMoney(amount: string | null, currency: string | null) {
   if (amount == null || amount === "") return "—";
   const num = Number(amount);
-  if (!Number.isFinite(num)) return `${currency || ""} ${amount}`.trim();
+  if (!Number.isFinite(num)) return amount;
+  // IPNIA flight search always presents fares in INR
+  const code = (currency || "INR").toUpperCase() === "INR" ? "INR" : currency || "INR";
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: currency || "USD",
-      maximumFractionDigits: 2,
+      currency: code === "INR" ? "INR" : code,
+      maximumFractionDigits: 0,
     }).format(num);
   } catch {
-    return `${currency || ""} ${num.toLocaleString()}`.trim();
+    return `₹${num.toLocaleString("en-IN")}`;
   }
 }
 

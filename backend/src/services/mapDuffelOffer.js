@@ -265,14 +265,22 @@ function mapDuffelOfferToFlight(offer) {
     0
   );
 
-  return {
-    id: offer.id,
-    offerRequestId: offer.offer_request_id || null,
-    liveMode: Boolean(offer.live_mode),
+  const priced = toInrAmounts({
     totalAmount: offer.total_amount != null ? String(offer.total_amount) : null,
     totalCurrency: offer.total_currency || null,
     baseAmount: offer.base_amount != null ? String(offer.base_amount) : null,
     taxAmount: offer.tax_amount != null ? String(offer.tax_amount) : null,
+  });
+
+  return {
+    id: offer.id,
+    offerRequestId: offer.offer_request_id || null,
+    liveMode: Boolean(offer.live_mode),
+    totalAmount: priced.totalAmount,
+    totalCurrency: "INR",
+    baseAmount: priced.baseAmount,
+    taxAmount: priced.taxAmount,
+    originalCurrency: priced.originalCurrency,
     airlines: collectAirlines(slices),
     slices,
     stops: firstSlice?.stops ?? 0,
@@ -296,6 +304,53 @@ function mapDuffelOfferToFlight(offer) {
     arrivalTime: lastSeg?.arrivalTime || null,
     origin: firstSlice?.origin || null,
     destination: firstSlice?.destination || null,
+  };
+}
+
+/**
+ * Convert Duffel offer money fields to INR for every search result.
+ * Duffel often returns the org billing currency (e.g. USD); IPNIA displays/pays in INR.
+ */
+function getFxToInr(currency) {
+  const c = String(currency || "INR").toUpperCase();
+  if (c === "INR") return 1;
+
+  const fromEnv = Number(process.env[`FX_${c}_INR`]);
+  if (Number.isFinite(fromEnv) && fromEnv > 0) return fromEnv;
+
+  // Sensible defaults when dashboard billing currency is not INR
+  const defaults = {
+    USD: Number(process.env.FX_USD_INR || 84),
+    EUR: Number(process.env.FX_EUR_INR || 91),
+    GBP: Number(process.env.FX_GBP_INR || 106),
+    AED: Number(process.env.FX_AED_INR || 23),
+    SGD: Number(process.env.FX_SGD_INR || 62),
+    AUD: Number(process.env.FX_AUD_INR || 55),
+    CAD: Number(process.env.FX_CAD_INR || 61),
+    CHF: Number(process.env.FX_CHF_INR || 95),
+    JPY: Number(process.env.FX_JPY_INR || 0.56),
+    HKD: Number(process.env.FX_HKD_INR || 10.8),
+    THB: Number(process.env.FX_THB_INR || 2.4),
+    QAR: Number(process.env.FX_QAR_INR || 23),
+  };
+  return defaults[c] || Number(process.env.FX_USD_INR || 84);
+}
+
+function convertAmountToInr(amount, currency) {
+  if (amount == null || amount === "") return null;
+  const n = Number(amount);
+  if (!Number.isFinite(n)) return null;
+  const rate = getFxToInr(currency);
+  return (n * rate).toFixed(2);
+}
+
+function toInrAmounts({ totalAmount, totalCurrency, baseAmount, taxAmount }) {
+  const originalCurrency = (totalCurrency || "INR").toUpperCase();
+  return {
+    originalCurrency,
+    totalAmount: convertAmountToInr(totalAmount, originalCurrency),
+    baseAmount: convertAmountToInr(baseAmount, originalCurrency),
+    taxAmount: convertAmountToInr(taxAmount, originalCurrency),
   };
 }
 

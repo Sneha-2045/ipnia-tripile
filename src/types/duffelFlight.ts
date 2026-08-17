@@ -103,6 +103,8 @@ export type NormalizedFlightOffer = {
   liveMode: boolean;
   totalAmount: string | null;
   totalCurrency: string | null;
+  /** Present when Duffel returned a non-INR currency that was converted */
+  originalCurrency?: string | null;
   baseAmount: string | null;
   taxAmount: string | null;
   airlines: DuffelCarrier[];

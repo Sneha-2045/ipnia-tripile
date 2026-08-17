@@ -149,15 +149,15 @@ export function FlightOfferDetailsModal({
               Price
             </h3>
             {offer.baseAmount != null && (
-              <p>Base: {formatMoney(offer.baseAmount, offer.totalCurrency)}</p>
+              <p>Base: {formatMoney(offer.baseAmount, "INR")}</p>
             )}
             {offer.taxAmount != null && (
-              <p>Taxes: {formatMoney(offer.taxAmount, offer.totalCurrency)}</p>
+              <p>Taxes: {formatMoney(offer.taxAmount, "INR")}</p>
             )}
             <p className="text-lg font-bold text-[#d4a853]">
-              Total: {formatMoney(offer.totalAmount, offer.totalCurrency)}
+              Total: {formatMoney(offer.totalAmount, "INR")}
             </p>
-            {offer.totalCurrency && <p>Currency: {offer.totalCurrency}</p>}
+            <p>Currency: INR</p>
           </section>
 
           <section>

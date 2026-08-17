@@ -173,15 +173,13 @@ export function FlightOfferCard({
           <div className="lg:text-right">
             <p className="text-sm text-white/50">Total</p>
             <p className="text-3xl font-bold text-[#d4a853]">
-              {formatMoney(offer.totalAmount, offer.totalCurrency)}
+              {formatMoney(offer.totalAmount, "INR")}
             </p>
-            {offer.totalCurrency && (
-              <p className="text-xs text-white/40">{offer.totalCurrency}</p>
-            )}
+            <p className="text-xs text-white/40">INR</p>
             {offer.baseAmount != null && offer.taxAmount != null && (
               <p className="mt-1 text-xs text-white/40">
-                Base {formatMoney(offer.baseAmount, offer.totalCurrency)} · Tax{" "}
-                {formatMoney(offer.taxAmount, offer.totalCurrency)}
+                Base {formatMoney(offer.baseAmount, "INR")} · Tax{" "}
+                {formatMoney(offer.taxAmount, "INR")}
               </p>
             )}
           </div>
