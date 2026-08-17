@@ -1,49 +1,44 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-console.log('Supabase Environment Check:', {
-  hasUrl: !!supabaseUrl,
-  hasKey: !!supabaseAnonKey,
-  url: supabaseUrl ? 'Set' : 'Missing',
-  key: supabaseAnonKey ? 'Set' : 'Missing'
-});
+/**
+ * Auth (login/signup/dashboard) uses Supabase when configured.
+ * Flight search does not use Supabase — missing env must not break the app.
+ */
+const createFallbackSupabaseClient = () =>
+  ({
+    auth: {
+      getSession: async () => ({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({
+        data: {
+          subscription: {
+            unsubscribe: () => undefined,
+          },
+        },
+      }),
+      signUp: async () => ({
+        error: { message: "Sign-in is temporarily unavailable." },
+      }),
+      signInWithPassword: async () => ({
+        error: { message: "Sign-in is temporarily unavailable." },
+      }),
+      updateUser: async () => ({
+        error: { message: "Sign-in is temporarily unavailable." },
+      }),
+      signOut: async () => ({ error: null }),
+      signInWithOAuth: async () => ({
+        error: { message: "Sign-in is temporarily unavailable." },
+      }),
+    },
+  }) as unknown as SupabaseClient;
 
-const createFallbackSupabaseClient = () => ({
-  auth: {
-    getSession: async () => ({ data: { session: null }, error: null }),
-    onAuthStateChange: () => ({
-      data: {
-        subscription: {
-          unsubscribe: () => undefined
-        }
-      }
-    }),
-    signUp: async () => ({ error: { message: 'Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.' } }),
-    signInWithPassword: async () => ({ error: { message: 'Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.' } }),
-    updateUser: async () => ({ error: { message: 'Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.' } }),
-    signOut: async () => ({ error: null }),
-    signInWithOAuth: async () => ({ error: { message: 'Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.' } })
-  }
-});
-
-// Create supabase client or safe fallback client
-const createSupabaseClient = () => {
+const createSupabaseClient = (): SupabaseClient => {
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Missing Supabase environment variables:', {
-      VITE_SUPABASE_URL: supabaseUrl ? 'Set' : 'Missing',
-      VITE_SUPABASE_ANON_KEY: supabaseAnonKey ? 'Set' : 'Missing'
-    });
-
-    // Return a minimal mock with the same shape used by AuthContext.
     return createFallbackSupabaseClient();
-  } else {
-    console.log('Creating Supabase client...');
-    const client = createClient(supabaseUrl, supabaseAnonKey);
-    console.log('Supabase client created successfully');
-    return client;
   }
+  return createClient(supabaseUrl, supabaseAnonKey);
 };
 
 export const supabase = createSupabaseClient();

@@ -1,15 +1,4 @@
-function getApiBase() {
-  const raw = String(import.meta.env.VITE_API_URL || "").trim();
-  if (!raw) {
-    throw new Error("VITE_API_URL is not configured");
-  }
-  const match = raw.match(/https?:\/\/[^\s|]+/i);
-  const base = (match?.[0] || raw).replace(/\/$/, "");
-  if (!/^https?:\/\//i.test(base)) {
-    throw new Error("VITE_API_URL must be an absolute URL");
-  }
-  return base;
-}
+import { getApiBase } from "@/lib/apiBase";
 
 export type CreateOrderResponse = {
   success: boolean;

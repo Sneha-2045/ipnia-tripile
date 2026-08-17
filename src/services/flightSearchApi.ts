@@ -1,26 +1,21 @@
 import type { FlightSearchRequest, FlightSearchResponse } from "@/types/duffelFlight";
-
-function getApiBase() {
-  const raw = String(import.meta.env.VITE_API_URL || "").trim();
-  if (!raw) {
-    throw new Error("VITE_API_URL is not configured");
-  }
-  // Take first valid absolute URL if the env value was accidentally written with "||"
-  const match = raw.match(/https?:\/\/[^\s|]+/i);
-  const base = (match?.[0] || raw).replace(/\/$/, "");
-  if (!/^https?:\/\//i.test(base)) {
-    throw new Error("VITE_API_URL must be an absolute URL");
-  }
-  return base;
-}
+import { getApiBase, getFlightSearchUrl } from "@/lib/apiBase";
 
 export async function searchFlightsViaApi(
   payload: FlightSearchRequest,
   signal?: AbortSignal
 ): Promise<FlightSearchResponse> {
+  const url = getFlightSearchUrl();
+
+  // Temporary diagnostics for production verification
+  console.log("Flight search API URL:", `${import.meta.env.VITE_API_URL}/api/flights/search`);
+  console.log("Flight search resolved URL:", url);
+  console.log("Flight search payload:", payload);
+  console.log("VITE_API_URL raw:", import.meta.env.VITE_API_URL);
+
   let res: Response;
   try {
-    res = await fetch(`${getApiBase()}/api/flights/search`, {
+    res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -28,22 +23,35 @@ export async function searchFlightsViaApi(
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
-    throw new Error("Unable to search flights right now.");
+    const detail = err instanceof Error ? err.message : "Network error";
+    console.error("[IPNIA] Flight search network failure:", detail, { url, apiBase: getApiBase() });
+    throw new Error(`Unable to reach flight search API (${detail}).`);
   }
 
   const data = (await res.json().catch(() => ({}))) as FlightSearchResponse & {
     errors?: string[];
+    code?: string;
   };
 
   if (!res.ok || data.success === false) {
-    const message =
-      data.message ||
-      (res.status === 429
-        ? "Too many flight searches. Please wait a moment and try again."
-        : res.status >= 500
-          ? "Unable to search flights right now."
-          : "Unable to search flights right now.");
-    throw new Error(message);
+    const backendMessage =
+      (typeof data.message === "string" && data.message.trim()) ||
+      (Array.isArray(data.errors) && data.errors[0]) ||
+      null;
+
+    console.error("[IPNIA] Flight search API error:", {
+      status: res.status,
+      message: backendMessage,
+      code: data.code,
+      body: data,
+    });
+
+    throw new Error(
+      backendMessage ||
+        (res.status === 429
+          ? "Too many flight searches. Please wait a moment and try again."
+          : `Flight search failed (${res.status}).`)
+    );
   }
 
   return {

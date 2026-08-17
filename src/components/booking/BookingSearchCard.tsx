@@ -128,6 +128,10 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
     });
     if (tripType === "roundtrip" && returnDate) params.set("return", returnDate);
     if (maxConnections !== "any") params.set("maxConnections", maxConnections);
+    console.log("Search Flights → navigating to results", {
+      path: `/flights/search?${params.toString()}`,
+      VITE_API_URL: import.meta.env.VITE_API_URL,
+    });
     navigate(`/flights/search?${params.toString()}`);
   };
 

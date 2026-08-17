@@ -34,30 +34,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('AuthProvider: Initializing...');
-    
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      console.log('AuthProvider: Initial session check', { session: !!session, error });
-      if (error) {
-        console.error('AuthProvider: Session error:', error);
-      }
-      setUser(session?.user ?? null);
-      setLoading(false);
-    }).catch((error) => {
-      console.error('AuthProvider: Failed to get session:', error);
-      setLoading(false);
-    });
+    // Get initial session (no-op if Supabase env is not configured)
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('AuthProvider: Auth state changed', { event: _event, session: !!session });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
     return () => {
-      console.log('AuthProvider: Cleaning up subscription');
       subscription.unsubscribe();
     };
   }, []);

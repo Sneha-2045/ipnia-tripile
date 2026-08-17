@@ -15,6 +15,7 @@ function createApp() {
 
   const allowedOrigins = [
     process.env.FRONTEND_URL || "https://ipnia.com",
+    "https://www.ipnia.com",
     process.env.FRONTEND_DEV_URL || "http://localhost:8080",
   ].filter(Boolean);
 
