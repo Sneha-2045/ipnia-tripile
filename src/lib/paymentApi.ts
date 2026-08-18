@@ -59,8 +59,9 @@ export async function getPaymentStatus(orderId: string): Promise<PaymentStatusRe
 }
 
 export function getCashfreeMode(): "sandbox" | "production" {
-  const mode = String(import.meta.env.VITE_CASHFREE_MODE || "sandbox").toLowerCase();
-  return mode === "production" ? "production" : "sandbox";
+  // Must match backend CASHFREE_ENV. Production backend sessions only work with production checkout.
+  const mode = String(import.meta.env.VITE_CASHFREE_MODE || "production").toLowerCase();
+  return mode === "sandbox" ? "sandbox" : "production";
 }
 
 declare global {
@@ -84,13 +85,18 @@ export async function loadCashfreeSdk(): Promise<void> {
 }
 
 export async function openCashfreeCheckout(paymentSessionId: string) {
+  if (!paymentSessionId || !String(paymentSessionId).trim()) {
+    throw new Error("payment_session_id is missing from the payment order response");
+  }
   await loadCashfreeSdk();
   if (!window.Cashfree) {
     throw new Error("Cashfree SDK unavailable");
   }
-  const cashfree = window.Cashfree({ mode: getCashfreeMode() });
+  const mode = getCashfreeMode();
+  console.info("[payments] Opening Cashfree checkout", { mode });
+  const cashfree = window.Cashfree({ mode });
   return cashfree.checkout({
-    paymentSessionId,
+    paymentSessionId: String(paymentSessionId).trim(),
     redirectTarget: "_self",
   });
 }

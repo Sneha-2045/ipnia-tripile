@@ -26,7 +26,7 @@ jobs:
         env:
           # Prefer GitHub Actions variable; always fall back to production Render API
           VITE_API_URL: ${{ vars.VITE_API_URL || 'https://ipnia-tripile.onrender.com' }}
-          VITE_CASHFREE_MODE: ${{ vars.VITE_CASHFREE_MODE || 'sandbox' }}
+          VITE_CASHFREE_MODE: ${{ vars.VITE_CASHFREE_MODE || 'production' }}
         run: |
           echo "Building with VITE_API_URL=${VITE_API_URL}"
           npm run build
