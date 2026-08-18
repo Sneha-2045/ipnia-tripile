@@ -188,12 +188,43 @@ async function fetchPlacePhoto({ ref, maxWidth = 1200 }) {
     throw new GooglePlacesError("Photo unavailable", { status: 404 });
   }
   const contentType = res.headers.get("content-type") || "image/jpeg";
+  if (!String(contentType).startsWith("image/")) {
+    throw new GooglePlacesError("Photo unavailable", { status: 404 });
+  }
   const buffer = Buffer.from(await res.arrayBuffer());
+  if (!buffer.length) {
+    throw new GooglePlacesError("Photo unavailable", { status: 404 });
+  }
   return { buffer, contentType };
+}
+
+async function autocompleteHotelDestinations(input) {
+  const q = String(input || "").trim();
+  if (q.length < 2) {
+    return { predictions: [] };
+  }
+
+  const data = await googleGet("autocomplete", {
+    input: q,
+    types: "(cities)",
+  });
+
+  const predictions = Array.isArray(data.predictions)
+    ? data.predictions.map((p) => ({
+        id: p.place_id,
+        description: p.description || "",
+        mainText: p.structured_formatting?.main_text || p.description || "",
+        secondaryText: p.structured_formatting?.secondary_text || "",
+        types: Array.isArray(p.types) ? p.types : [],
+      }))
+    : [];
+
+  return { predictions };
 }
 
 module.exports = {
   searchHotelsPlaces,
   fetchPlacePhoto,
+  autocompleteHotelDestinations,
   GooglePlacesError,
 };

@@ -1,7 +1,18 @@
 import { getApiBase } from "@/lib/apiBase";
-import type { HotelSearchRequest, HotelSearchResponse, NormalizedHotel } from "@/types/hotel";
+import type { HotelImage, HotelSearchRequest, HotelSearchResponse, NormalizedHotel } from "@/types/hotel";
 
 const FALLBACK_IMAGE = "/assets/destinations/hotel-luxury-1.jpg";
+
+/** Always build photo URLs against the configured API host from Places photo_reference */
+export function hotelPhotoUrl(reference: string | null | undefined, width = 1200): string | null {
+  if (!reference) return null;
+  try {
+    const base = getApiBase();
+    return `${base}/api/hotels/photo?ref=${encodeURIComponent(reference)}&w=${width}`;
+  } catch {
+    return null;
+  }
+}
 
 export function resolveHotelMediaUrl(path: string | null | undefined): string {
   if (!path) return FALLBACK_IMAGE;
@@ -14,18 +25,35 @@ export function resolveHotelMediaUrl(path: string | null | undefined): string {
   }
 }
 
+function rebuildImagesFromReferences(hotel: NormalizedHotel): HotelImage[] {
+  const images = Array.isArray(hotel.images) ? hotel.images : [];
+  return images
+    .map((img, index) => {
+      const fromRef = hotelPhotoUrl(img.reference, 1200);
+      const thumbFromRef = hotelPhotoUrl(img.reference, 400);
+      const url = fromRef || resolveHotelMediaUrl(img.url);
+      const thumbUrl = thumbFromRef || resolveHotelMediaUrl(img.thumbUrl || img.url);
+      if (!url) return null;
+      return {
+        ...img,
+        index,
+        url,
+        thumbUrl: thumbUrl || url,
+      };
+    })
+    .filter(Boolean) as HotelImage[];
+}
+
 export function withResolvedHotelMedia(hotel: NormalizedHotel): NormalizedHotel {
-  const images = (hotel.images || []).map((img) => ({
-    ...img,
-    // Prefer absolute API URLs from backend; resolve relative paths if needed
-    url: resolveHotelMediaUrl(img.url),
-    thumbUrl: resolveHotelMediaUrl(img.thumbUrl || img.url),
-  }));
-  const primary = images[0]?.url || resolveHotelMediaUrl(hotel.image);
+  const images = rebuildImagesFromReferences(hotel);
+  const primary =
+    images[0]?.url ||
+    hotelPhotoUrl(hotel.images?.[0]?.reference) ||
+    resolveHotelMediaUrl(hotel.image);
   return {
     ...hotel,
     images,
-    image: primary,
+    image: primary || FALLBACK_IMAGE,
   };
 }
 
@@ -62,6 +90,28 @@ export async function searchHotelsViaApi(
     count: data.count ?? hotels.length,
     hotels,
   };
+}
+
+export type DestinationPrediction = {
+  id: string;
+  description: string;
+  mainText: string;
+  secondaryText: string;
+  types: string[];
+};
+
+export async function autocompleteHotelDestinations(
+  query: string,
+  signal?: AbortSignal
+): Promise<DestinationPrediction[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+
+  const url = `${getApiBase()}/api/hotels/autocomplete?q=${encodeURIComponent(q)}`;
+  const res = await fetch(url, { signal });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.success === false) return [];
+  return Array.isArray(data.predictions) ? data.predictions : [];
 }
 
 export function formatHotelPrice(amount: number | null, currency: string | null) {

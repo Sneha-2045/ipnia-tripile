@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import type { NormalizedHotel } from "@/types/hotel";
-import { formatHotelPrice, priceLevelLabel, resolveHotelMediaUrl } from "@/services/hotelSearchApi";
+import { formatHotelPrice, hotelPhotoUrl, priceLevelLabel } from "@/services/hotelSearchApi";
 import { ChevronLeft, ChevronRight, ExternalLink, MapPin, Phone, Star } from "lucide-react";
 
 const FALLBACK = "/assets/destinations/hotel-luxury-1.jpg";
@@ -26,12 +26,14 @@ export function HotelDetailsModal({
   const [idx, setIdx] = useState(0);
   if (!hotel) return null;
 
-  const images = hotel.images?.length
-    ? hotel.images
-    : hotel.image
-      ? [{ url: hotel.image, thumbUrl: hotel.image, reference: "", width: null, height: null, attributions: [], index: 0 }]
-      : [];
-  const src = resolveHotelMediaUrl(images[idx]?.url || hotel.image) || FALLBACK;
+  const images = (hotel.images || [])
+    .map((img, index) => {
+      const url = hotelPhotoUrl(img.reference, 1200) || img.url;
+      if (!url) return null;
+      return { ...img, index, url };
+    })
+    .filter(Boolean) as typeof hotel.images;
+  const src = images[idx]?.url || hotelPhotoUrl(hotel.images?.[0]?.reference) || hotel.image || FALLBACK;
   const maps =
     hotel.googleMapsUri ||
     (hotel.latitude != null && hotel.longitude != null
@@ -52,6 +54,7 @@ export function HotelDetailsModal({
             src={src}
             alt={hotel.name}
             className="h-full w-full object-cover"
+            referrerPolicy="no-referrer"
             onError={(e) => {
               (e.target as HTMLImageElement).src = FALLBACK;
             }}

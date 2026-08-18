@@ -12,7 +12,13 @@ function createApp() {
 
   app.set("trust proxy", 1);
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      // Allow hotel photos from API host to render on ipnia.com
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+      crossOriginEmbedderPolicy: false,
+    })
+  );
 
   const allowedOrigins = [
     process.env.FRONTEND_URL || "https://ipnia.com",

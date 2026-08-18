@@ -1,4 +1,9 @@
-const { searchHotelsPlaces, fetchPlacePhoto, GooglePlacesError } = require("../services/googlePlacesService");
+const {
+  searchHotelsPlaces,
+  fetchPlacePhoto,
+  autocompleteHotelDestinations,
+  GooglePlacesError,
+} = require("../services/googlePlacesService");
 
 async function searchHotels(req, res, next) {
   try {
@@ -14,8 +19,7 @@ async function searchHotels(req, res, next) {
     }
 
     const apiBaseUrl =
-      process.env.API_PUBLIC_URL ||
-      `${req.protocol}://${req.get("host")}`;
+      process.env.API_PUBLIC_URL || `${req.protocol}://${req.get("host")}`;
 
     const result = await searchHotelsPlaces({
       destination,
@@ -59,7 +63,9 @@ async function hotelPhoto(req, res, next) {
     const w = Number(req.query.w || 1200);
     const { buffer, contentType } = await fetchPlacePhoto({ ref, maxWidth: w });
     res.setHeader("Content-Type", contentType);
-    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Access-Control-Allow-Origin", "*");
     return res.status(200).send(buffer);
   } catch (err) {
     if (err instanceof GooglePlacesError) {
@@ -69,7 +75,30 @@ async function hotelPhoto(req, res, next) {
   }
 }
 
+async function autocompleteDestinations(req, res, next) {
+  try {
+    const q = String(req.query.q || req.query.input || "").trim();
+    const result = await autocompleteHotelDestinations(q);
+    return res.status(200).json({
+      success: true,
+      count: result.predictions.length,
+      predictions: result.predictions,
+    });
+  } catch (err) {
+    if (err instanceof GooglePlacesError) {
+      return res.status(err.status).json({
+        success: false,
+        message: err.message,
+        code: err.code,
+        predictions: [],
+      });
+    }
+    return next(err);
+  }
+}
+
 module.exports = {
   searchHotels,
   hotelPhoto,
+  autocompleteDestinations,
 };

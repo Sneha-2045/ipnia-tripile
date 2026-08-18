@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { NormalizedHotel } from "@/types/hotel";
-import { formatHotelPrice, priceLevelLabel, resolveHotelMediaUrl } from "@/services/hotelSearchApi";
+import { formatHotelPrice, hotelPhotoUrl, priceLevelLabel } from "@/services/hotelSearchApi";
 
 const FALLBACK = "/assets/destinations/hotel-luxury-1.jpg";
 
@@ -50,25 +50,18 @@ export function HotelCard({
   const [showAllAmenities, setShowAllAmenities] = useState(false);
   const [imgFailed, setImgFailed] = useState(false);
 
-  const images = hotel.images?.length
-    ? hotel.images
-    : hotel.image
-      ? [
-          {
-            url: hotel.image,
-            thumbUrl: hotel.image,
-            reference: "",
-            width: null,
-            height: null,
-            attributions: [],
-            index: 0,
-          },
-        ]
-      : [];
+  const images = (hotel.images || [])
+    .map((img, index) => {
+      const url = hotelPhotoUrl(img.reference, 1200) || img.url;
+      if (!url) return null;
+      return { ...img, index, url };
+    })
+    .filter(Boolean) as typeof hotel.images;
 
   const current = images[imgIndex] || null;
-  const rawSrc = current?.url || hotel.image;
-  const src = imgFailed ? FALLBACK : resolveHotelMediaUrl(rawSrc) || FALLBACK;
+  const src = imgFailed
+    ? FALLBACK
+    : current?.url || hotelPhotoUrl(hotel.images?.[0]?.reference) || hotel.image || FALLBACK;
   const amenities = hotel.amenities || [];
   const visibleAmenities = showAllAmenities ? amenities : amenities.slice(0, 6);
   const priceText = formatHotelPrice(hotel.pricePerNight ?? hotel.price, hotel.currency);
@@ -95,17 +88,17 @@ export function HotelCard({
             src={src}
             alt={hotel.name}
             loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
             className="h-full w-full cursor-pointer object-cover"
             onClick={onViewDetails}
             onError={() => {
-              // Try next API photo before falling back
               if (imgIndex < images.length - 1) {
                 setImgIndex((i) => i + 1);
                 return;
               }
               setImgFailed(true);
             }}
-            onLoad={() => setImgFailed(false)}
           />
           {images.length > 0 && (
             <span className="absolute bottom-3 right-3 rounded-md bg-black/70 px-2.5 py-1 text-xs font-medium text-white">

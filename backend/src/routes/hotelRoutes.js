@@ -1,6 +1,10 @@
 const express = require("express");
 const rateLimit = require("express-rate-limit");
-const { searchHotels, hotelPhoto } = require("../controllers/hotelController");
+const {
+  searchHotels,
+  hotelPhoto,
+  autocompleteDestinations,
+} = require("../controllers/hotelController");
 
 const router = express.Router();
 
@@ -17,5 +21,6 @@ const hotelSearchLimiter = rateLimit({
 
 router.post("/search", hotelSearchLimiter, searchHotels);
 router.get("/photo", hotelPhoto);
+router.get("/autocomplete", hotelSearchLimiter, autocompleteDestinations);
 
 module.exports = router;
