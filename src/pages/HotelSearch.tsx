@@ -1,25 +1,40 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
   CheckCircle2,
   Coffee,
-  MapPin,
+  Filter,
   ShieldCheck,
   Sparkles,
-  Star,
   Wifi,
   ConciergeBell,
 } from "lucide-react";
 import { BookingNav } from "@/components/layout/BookingNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BookingSearchCard } from "@/components/booking/BookingSearchCard";
+import { HotelCard } from "@/components/hotels/HotelCard";
+import { HotelDetailsModal } from "@/components/hotels/HotelDetailsModal";
+import {
+  applyHotelFilters,
+  defaultHotelFilters,
+  HotelFiltersPanel,
+  type HotelFiltersState,
+} from "@/components/hotels/HotelFilters";
 import SEO from "@/components/SEO";
 import StickyCTA from "@/components/StickyCTA";
 import { WhyBookWithUs } from "@/components/WhyBookWithUs";
 import { Button } from "@/components/ui/button";
-import { Hotel, hotelDestinations, hotels, stayCategories } from "@/data/hotels";
-import { bookingApi } from "@/services/bookingApi";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { hotelDestinations, stayCategories } from "@/data/hotels";
+import { searchHotelsViaApi } from "@/services/hotelSearchApi";
+import type { NormalizedHotel } from "@/types/hotel";
 
 function formatLabel(value: string) {
   return value.replace(/-/g, " ");
@@ -36,11 +51,23 @@ function defaultDates() {
   };
 }
 
+function nightsBetween(checkIn: string, checkOut: string) {
+  if (!checkIn || !checkOut) return null;
+  const a = new Date(`${checkIn}T00:00:00`);
+  const b = new Date(`${checkOut}T00:00:00`);
+  if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime()) || b <= a) return null;
+  return Math.round((b.getTime() - a.getTime()) / 86400000);
+}
+
 const HotelSearch = () => {
+  const navigate = useNavigate();
   const [params] = useSearchParams();
-  const [loading, setLoading] = useState(true);
-  const [results, setResults] = useState<Hotel[]>([]);
-  const [sort, setSort] = useState<"recommended" | "price" | "rating">("recommended");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [results, setResults] = useState<NormalizedHotel[]>([]);
+  const [filters, setFilters] = useState<HotelFiltersState>(defaultHotelFilters);
+  const [selected, setSelected] = useState<NormalizedHotel | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const defaults = useMemo(() => defaultDates(), []);
 
   const query = useMemo(
@@ -54,30 +81,87 @@ const HotelSearch = () => {
     [params, defaults]
   );
 
-  const hasSearch = Boolean(params.get("destination") || params.get("checkIn"));
+  const hasSearch = Boolean(params.get("destination"));
   const cityLabel = query.destination ? formatLabel(query.destination) : "your next stay";
+  const nights = nightsBetween(query.checkIn, query.checkOut);
 
   useEffect(() => {
+    if (!hasSearch) {
+      setResults([]);
+      setLoading(false);
+      setError("");
+      return;
+    }
+
+    const controller = new AbortController();
     let active = true;
     setLoading(true);
-    bookingApi.searchHotels(query).then((list) => {
-      if (!active) return;
-      setResults(list);
-      setLoading(false);
-    });
+    setError("");
+    setFilters(defaultHotelFilters);
+
+    searchHotelsViaApi(query, controller.signal)
+      .then((res) => {
+        if (!active) return;
+        setResults(res.hotels);
+        if (!res.hotels.length) {
+          setError(res.message || "No hotels found");
+        }
+      })
+      .catch((err) => {
+        if (!active) return;
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setResults([]);
+        setError(err instanceof Error ? err.message : "Unable to search hotels right now.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
     return () => {
       active = false;
+      controller.abort();
     };
-  }, [query]);
+  }, [hasSearch, query]);
 
-  const sortedResults = useMemo(() => {
-    const list = [...results];
-    if (sort === "price") list.sort((a, b) => a.priceFrom - b.priceFrom);
-    if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
-    return list;
-  }, [results, sort]);
+  const filtered = useMemo(() => applyHotelFilters(results, filters), [results, filters]);
+
+  const propertyTypes = useMemo(() => {
+    const set = new Set<string>();
+    results.forEach((h) => {
+      if (h.propertyType) set.add(h.propertyType);
+      h.categories.forEach((c) => set.add(c));
+    });
+    return Array.from(set).sort();
+  }, [results]);
+
+  const amenities = useMemo(() => {
+    const set = new Set<string>();
+    results.forEach((h) => h.amenities.forEach((a) => set.add(a)));
+    return Array.from(set).sort();
+  }, [results]);
+
+  const statuses = useMemo(() => {
+    const set = new Set<string>();
+    results.forEach((h) => {
+      if (h.businessStatus) set.add(h.businessStatus);
+    });
+    return Array.from(set).sort();
+  }, [results]);
 
   const featuredCities = hotelDestinations.filter((d) => d.type === "city" && d.image);
+
+  const goEnquire = (hotel: NormalizedHotel) => {
+    const q = new URLSearchParams({
+      subject: `Hotel enquiry: ${hotel.name}`,
+      hotel: hotel.name,
+      placeId: hotel.placeId || hotel.id,
+      checkIn: query.checkIn,
+      checkOut: query.checkOut,
+      guests: String(query.guests),
+      rooms: String(query.rooms),
+    });
+    navigate(`/contact?${q.toString()}`);
+  };
 
   return (
     <div className="min-h-screen bg-[#0a1628] text-white">
@@ -87,14 +171,13 @@ const HotelSearch = () => {
             ? `Hotels in ${formatLabel(query.destination)} | IPNIA`
             : "Book Hotels Worldwide | IPNIA"
         }
-        description={`Discover luxury hotels, beach resorts and city stays with IPNIA. Search ${cityLabel}, compare ratings and book with trusted travel support.`}
+        description={`Discover hotels with IPNIA. Search ${cityLabel}, compare ratings and enquire with trusted travel support.`}
         path="/hotels/search"
-        keywords={`hotels ${cityLabel}, IPNIA hotel booking, luxury stays, beach resorts`}
+        keywords={`hotels ${cityLabel}, IPNIA hotel booking`}
         image="/assets/destinations/hotel-luxury-1.jpg"
       />
       <BookingNav />
 
-      {/* Hero */}
       <section className="relative overflow-hidden pt-16">
         <div className="absolute inset-0">
           <img
@@ -115,13 +198,13 @@ const HotelSearch = () => {
             <p className="mt-4 max-w-xl text-lg text-white/75">
               {hasSearch
                 ? `${query.checkIn} → ${query.checkOut} · ${query.guests} guests · ${query.rooms} room${query.rooms > 1 ? "s" : ""}`
-                : "Luxury hotels, beach resorts and city escapes — curated with IPNIA travel support."}
+                : "Search live hotel listings powered by Google Places — rich details, maps and guest ratings."}
             </p>
             <ul className="mt-6 space-y-2 text-sm text-white/70">
               {[
-                "Handpicked stays across India & global cities",
-                "Flexible dates and guest-friendly options",
-                "Support beyond booking — journeys, transfers & more",
+                "Live lodging results with photos & reviews",
+                "Maps, contact details and property types",
+                "IPNIA support for enquiries and trip planning",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#d4a853]" />
@@ -134,7 +217,6 @@ const HotelSearch = () => {
         </div>
       </section>
 
-      {/* Trust strip */}
       <section className="border-y border-[#d4a853]/20 bg-[#07111f]">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
           {[
@@ -152,139 +234,169 @@ const HotelSearch = () => {
       </section>
 
       <main className="pb-24">
-        {/* Categories */}
-        <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold md:text-4xl">Stay your way</h2>
-          <p className="mt-2 text-white/60">Browse by mood — from heritage palaces to beach mornings.</p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {stayCategories.map((cat) => (
-              <Link
-                key={cat.id}
-                to={`/hotels/search?destination=${cat.id === "beach" ? "goa" : cat.id === "heritage" ? "mumbai" : cat.id === "business" ? "new-delhi" : "dubai"}&checkIn=${query.checkIn}&checkOut=${query.checkOut}&guests=${query.guests}&rooms=${query.rooms}`}
-                className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-[#d4a853]/25"
-              >
-                <img
-                  src={cat.image}
-                  alt={cat.title}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-                <div className="absolute bottom-0 p-5">
-                  <h3 className="text-2xl font-bold">{cat.title}</h3>
-                  <p className="mt-1 text-sm text-white/75">{cat.text}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {!hasSearch && (
+          <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold md:text-4xl">Stay your way</h2>
+            <p className="mt-2 text-white/60">Browse by mood — then search live hotels for your destination.</p>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {stayCategories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  to={`/hotels/search?destination=${cat.id === "beach" ? "goa" : cat.id === "heritage" ? "mumbai" : cat.id === "business" ? "new-delhi" : "dubai"}&checkIn=${query.checkIn}&checkOut=${query.checkOut}&guests=${query.guests}&rooms=${query.rooms}`}
+                  className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-[#d4a853]/25"
+                >
+                  <img
+                    src={cat.image}
+                    alt={cat.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                  <div className="absolute bottom-0 p-5">
+                    <h3 className="text-2xl font-bold">{cat.title}</h3>
+                    <p className="mt-1 text-sm text-white/75">{cat.text}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
-        {/* Results */}
-        <section className="bg-[#07111f] py-14">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2 className="text-3xl font-bold md:text-4xl">
-                  {hasSearch ? "Available stays" : "Featured hotels"}
-                </h2>
-                <p className="mt-2 text-white/60">
-                  {loading
-                    ? "Searching hotels…"
-                    : `${sortedResults.length} stay${sortedResults.length === 1 ? "" : "s"} to explore`}
+        {hasSearch && (
+          <section className="bg-slate-100 py-10 text-slate-900">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              {/* Search summary */}
+              <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#d4a853]">Your search</p>
+                <div className="mt-3 grid gap-2 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
+                  <p>
+                    <span className="text-slate-500">Destination:</span>{" "}
+                    <span className="font-semibold capitalize">{cityLabel}</span>
+                  </p>
+                  <p>
+                    <span className="text-slate-500">Check-in:</span> {query.checkIn}
+                  </p>
+                  <p>
+                    <span className="text-slate-500">Check-out:</span> {query.checkOut}
+                  </p>
+                  {nights != null && (
+                    <p>
+                      <span className="text-slate-500">Nights:</span> {nights}
+                    </p>
+                  )}
+                  <p>
+                    <span className="text-slate-500">Guests:</span> {query.guests}
+                  </p>
+                  <p>
+                    <span className="text-slate-500">Rooms:</span> {query.rooms}
+                  </p>
+                </div>
+                <p className="mt-3 text-xs text-slate-500">
+                  Edit your search using the form above — results update automatically.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {(
-                  [
-                    ["recommended", "Recommended"],
-                    ["price", "Price"],
-                    ["rating", "Rating"],
-                  ] as const
-                ).map(([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setSort(value)}
-                    className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
-                      sort === value
-                        ? "bg-[#d4a853] text-[#0a1628]"
-                        : "border border-white/15 text-white/70 hover:border-[#d4a853]/40"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+
+              <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-slate-900">Available stays</h2>
+                  <p className="mt-1 text-slate-600">
+                    {loading
+                      ? "Searching hotels…"
+                      : `${filtered.length} of ${results.length} hotel${results.length === 1 ? "" : "s"}`}
+                  </p>
+                </div>
+                <div className="lg:hidden">
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" className="border-slate-300 bg-white text-slate-800">
+                        <Filter className="mr-2 h-4 w-4" /> Filters
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-[90vw] max-w-sm overflow-y-auto bg-slate-50">
+                      <SheetHeader>
+                        <SheetTitle>Filters</SheetTitle>
+                      </SheetHeader>
+                      <div className="mt-4">
+                        <HotelFiltersPanel
+                          filters={filters}
+                          onChange={setFilters}
+                          propertyTypes={propertyTypes}
+                          amenities={amenities}
+                          statuses={statuses}
+                        />
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </div>
+              </div>
+
+              <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+                <aside className="hidden lg:block">
+                  <HotelFiltersPanel
+                    filters={filters}
+                    onChange={setFilters}
+                    propertyTypes={propertyTypes}
+                    amenities={amenities}
+                    statuses={statuses}
+                  />
+                </aside>
+
+                <div>
+                  {loading ? (
+                    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                      {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                          <div className="aspect-[16/10] animate-pulse bg-slate-200" />
+                          <div className="space-y-3 p-5">
+                            <div className="h-6 w-3/4 animate-pulse rounded bg-slate-200" />
+                            <div className="h-4 w-full animate-pulse rounded bg-slate-100" />
+                            <div className="h-20 animate-pulse rounded bg-slate-100" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : error && results.length === 0 ? (
+                    <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+                      <p className="text-lg font-semibold text-slate-900">{error}</p>
+                      <p className="mt-2 text-sm text-slate-600">
+                        Try another destination, dates, guests, or clear filters.
+                      </p>
+                      <Button
+                        type="button"
+                        className="mt-4 bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a]"
+                        onClick={() => window.location.reload()}
+                      >
+                        Try Again
+                      </Button>
+                    </div>
+                  ) : filtered.length === 0 ? (
+                    <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+                      <p className="text-lg font-semibold text-slate-900">No hotels found</p>
+                      <p className="mt-2 text-sm text-slate-600">
+                        Modify destination, dates, guests, or filters and search again.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                      {filtered.map((hotel) => (
+                        <HotelCard
+                          key={hotel.id}
+                          hotel={hotel}
+                          onViewDetails={() => {
+                            setSelected(hotel);
+                            setDetailsOpen(true);
+                          }}
+                          onSelect={() => goEnquire(hotel)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+          </section>
+        )}
 
-            {loading ? (
-              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-96 animate-pulse rounded-2xl bg-white/5" />
-                ))}
-              </div>
-            ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {sortedResults.map((hotel) => (
-                  <article
-                    key={hotel.id}
-                    className="group overflow-hidden rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e] transition-all hover:-translate-y-1 hover:border-[#d4a853]/55 hover:shadow-xl hover:shadow-[#d4a853]/10"
-                  >
-                    <div className="relative aspect-[16/10] overflow-hidden">
-                      <img
-                        src={hotel.image}
-                        alt={hotel.name}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <span className="absolute left-3 top-3 rounded-full bg-[#0a1628]/85 px-3 py-1 text-xs font-semibold text-[#d4a853] backdrop-blur">
-                        {hotel.tag}
-                      </span>
-                    </div>
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="text-xl font-bold leading-tight">{hotel.name}</h3>
-                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#d4a853] px-2 py-0.5 text-xs font-bold text-[#0a1628]">
-                          <Star className="h-3 w-3" /> {hotel.rating}
-                        </span>
-                      </div>
-                      <p className="mt-2 flex items-center gap-1 text-sm text-white/60">
-                        <MapPin className="h-3.5 w-3.5" /> {hotel.location}
-                      </p>
-                      <p className="mt-3 text-sm leading-relaxed text-white/65">{hotel.description}</p>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {hotel.amenities.slice(0, 3).map((a) => (
-                          <span
-                            key={a}
-                            className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] text-white/70"
-                          >
-                            {a}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="mt-5 flex items-end justify-between gap-3 border-t border-white/10 pt-4">
-                        <div>
-                          <p className="text-xs text-white/45">{hotel.reviews.toLocaleString()} reviews</p>
-                          <p className="text-sm text-white/55">Starting from</p>
-                          <p className="text-2xl font-bold text-[#d4a853]">
-                            ₹ {hotel.priceFrom.toLocaleString("en-IN")}
-                          </p>
-                        </div>
-                        <Button
-                          asChild
-                          className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
-                        >
-                          <Link to="/contact">Enquire</Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Cities */}
         <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold md:text-4xl">Popular hotel cities</h2>
           <p className="mt-2 text-white/60">Jump into a destination and start planning your stay.</p>
@@ -313,34 +425,6 @@ const HotelSearch = () => {
 
         <WhyBookWithUs />
 
-        {/* All hotels teaser when filtered */}
-        {hasSearch && results.length < hotels.length && (
-          <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold">More stays travelers love</h2>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {hotels
-                .filter((h) => !results.some((r) => r.id === h.id))
-                .slice(0, 4)
-                .map((hotel) => (
-                  <Link
-                    key={hotel.id}
-                    to={`/hotels/search?destination=${hotel.city}&checkIn=${query.checkIn}&checkOut=${query.checkOut}&guests=${query.guests}&rooms=${query.rooms}`}
-                    className="overflow-hidden rounded-xl border border-white/10 bg-[#0c1a2e]"
-                  >
-                    <div className="aspect-[16/10]">
-                      <img src={hotel.image} alt={hotel.name} className="h-full w-full object-cover" />
-                    </div>
-                    <div className="p-3">
-                      <p className="font-semibold">{hotel.name}</p>
-                      <p className="text-xs text-white/55">{hotel.location}</p>
-                    </div>
-                  </Link>
-                ))}
-            </div>
-          </section>
-        )}
-
-        {/* CTA */}
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="rounded-3xl border border-[#d4a853]/40 bg-gradient-to-br from-[#0c1a2e] to-[#07111f] px-8 py-12 md:flex md:items-center md:justify-between md:gap-8 md:px-12">
             <div>
@@ -368,6 +452,12 @@ const HotelSearch = () => {
         </section>
       </main>
 
+      <HotelDetailsModal
+        hotel={selected}
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+        onSelect={() => selected && goEnquire(selected)}
+      />
       <SiteFooter />
       <StickyCTA label="Enquire About Stays" to="/contact" />
     </div>

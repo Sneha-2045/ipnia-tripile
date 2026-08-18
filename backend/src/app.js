@@ -4,6 +4,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const paymentRoutes = require("./routes/paymentRoutes");
 const flightRoutes = require("./routes/flightRoutes");
+const hotelRoutes = require("./routes/hotelRoutes");
 const { notFoundHandler, errorHandler } = require("./middleware/errorHandler");
 
 function createApp() {
@@ -53,6 +54,7 @@ function createApp() {
   });
 
   app.use("/api/flights", flightRoutes);
+  app.use("/api/hotels", hotelRoutes);
   app.use("/api/payments", paymentRoutes);
 
   app.use(notFoundHandler);
