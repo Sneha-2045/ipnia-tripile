@@ -17,13 +17,15 @@ export function resolveHotelMediaUrl(path: string | null | undefined): string {
 export function withResolvedHotelMedia(hotel: NormalizedHotel): NormalizedHotel {
   const images = (hotel.images || []).map((img) => ({
     ...img,
+    // Prefer absolute API URLs from backend; resolve relative paths if needed
     url: resolveHotelMediaUrl(img.url),
     thumbUrl: resolveHotelMediaUrl(img.thumbUrl || img.url),
   }));
+  const primary = images[0]?.url || resolveHotelMediaUrl(hotel.image);
   return {
     ...hotel,
     images,
-    image: resolveHotelMediaUrl(hotel.image || images[0]?.url || null),
+    image: primary,
   };
 }
 

@@ -28,18 +28,25 @@ function nightsBetween(checkIn, checkOut) {
 function mapPlaceToHotel(place, ctx = {}) {
   if (!place || !place.place_id) return null;
 
+  const apiBase = String(ctx.apiBaseUrl || "")
+    .trim()
+    .replace(/\/$/, "");
+
   const photos = Array.isArray(place.photos)
     ? place.photos
         .map((p, index) => {
           if (!p?.photo_reference) return null;
+          const qs = `ref=${encodeURIComponent(p.photo_reference)}`;
+          const path1200 = `/api/hotels/photo?${qs}&w=1200`;
+          const path400 = `/api/hotels/photo?${qs}&w=400`;
           return {
             reference: p.photo_reference,
             width: p.width || null,
             height: p.height || null,
             attributions: Array.isArray(p.html_attributions) ? p.html_attributions : [],
-            // Served via IPNIA proxy — never expose Google API key to the browser
-            url: `/api/hotels/photo?ref=${encodeURIComponent(p.photo_reference)}&w=1200`,
-            thumbUrl: `/api/hotels/photo?ref=${encodeURIComponent(p.photo_reference)}&w=400`,
+            // Absolute URLs so the browser always hits the IPNIA API (never localhost / relative Vite)
+            url: apiBase ? `${apiBase}${path1200}` : path1200,
+            thumbUrl: apiBase ? `${apiBase}${path400}` : path400,
             index,
           };
         })

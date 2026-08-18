@@ -13,12 +13,17 @@ async function searchHotels(req, res, next) {
       return res.status(400).json({ success: false, message: "Destination is required" });
     }
 
+    const apiBaseUrl =
+      process.env.API_PUBLIC_URL ||
+      `${req.protocol}://${req.get("host")}`;
+
     const result = await searchHotelsPlaces({
       destination,
       checkIn,
       checkOut,
       guests: Number.isFinite(guests) ? guests : 2,
       rooms: Number.isFinite(rooms) ? rooms : 1,
+      apiBaseUrl,
     });
 
     if (!result.hotels.length) {

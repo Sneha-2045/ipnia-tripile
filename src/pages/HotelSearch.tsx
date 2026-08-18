@@ -4,7 +4,6 @@ import {
   ArrowRight,
   CheckCircle2,
   Coffee,
-  Filter,
   ShieldCheck,
   Sparkles,
   Wifi,
@@ -18,20 +17,13 @@ import { HotelDetailsModal } from "@/components/hotels/HotelDetailsModal";
 import {
   applyHotelFilters,
   defaultHotelFilters,
-  HotelFiltersPanel,
+  HotelFiltersBar,
   type HotelFiltersState,
 } from "@/components/hotels/HotelFilters";
 import SEO from "@/components/SEO";
 import StickyCTA from "@/components/StickyCTA";
 import { WhyBookWithUs } from "@/components/WhyBookWithUs";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { hotelDestinations, stayCategories } from "@/data/hotels";
 import { searchHotelsViaApi } from "@/services/hotelSearchApi";
 import type { NormalizedHotel } from "@/types/hotel";
@@ -296,7 +288,7 @@ const HotelSearch = () => {
                 </p>
               </div>
 
-              <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h2 className="text-3xl font-bold text-slate-900">Available stays</h2>
                   <p className="mt-1 text-slate-600">
@@ -305,52 +297,33 @@ const HotelSearch = () => {
                       : `${filtered.length} of ${results.length} hotel${results.length === 1 ? "" : "s"}`}
                   </p>
                 </div>
-                <div className="lg:hidden">
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <Button variant="outline" className="border-slate-300 bg-white text-slate-800">
-                        <Filter className="mr-2 h-4 w-4" /> Filters
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="w-[90vw] max-w-sm overflow-y-auto bg-slate-50">
-                      <SheetHeader>
-                        <SheetTitle>Filters</SheetTitle>
-                      </SheetHeader>
-                      <div className="mt-4">
-                        <HotelFiltersPanel
-                          filters={filters}
-                          onChange={setFilters}
-                          propertyTypes={propertyTypes}
-                          amenities={amenities}
-                          statuses={statuses}
-                        />
-                      </div>
-                    </SheetContent>
-                  </Sheet>
-                </div>
               </div>
 
-              <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-                <aside className="hidden lg:block">
-                  <HotelFiltersPanel
+              {!loading && results.length > 0 && (
+                <div className="mb-6">
+                  <HotelFiltersBar
                     filters={filters}
                     onChange={setFilters}
                     propertyTypes={propertyTypes}
                     amenities={amenities}
                     statuses={statuses}
                   />
-                </aside>
+                </div>
+              )}
 
-                <div>
+              <div>
                   {loading ? (
-                    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                      {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                          <div className="aspect-[16/10] animate-pulse bg-slate-200" />
+                    <div className="space-y-5">
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white md:grid-cols-[320px_1fr]"
+                        >
+                          <div className="aspect-[16/10] animate-pulse bg-slate-200 md:aspect-auto md:min-h-[220px]" />
                           <div className="space-y-3 p-5">
-                            <div className="h-6 w-3/4 animate-pulse rounded bg-slate-200" />
+                            <div className="h-7 w-2/3 animate-pulse rounded bg-slate-200" />
                             <div className="h-4 w-full animate-pulse rounded bg-slate-100" />
-                            <div className="h-20 animate-pulse rounded bg-slate-100" />
+                            <div className="h-16 animate-pulse rounded bg-slate-100" />
                           </div>
                         </div>
                       ))}
@@ -377,7 +350,7 @@ const HotelSearch = () => {
                       </p>
                     </div>
                   ) : (
-                    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="space-y-5">
                       {filtered.map((hotel) => (
                         <HotelCard
                           key={hotel.id}
@@ -391,7 +364,6 @@ const HotelSearch = () => {
                       ))}
                     </div>
                   )}
-                </div>
               </div>
             </div>
           </section>

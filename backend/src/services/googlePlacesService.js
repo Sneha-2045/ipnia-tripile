@@ -104,6 +104,7 @@ async function searchHotelsPlaces({
   checkOut,
   guests,
   rooms,
+  apiBaseUrl,
 }) {
   const started = Date.now();
   const destinationLabel = String(destination || "").trim();
@@ -124,12 +125,22 @@ async function searchHotelsPlaces({
     limited.map(async (item) => {
       try {
         const detail = await fetchPlaceDetails(item.place_id);
-        return detail || item;
+        if (!detail) return item;
+        // Keep text-search photos if details omit them
+        if ((!detail.photos || !detail.photos.length) && item.photos?.length) {
+          detail.photos = item.photos;
+        }
+        return detail;
       } catch {
         return item;
       }
     })
   );
+
+  const resolvedApiBase =
+    apiBaseUrl ||
+    process.env.API_PUBLIC_URL ||
+    `http://localhost:${process.env.PORT || 5001}`;
 
   const ctx = {
     destinationLabel: destinationLabel.replace(/-/g, " "),
@@ -137,6 +148,7 @@ async function searchHotelsPlaces({
     checkOut: checkOut || null,
     guests: guests ?? null,
     rooms: rooms ?? null,
+    apiBaseUrl: String(resolvedApiBase).replace(/\/$/, ""),
   };
 
   const hotels = details.map((p) => mapPlaceToHotel(p, ctx)).filter(Boolean);

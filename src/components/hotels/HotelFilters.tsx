@@ -72,7 +72,6 @@ export function applyHotelFilters(hotels: NormalizedHotel[], filters: HotelFilte
     if (filters.sort === "price_level_desc") {
       return (b.priceLevel ?? -1) - (a.priceLevel ?? -1);
     }
-    // recommended: rating * log reviews
     const score = (h: NormalizedHotel) =>
       (h.guestRating ?? 0) * Math.log10(Math.max(10, h.reviewCount ?? 10));
     return score(b) - score(a);
@@ -81,7 +80,8 @@ export function applyHotelFilters(hotels: NormalizedHotel[], filters: HotelFilte
   return list;
 }
 
-export function HotelFiltersPanel({
+/** Compact horizontal filter/sort bar — keeps hotel cards full width */
+export function HotelFiltersBar({
   filters,
   onChange,
   propertyTypes,
@@ -98,64 +98,69 @@ export function HotelFiltersPanel({
     onChange({ ...filters, [key]: value });
 
   return (
-    <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-bold uppercase tracking-wider text-[#d4a853]">Filters</p>
-
-      <div>
-        <Label className="text-slate-600">Sort by</Label>
-        <Select value={filters.sort} onValueChange={(v) => set("sort", v as HotelSort)}>
-          <SelectTrigger className="mt-1 border-slate-200 bg-white text-slate-900">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="recommended">Recommended</SelectItem>
-            <SelectItem value="rating">Guest rating</SelectItem>
-            <SelectItem value="reviews">Most reviewed</SelectItem>
-            <SelectItem value="name">Name A–Z</SelectItem>
-            <SelectItem value="price_level_asc">Price level: Low to High</SelectItem>
-            <SelectItem value="price_level_desc">Price level: High to Low</SelectItem>
-          </SelectContent>
-        </Select>
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-xs font-bold uppercase tracking-wider text-[#d4a853]">Sort & filter</p>
+        <button
+          type="button"
+          className="text-sm font-semibold text-[#1d4ed8] hover:underline"
+          onClick={() => onChange(defaultHotelFilters)}
+        >
+          Reset
+        </button>
       </div>
-
-      <div>
-        <Label className="text-slate-600">Min guest rating</Label>
-        <Select value={filters.minRating} onValueChange={(v) => set("minRating", v)}>
-          <SelectTrigger className="mt-1 border-slate-200 bg-white text-slate-900">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="any">Any</SelectItem>
-            <SelectItem value="3">3.0+</SelectItem>
-            <SelectItem value="3.5">3.5+</SelectItem>
-            <SelectItem value="4">4.0+</SelectItem>
-            <SelectItem value="4.5">4.5+</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <Label className="text-slate-600">Property type</Label>
-        <Select value={filters.propertyType} onValueChange={(v) => set("propertyType", v)}>
-          <SelectTrigger className="mt-1 border-slate-200 bg-white text-slate-900">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="any">Any</SelectItem>
-            {propertyTypes.map((t) => (
-              <SelectItem key={t} value={t}>
-                {t}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {amenities.length > 0 && (
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <div>
-          <Label className="text-slate-600">Amenity</Label>
+          <Label className="text-xs text-slate-500">Sort by</Label>
+          <Select value={filters.sort} onValueChange={(v) => set("sort", v as HotelSort)}>
+            <SelectTrigger className="mt-1 h-10 border-slate-200 bg-white text-slate-900">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recommended">Recommended</SelectItem>
+              <SelectItem value="rating">Guest rating</SelectItem>
+              <SelectItem value="reviews">Most reviewed</SelectItem>
+              <SelectItem value="name">Name A–Z</SelectItem>
+              <SelectItem value="price_level_asc">Price level ↑</SelectItem>
+              <SelectItem value="price_level_desc">Price level ↓</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-slate-500">Min rating</Label>
+          <Select value={filters.minRating} onValueChange={(v) => set("minRating", v)}>
+            <SelectTrigger className="mt-1 h-10 border-slate-200 bg-white text-slate-900">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any</SelectItem>
+              <SelectItem value="3">3.0+</SelectItem>
+              <SelectItem value="3.5">3.5+</SelectItem>
+              <SelectItem value="4">4.0+</SelectItem>
+              <SelectItem value="4.5">4.5+</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-slate-500">Property type</Label>
+          <Select value={filters.propertyType} onValueChange={(v) => set("propertyType", v)}>
+            <SelectTrigger className="mt-1 h-10 border-slate-200 bg-white text-slate-900">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any</SelectItem>
+              {propertyTypes.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-slate-500">Amenity</Label>
           <Select value={filters.amenity} onValueChange={(v) => set("amenity", v)}>
-            <SelectTrigger className="mt-1 border-slate-200 bg-white text-slate-900">
+            <SelectTrigger className="mt-1 h-10 border-slate-200 bg-white text-slate-900">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -168,13 +173,10 @@ export function HotelFiltersPanel({
             </SelectContent>
           </Select>
         </div>
-      )}
-
-      {statuses.length > 0 && (
         <div>
-          <Label className="text-slate-600">Status</Label>
+          <Label className="text-xs text-slate-500">Status</Label>
           <Select value={filters.status} onValueChange={(v) => set("status", v)}>
-            <SelectTrigger className="mt-1 border-slate-200 bg-white text-slate-900">
+            <SelectTrigger className="mt-1 h-10 border-slate-200 bg-white text-slate-900">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -187,25 +189,29 @@ export function HotelFiltersPanel({
             </SelectContent>
           </Select>
         </div>
-      )}
-
-      <label className="flex items-center gap-2 text-sm text-slate-700">
-        <input
-          type="checkbox"
-          className="accent-[#d4a853]"
-          checked={filters.openNow}
-          onChange={(e) => set("openNow", e.target.checked)}
-        />
-        Open now
-      </label>
-
-      <button
-        type="button"
-        className="text-sm font-semibold text-[#1d4ed8] hover:underline"
-        onClick={() => onChange(defaultHotelFilters)}
-      >
-        Reset filters
-      </button>
+        <div className="flex items-end pb-1">
+          <label className="flex h-10 items-center gap-2 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              className="accent-[#d4a853]"
+              checked={filters.openNow}
+              onChange={(e) => set("openNow", e.target.checked)}
+            />
+            Open now
+          </label>
+        </div>
+      </div>
     </div>
   );
+}
+
+/** @deprecated use HotelFiltersBar — kept for mobile sheet if needed */
+export function HotelFiltersPanel(props: {
+  filters: HotelFiltersState;
+  onChange: (next: HotelFiltersState) => void;
+  propertyTypes: string[];
+  amenities: string[];
+  statuses: string[];
+}) {
+  return <HotelFiltersBar {...props} />;
 }
