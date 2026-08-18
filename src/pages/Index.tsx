@@ -186,7 +186,7 @@ const Index = () => {
             <p className="mt-2 text-white/60">Handpicked stays with IPNIA travel support.</p>
           </div>
           <Button asChild variant="outline" className="hidden border-[#d4a853]/40 text-white sm:inline-flex">
-            <Link to={`/hotels/search?destination=mumbai&checkIn=${departure}&checkOut=${departure}&guests=2&rooms=1`}>
+            <Link to="/hotels/search">
               View all
             </Link>
           </Button>

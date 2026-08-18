@@ -3,6 +3,27 @@ import type { HotelImage, HotelSearchRequest, HotelSearchResponse, NormalizedHot
 
 const FALLBACK_IMAGE = "/assets/destinations/hotel-luxury-1.jpg";
 
+export type SelectedHotelDestination = {
+  placeId: string;
+  description: string;
+  mainText: string;
+  secondaryText: string;
+  latitude: number | null;
+  longitude: number | null;
+  city: string | null;
+  region: string | null;
+  country: string | null;
+};
+
+export type DestinationPrediction = {
+  id: string;
+  placeId?: string;
+  description: string;
+  mainText: string;
+  secondaryText: string;
+  types: string[];
+};
+
 /** Always build photo URLs against the configured API host from Places photo_reference */
 export function hotelPhotoUrl(reference: string | null | undefined, width = 1200): string | null {
   if (!reference) return null;
@@ -57,10 +78,23 @@ export function withResolvedHotelMedia(hotel: NormalizedHotel): NormalizedHotel 
   };
 }
 
+export type HotelSearchApiRequest = HotelSearchRequest & {
+  placeId?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  pageToken?: string | null;
+};
+
+export type HotelSearchApiResponse = HotelSearchResponse & {
+  nextPageToken?: string | null;
+  hasMore?: boolean;
+  totalResults?: number | null;
+};
+
 export async function searchHotelsViaApi(
-  payload: HotelSearchRequest,
+  payload: HotelSearchApiRequest,
   signal?: AbortSignal
-): Promise<HotelSearchResponse> {
+): Promise<HotelSearchApiResponse> {
   const url = `${getApiBase()}/api/hotels/search`;
   console.log("Hotel search API URL:", url);
   console.log("Hotel search payload:", payload);
@@ -75,12 +109,12 @@ export async function searchHotelsViaApi(
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
-    throw new Error("Unable to reach hotel search API.");
+    throw new Error("Unable to load hotels. Please try again.");
   }
 
-  const data = (await res.json().catch(() => ({}))) as HotelSearchResponse;
+  const data = (await res.json().catch(() => ({}))) as HotelSearchApiResponse;
   if (!res.ok || data.success === false) {
-    throw new Error(data.message || `Hotel search failed (${res.status}).`);
+    throw new Error(data.message || `Unable to load hotels. Please try again.`);
   }
 
   const hotels = (data.hotels || []).map(withResolvedHotelMedia);
@@ -89,16 +123,11 @@ export async function searchHotelsViaApi(
     message: data.message,
     count: data.count ?? hotels.length,
     hotels,
+    nextPageToken: data.nextPageToken || null,
+    hasMore: Boolean(data.hasMore || data.nextPageToken),
+    totalResults: data.totalResults ?? null,
   };
 }
-
-export type DestinationPrediction = {
-  id: string;
-  description: string;
-  mainText: string;
-  secondaryText: string;
-  types: string[];
-};
 
 export async function autocompleteHotelDestinations(
   query: string,
@@ -110,8 +139,29 @@ export async function autocompleteHotelDestinations(
   const url = `${getApiBase()}/api/hotels/autocomplete?q=${encodeURIComponent(q)}`;
   const res = await fetch(url, { signal });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok || data.success === false) return [];
+  if (!res.ok || data.success === false) {
+    throw new Error(data.message || "Unable to load destinations. Please try again.");
+  }
   return Array.isArray(data.predictions) ? data.predictions : [];
+}
+
+export async function fetchPlaceDetails(placeId: string): Promise<{
+  placeId: string;
+  name: string | null;
+  formattedAddress: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  city: string | null;
+  region: string | null;
+  country: string | null;
+}> {
+  const url = `${getApiBase()}/api/hotels/place-details?placeId=${encodeURIComponent(placeId)}`;
+  const res = await fetch(url);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.success || !data.place) {
+    throw new Error(data.message || "Unable to resolve destination");
+  }
+  return data.place;
 }
 
 export function formatHotelPrice(amount: number | null, currency: string | null) {

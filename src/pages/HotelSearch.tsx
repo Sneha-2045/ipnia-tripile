@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
@@ -8,6 +8,7 @@ import {
   Sparkles,
   Wifi,
   ConciergeBell,
+  MapPin,
 } from "lucide-react";
 import { BookingNav } from "@/components/layout/BookingNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -24,8 +25,9 @@ import SEO from "@/components/SEO";
 import StickyCTA from "@/components/StickyCTA";
 import { WhyBookWithUs } from "@/components/WhyBookWithUs";
 import { Button } from "@/components/ui/button";
-import { hotelDestinations, stayCategories } from "@/data/hotels";
-import { searchHotelsViaApi } from "@/services/hotelSearchApi";
+import { stayCategories } from "@/data/hotels";
+import { loadRecentHotelDestinations } from "@/lib/recentHotelDestinations";
+import { searchHotelsViaApi, type SelectedHotelDestination } from "@/services/hotelSearchApi";
 import type { NormalizedHotel } from "@/types/hotel";
 
 function formatLabel(value: string) {
@@ -51,62 +53,124 @@ function nightsBetween(checkIn: string, checkOut: string) {
   return Math.round((b.getTime() - a.getTime()) / 86400000);
 }
 
+function scrollToHotelSearch() {
+  document.getElementById("hotel-search-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
 const HotelSearch = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [results, setResults] = useState<NormalizedHotel[]>([]);
+  const [nextPageToken, setNextPageToken] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalResults, setTotalResults] = useState<number | null>(null);
   const [filters, setFilters] = useState<HotelFiltersState>(defaultHotelFilters);
   const [selected, setSelected] = useState<NormalizedHotel | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [recentDestinations, setRecentDestinations] = useState<SelectedHotelDestination[]>([]);
   const defaults = useMemo(() => defaultDates(), []);
+  const searchKeyRef = useRef("");
 
-  const query = useMemo(
-    () => ({
+  const query = useMemo(() => {
+    const latRaw = params.get("lat");
+    const lngRaw = params.get("lng");
+    const lat = latRaw != null && latRaw !== "" ? Number(latRaw) : null;
+    const lng = lngRaw != null && lngRaw !== "" ? Number(lngRaw) : null;
+    return {
       destination: params.get("destination") || "",
+      placeId: params.get("placeId") || null,
+      latitude: Number.isFinite(lat) ? lat : null,
+      longitude: Number.isFinite(lng) ? lng : null,
+      city: params.get("city") || null,
+      country: params.get("country") || null,
       checkIn: params.get("checkIn") || defaults.checkIn,
       checkOut: params.get("checkOut") || defaults.checkOut,
       guests: Number(params.get("guests") || 2),
       rooms: Number(params.get("rooms") || 1),
-    }),
-    [params, defaults]
-  );
+    };
+  }, [params, defaults]);
 
-  const hasSearch = Boolean(params.get("destination"));
-  const cityLabel = query.destination ? formatLabel(query.destination) : "your next stay";
+  const hasSearch = Boolean(params.get("destination") || params.get("placeId"));
+  const cityLabel = query.destination
+    ? formatLabel(query.destination)
+    : query.city || "your next stay";
   const nights = nightsBetween(query.checkIn, query.checkOut);
+
+  useEffect(() => {
+    setRecentDestinations(loadRecentHotelDestinations());
+  }, [hasSearch, query.placeId]);
 
   useEffect(() => {
     if (!hasSearch) {
       setResults([]);
       setLoading(false);
+      setLoadingMore(false);
       setError("");
+      setNextPageToken(null);
+      setHasMore(false);
+      setTotalResults(null);
       return;
     }
+
+    const searchKey = [
+      query.destination,
+      query.placeId,
+      query.latitude,
+      query.longitude,
+      query.checkIn,
+      query.checkOut,
+      query.guests,
+      query.rooms,
+    ].join("|");
+    searchKeyRef.current = searchKey;
 
     const controller = new AbortController();
     let active = true;
     setLoading(true);
     setError("");
     setFilters(defaultHotelFilters);
+    setResults([]);
+    setNextPageToken(null);
+    setHasMore(false);
+    setTotalResults(null);
 
-    searchHotelsViaApi(query, controller.signal)
+    searchHotelsViaApi(
+      {
+        destination: query.destination,
+        placeId: query.placeId,
+        latitude: query.latitude,
+        longitude: query.longitude,
+        checkIn: query.checkIn,
+        checkOut: query.checkOut,
+        guests: query.guests,
+        rooms: query.rooms,
+      },
+      controller.signal
+    )
       .then((res) => {
-        if (!active) return;
+        if (!active || searchKeyRef.current !== searchKey) return;
         setResults(res.hotels);
+        setNextPageToken(res.nextPageToken || null);
+        setHasMore(Boolean(res.hasMore));
+        setTotalResults(res.totalResults ?? null);
         if (!res.hotels.length) {
-          setError(res.message || "No hotels found");
+          setError(res.message || "No hotels found for this destination and dates.");
         }
       })
       .catch((err) => {
-        if (!active) return;
+        if (!active || searchKeyRef.current !== searchKey) return;
         if (err instanceof DOMException && err.name === "AbortError") return;
         setResults([]);
-        setError(err instanceof Error ? err.message : "Unable to search hotels right now.");
+        setNextPageToken(null);
+        setHasMore(false);
+        setTotalResults(null);
+        setError(err instanceof Error ? err.message : "Unable to load hotels. Please try again.");
       })
       .finally(() => {
-        if (active) setLoading(false);
+        if (active && searchKeyRef.current === searchKey) setLoading(false);
       });
 
     return () => {
@@ -115,7 +179,70 @@ const HotelSearch = () => {
     };
   }, [hasSearch, query]);
 
+  const loadMore = useCallback(async () => {
+    if (!nextPageToken || loadingMore || loading) return;
+    setLoadingMore(true);
+    setError("");
+    try {
+      const res = await searchHotelsViaApi({
+        destination: query.destination,
+        placeId: query.placeId,
+        latitude: query.latitude,
+        longitude: query.longitude,
+        checkIn: query.checkIn,
+        checkOut: query.checkOut,
+        guests: query.guests,
+        rooms: query.rooms,
+        pageToken: nextPageToken,
+      });
+      setResults((prev) => {
+        const seen = new Set(prev.map((h) => h.placeId || h.id));
+        const appended = res.hotels.filter((h) => !seen.has(h.placeId || h.id));
+        return [...prev, ...appended];
+      });
+      setNextPageToken(res.nextPageToken || null);
+      setHasMore(Boolean(res.hasMore));
+      if (res.totalResults != null) setTotalResults(res.totalResults);
+    } catch (err) {
+      if (!(err instanceof DOMException && err.name === "AbortError")) {
+        setError(err instanceof Error ? err.message : "Unable to load hotels. Please try again.");
+      }
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [nextPageToken, loadingMore, loading, query]);
+
   const filtered = useMemo(() => applyHotelFilters(results, filters), [results, filters]);
+
+  const filtersActive = useMemo(() => {
+    return JSON.stringify(filters) !== JSON.stringify(defaultHotelFilters);
+  }, [filters]);
+
+  const resultCountLabel = useMemo(() => {
+    if (loading) return "Searching hotels…";
+    if (totalResults != null && Number.isFinite(totalResults)) {
+      const dest = cityLabel !== "your next stay" ? ` in ${cityLabel}` : "";
+      return `${totalResults} hotel${totalResults === 1 ? "" : "s"} found${dest}`;
+    }
+    if (results.length === 0) return "Hotels available";
+    if (filtersActive && filtered.length !== results.length) {
+      return `Showing ${filtered.length} of ${results.length} loaded · Hotels available`;
+    }
+    if (hasMore) {
+      return `Hotels available · showing ${results.length}`;
+    }
+    return `${results.length} hotel${results.length === 1 ? "" : "s"} found${
+      cityLabel !== "your next stay" ? ` in ${cityLabel}` : ""
+    }`;
+  }, [
+    loading,
+    totalResults,
+    cityLabel,
+    results.length,
+    filtered.length,
+    filtersActive,
+    hasMore,
+  ]);
 
   const propertyTypes = useMemo(() => {
     const set = new Set<string>();
@@ -140,8 +267,6 @@ const HotelSearch = () => {
     return Array.from(set).sort();
   }, [results]);
 
-  const featuredCities = hotelDestinations.filter((d) => d.type === "city" && d.image);
-
   const goEnquire = (hotel: NormalizedHotel) => {
     const q = new URLSearchParams({
       subject: `Hotel enquiry: ${hotel.name}`,
@@ -153,6 +278,22 @@ const HotelSearch = () => {
       rooms: String(query.rooms),
     });
     navigate(`/contact?${q.toString()}`);
+  };
+
+  const searchFromRecent = (dest: SelectedHotelDestination) => {
+    const p = new URLSearchParams({
+      destination: dest.description || dest.mainText,
+      placeId: dest.placeId,
+      checkIn: query.checkIn,
+      checkOut: query.checkOut,
+      guests: String(query.guests),
+      rooms: String(query.rooms),
+    });
+    if (dest.latitude != null) p.set("lat", String(dest.latitude));
+    if (dest.longitude != null) p.set("lng", String(dest.longitude));
+    if (dest.city) p.set("city", dest.city);
+    if (dest.country) p.set("country", dest.country);
+    navigate(`/hotels/search?${p.toString()}`);
   };
 
   return (
@@ -205,7 +346,9 @@ const HotelSearch = () => {
               ))}
             </ul>
           </div>
-          <BookingSearchCard defaultMode="hotels" />
+          <div id="hotel-search-form">
+            <BookingSearchCard defaultMode="hotels" />
+          </div>
         </div>
       </section>
 
@@ -229,13 +372,16 @@ const HotelSearch = () => {
         {!hasSearch && (
           <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold md:text-4xl">Stay your way</h2>
-            <p className="mt-2 text-white/60">Browse by mood — then search live hotels for your destination.</p>
+            <p className="mt-2 text-white/60">
+              Browse by mood — then search any destination worldwide via Google Places.
+            </p>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {stayCategories.map((cat) => (
-                <Link
+                <button
                   key={cat.id}
-                  to={`/hotels/search?destination=${cat.id === "beach" ? "goa" : cat.id === "heritage" ? "mumbai" : cat.id === "business" ? "new-delhi" : "dubai"}&checkIn=${query.checkIn}&checkOut=${query.checkOut}&guests=${query.guests}&rooms=${query.rooms}`}
-                  className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-[#d4a853]/25"
+                  type="button"
+                  onClick={scrollToHotelSearch}
+                  className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-[#d4a853]/25 text-left"
                 >
                   <img
                     src={cat.image}
@@ -248,7 +394,7 @@ const HotelSearch = () => {
                     <h3 className="text-2xl font-bold">{cat.title}</h3>
                     <p className="mt-1 text-sm text-white/75">{cat.text}</p>
                   </div>
-                </Link>
+                </button>
               ))}
             </div>
           </section>
@@ -257,7 +403,6 @@ const HotelSearch = () => {
         {hasSearch && (
           <section className="bg-slate-100 py-10 text-slate-900">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              {/* Search summary */}
               <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wider text-[#d4a853]">Your search</p>
                 <div className="mt-3 grid gap-2 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
@@ -291,11 +436,7 @@ const HotelSearch = () => {
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h2 className="text-3xl font-bold text-slate-900">Available stays</h2>
-                  <p className="mt-1 text-slate-600">
-                    {loading
-                      ? "Searching hotels…"
-                      : `${filtered.length} of ${results.length} hotel${results.length === 1 ? "" : "s"}`}
-                  </p>
+                  <p className="mt-1 text-slate-600">{resultCountLabel}</p>
                 </div>
               </div>
 
@@ -312,87 +453,125 @@ const HotelSearch = () => {
               )}
 
               <div>
-                  {loading ? (
-                    <div className="space-y-5">
-                      {[1, 2, 3].map((i) => (
-                        <div
-                          key={i}
-                          className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white md:grid-cols-[320px_1fr]"
-                        >
-                          <div className="aspect-[16/10] animate-pulse bg-slate-200 md:aspect-auto md:min-h-[220px]" />
-                          <div className="space-y-3 p-5">
-                            <div className="h-7 w-2/3 animate-pulse rounded bg-slate-200" />
-                            <div className="h-4 w-full animate-pulse rounded bg-slate-100" />
-                            <div className="h-16 animate-pulse rounded bg-slate-100" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : error && results.length === 0 ? (
-                    <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
-                      <p className="text-lg font-semibold text-slate-900">{error}</p>
-                      <p className="mt-2 text-sm text-slate-600">
-                        Try another destination, dates, guests, or clear filters.
-                      </p>
-                      <Button
-                        type="button"
-                        className="mt-4 bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a]"
-                        onClick={() => window.location.reload()}
+                {loading ? (
+                  <div className="space-y-5">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white md:grid-cols-[320px_1fr]"
                       >
-                        Try Again
-                      </Button>
-                    </div>
-                  ) : filtered.length === 0 ? (
-                    <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
-                      <p className="text-lg font-semibold text-slate-900">No hotels found</p>
-                      <p className="mt-2 text-sm text-slate-600">
-                        Modify destination, dates, guests, or filters and search again.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-5">
-                      {filtered.map((hotel) => (
-                        <HotelCard
-                          key={hotel.id}
-                          hotel={hotel}
-                          onViewDetails={() => {
-                            setSelected(hotel);
-                            setDetailsOpen(true);
-                          }}
-                          onSelect={() => goEnquire(hotel)}
-                        />
-                      ))}
-                    </div>
-                  )}
+                        <div className="aspect-[16/10] animate-pulse bg-slate-200 md:aspect-auto md:min-h-[220px]" />
+                        <div className="space-y-3 p-5">
+                          <div className="h-7 w-2/3 animate-pulse rounded bg-slate-200" />
+                          <div className="h-4 w-full animate-pulse rounded bg-slate-100" />
+                          <div className="h-16 animate-pulse rounded bg-slate-100" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : error && results.length === 0 ? (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+                    <p className="text-lg font-semibold text-slate-900">{error}</p>
+                    <p className="mt-2 text-sm text-slate-600">
+                      Try another destination or dates, then search again.
+                    </p>
+                    <Button
+                      type="button"
+                      className="mt-4 bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a]"
+                      onClick={scrollToHotelSearch}
+                    >
+                      Modify Search
+                    </Button>
+                  </div>
+                ) : filtered.length === 0 ? (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+                    <p className="text-lg font-semibold text-slate-900">
+                      No hotels found for this destination and dates.
+                    </p>
+                    <p className="mt-2 text-sm text-slate-600">
+                      Modify destination, dates, guests, or filters and search again.
+                    </p>
+                    <Button
+                      type="button"
+                      className="mt-4 bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a]"
+                      onClick={scrollToHotelSearch}
+                    >
+                      Modify Search
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-5">
+                    {filtered.map((hotel) => (
+                      <HotelCard
+                        key={hotel.id}
+                        hotel={hotel}
+                        onViewDetails={() => {
+                          setSelected(hotel);
+                          setDetailsOpen(true);
+                        }}
+                        onSelect={() => goEnquire(hotel)}
+                      />
+                    ))}
+                    {hasMore && nextPageToken && (
+                      <div className="flex justify-center pt-2">
+                        <Button
+                          type="button"
+                          disabled={loadingMore}
+                          className="bg-[#0a1628] text-white hover:bg-[#13233d]"
+                          onClick={loadMore}
+                        >
+                          {loadingMore ? "Loading more hotels…" : "Load more hotels"}
+                        </Button>
+                      </div>
+                    )}
+                    {error && results.length > 0 && (
+                      <p className="text-center text-sm text-red-600">{error}</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </section>
         )}
 
         <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold md:text-4xl">Popular hotel cities</h2>
-          <p className="mt-2 text-white/60">Jump into a destination and start planning your stay.</p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {featuredCities.map((city) => (
-              <Link
-                key={city.id}
-                to={`/hotels/search?destination=${city.id}&checkIn=${query.checkIn}&checkOut=${query.checkOut}&guests=2&rooms=1`}
-                className="group relative aspect-[16/11] overflow-hidden rounded-2xl border border-white/10"
+          <h2 className="text-3xl font-bold md:text-4xl">Popular destinations</h2>
+          <p className="mt-2 text-white/60">
+            {recentDestinations.length
+              ? "Based on your recent Google Places searches — search any city worldwide above."
+              : "Search any city, region or country worldwide with Google Places — your recent picks will appear here."}
+          </p>
+          {recentDestinations.length > 0 ? (
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {recentDestinations.slice(0, 8).map((dest) => (
+                <button
+                  key={dest.placeId}
+                  type="button"
+                  onClick={() => searchFromRecent(dest)}
+                  className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-5 text-left transition hover:border-[#d4a853]/40 hover:bg-[#102038]"
+                >
+                  <MapPin className="h-5 w-5 text-[#d4a853]" />
+                  <p className="mt-3 text-lg font-bold">{dest.mainText || dest.description}</p>
+                  <p className="mt-1 text-sm text-white/55">
+                    {dest.secondaryText ||
+                      [dest.city, dest.region, dest.country].filter(Boolean).join(", ") ||
+                      dest.description}
+                  </p>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-8 rounded-2xl border border-dashed border-[#d4a853]/30 bg-[#0c1a2e]/60 px-6 py-10 text-center">
+              <p className="text-white/70">No recent destinations yet.</p>
+              <Button
+                type="button"
+                className="mt-4 bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a]"
+                onClick={scrollToHotelSearch}
               >
-                <img
-                  src={city.image}
-                  alt={city.name}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 p-4">
-                  <p className="text-xl font-bold">{city.name}</p>
-                  <p className="text-xs text-white/70">{city.blurb}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
+                Search destinations worldwide
+              </Button>
+            </div>
+          )}
         </section>
 
         <WhyBookWithUs />

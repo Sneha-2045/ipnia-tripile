@@ -4,13 +4,14 @@ const {
   searchHotels,
   hotelPhoto,
   autocompleteDestinations,
+  placeDetails,
 } = require("../controllers/hotelController");
 
 const router = express.Router();
 
 const hotelSearchLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 30,
+  max: 40,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -22,5 +23,6 @@ const hotelSearchLimiter = rateLimit({
 router.post("/search", hotelSearchLimiter, searchHotels);
 router.get("/photo", hotelPhoto);
 router.get("/autocomplete", hotelSearchLimiter, autocompleteDestinations);
+router.get("/place-details", hotelSearchLimiter, placeDetails);
 
 module.exports = router;

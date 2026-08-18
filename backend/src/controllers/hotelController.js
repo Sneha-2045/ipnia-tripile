@@ -2,6 +2,7 @@ const {
   searchHotelsPlaces,
   fetchPlacePhoto,
   autocompleteHotelDestinations,
+  getDestinationPlaceDetails,
   GooglePlacesError,
 } = require("../services/googlePlacesService");
 
@@ -9,12 +10,40 @@ async function searchHotels(req, res, next) {
   try {
     const body = req.body || {};
     const destination = String(body.destination || "").trim();
+    const placeId = body.placeId ? String(body.placeId).trim() : null;
+    const pageToken = body.pageToken ? String(body.pageToken).trim() : null;
+    const latitude =
+      body.latitude != null && body.latitude !== "" ? Number(body.latitude) : null;
+    const longitude =
+      body.longitude != null && body.longitude !== "" ? Number(body.longitude) : null;
     const checkIn = body.checkIn ? String(body.checkIn).trim() : null;
     const checkOut = body.checkOut ? String(body.checkOut).trim() : null;
     const guests = body.guests != null ? Number(body.guests) : 2;
     const rooms = body.rooms != null ? Number(body.rooms) : 1;
 
-    if (!destination) {
+    if (!destination && !placeId && !pageToken) {
+      return res.status(400).json({ success: false, message: "Destination is required" });
+    }
+
+    let resolvedDestination = destination;
+    let resolvedLat = Number.isFinite(latitude) ? latitude : null;
+    let resolvedLng = Number.isFinite(longitude) ? longitude : null;
+
+    // Prefer Place Details as source of truth when placeId is provided
+    if (placeId && (!resolvedDestination || resolvedLat == null || resolvedLng == null)) {
+      try {
+        const details = await getDestinationPlaceDetails(placeId);
+        if (!resolvedDestination) {
+          resolvedDestination = details.formattedAddress || details.name || "";
+        }
+        if (resolvedLat == null && details.latitude != null) resolvedLat = details.latitude;
+        if (resolvedLng == null && details.longitude != null) resolvedLng = details.longitude;
+      } catch {
+        // Fall through with whatever the client sent
+      }
+    }
+
+    if (!resolvedDestination && !pageToken) {
       return res.status(400).json({ success: false, message: "Destination is required" });
     }
 
@@ -22,7 +51,11 @@ async function searchHotels(req, res, next) {
       process.env.API_PUBLIC_URL || `${req.protocol}://${req.get("host")}`;
 
     const result = await searchHotelsPlaces({
-      destination,
+      destination: resolvedDestination,
+      placeId,
+      latitude: resolvedLat,
+      longitude: resolvedLng,
+      pageToken,
       checkIn,
       checkOut,
       guests: Number.isFinite(guests) ? guests : 2,
@@ -30,12 +63,15 @@ async function searchHotels(req, res, next) {
       apiBaseUrl,
     });
 
-    if (!result.hotels.length) {
+    if (!result.hotels.length && !result.hasMore) {
       return res.status(200).json({
         success: true,
-        message: "No hotels found for this destination. Try another city or dates.",
+        message: "No hotels found for this destination and dates.",
         count: 0,
         hotels: [],
+        nextPageToken: null,
+        hasMore: false,
+        totalResults: null,
       });
     }
 
@@ -43,6 +79,9 @@ async function searchHotels(req, res, next) {
       success: true,
       count: result.count,
       hotels: result.hotels,
+      nextPageToken: result.nextPageToken,
+      hasMore: result.hasMore,
+      totalResults: result.totalResults,
       meta: { durationMs: result.durationMs, source: "google_places" },
     });
   } catch (err) {
@@ -97,8 +136,26 @@ async function autocompleteDestinations(req, res, next) {
   }
 }
 
+async function placeDetails(req, res, next) {
+  try {
+    const placeId = String(req.query.placeId || req.params.placeId || "").trim();
+    const details = await getDestinationPlaceDetails(placeId);
+    return res.status(200).json({ success: true, place: details });
+  } catch (err) {
+    if (err instanceof GooglePlacesError) {
+      return res.status(err.status).json({
+        success: false,
+        message: err.message,
+        code: err.code,
+      });
+    }
+    return next(err);
+  }
+}
+
 module.exports = {
   searchHotels,
   hotelPhoto,
   autocompleteDestinations,
+  placeDetails,
 };

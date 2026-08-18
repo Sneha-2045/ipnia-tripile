@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { saveRecentHotelDestination } from "@/lib/recentHotelDestinations";
+import type { SelectedHotelDestination } from "@/services/hotelSearchApi";
 
 type Mode = "flights" | "hotels";
 
@@ -51,7 +53,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
   const [cabin, setCabin] = useState<CabinClass>("economy");
   const [maxConnections, setMaxConnections] = useState("any");
 
-  const [destination, setDestination] = useState("mumbai");
+  const [selectedDestination, setSelectedDestination] = useState<SelectedHotelDestination | null>(null);
   const [checkIn, setCheckIn] = useState(tomorrowISO());
   const [checkOut, setCheckOut] = useState(plusDaysISO(3));
   const [guests, setGuests] = useState("2");
@@ -136,8 +138,12 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
   };
 
   const searchHotels = () => {
-    if (!destination) {
-      toast({ title: "Select destination", description: "Please choose a city or area.", variant: "destructive" });
+    if (!selectedDestination?.placeId) {
+      toast({
+        title: "Select destination",
+        description: "Please choose a destination from the Google Places suggestions.",
+        variant: "destructive",
+      });
       return;
     }
     if (!checkIn || !checkOut) {
@@ -145,12 +151,22 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
       return;
     }
     const params = new URLSearchParams({
-      destination,
+      destination: selectedDestination.description || selectedDestination.mainText,
+      placeId: selectedDestination.placeId,
       checkIn,
       checkOut,
       guests,
       rooms,
     });
+    if (selectedDestination.latitude != null) {
+      params.set("lat", String(selectedDestination.latitude));
+    }
+    if (selectedDestination.longitude != null) {
+      params.set("lng", String(selectedDestination.longitude));
+    }
+    if (selectedDestination.city) params.set("city", selectedDestination.city);
+    if (selectedDestination.country) params.set("country", selectedDestination.country);
+    saveRecentHotelDestination(selectedDestination);
     navigate(`/hotels/search?${params.toString()}`);
   };
 
@@ -345,7 +361,11 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
         </div>
       ) : (
         <div className="space-y-4">
-          <HotelDestinationAutocomplete value={destination} onChange={setDestination} />
+          <HotelDestinationAutocomplete
+            selected={selectedDestination}
+            value={selectedDestination?.description || ""}
+            onChange={setSelectedDestination}
+          />
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <Label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#d4a853]">

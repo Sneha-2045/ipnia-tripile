@@ -10,7 +10,7 @@ class GooglePlacesError extends Error {
   }
 }
 
-async function googleGet(pathname, params) {
+async function googleGet(pathname, params, { allowInvalidRequest = false } = {}) {
   const { apiKey } = getGooglePlacesConfig();
   if (!apiKey) {
     throw new GooglePlacesError("Hotel search is not configured", {
@@ -30,7 +30,9 @@ async function googleGet(pathname, params) {
     if (!res.ok) {
       throw new GooglePlacesError("Unable to search hotels right now.", { status: 502 });
     }
-    if (data.status && !["OK", "ZERO_RESULTS"].includes(data.status)) {
+    const okStatuses = ["OK", "ZERO_RESULTS"];
+    if (allowInvalidRequest) okStatuses.push("INVALID_REQUEST");
+    if (data.status && !okStatuses.includes(data.status)) {
       console.error("[places] upstream status", {
         status: data.status,
         error_message: data.error_message,
@@ -68,6 +70,40 @@ async function googleGet(pathname, params) {
   }
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function textSearchLodging({ query, location, pageToken }) {
+  if (pageToken) {
+    // Google requires a short delay before next_page_token becomes valid
+    let data = null;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await sleep(attempt === 0 ? 2000 : 1500);
+      data = await googleGet(
+        "textsearch",
+        { pagetoken: pageToken },
+        { allowInvalidRequest: true }
+      );
+      if (data.status === "OK" || data.status === "ZERO_RESULTS") return data;
+    }
+    throw new GooglePlacesError("Unable to load more hotels. Please try again.", {
+      status: 502,
+      code: "PLACES_PAGE_TOKEN",
+    });
+  }
+
+  const params = {
+    query: query || "hotels",
+    type: "lodging",
+  };
+  if (location?.lat != null && location?.lng != null) {
+    params.location = `${location.lat},${location.lng}`;
+    params.radius = "50000";
+  }
+  return googleGet("textsearch", params);
+}
+
 async function fetchPlaceDetails(placeId) {
   const data = await googleGet("details", {
     place_id: placeId,
@@ -90,16 +126,22 @@ async function fetchPlaceDetails(placeId) {
       "editorial_summary",
       "wheelchair_accessible_entrance",
       "reservable",
+      "address_component",
     ].join(","),
   });
   return data.result || null;
 }
 
 /**
- * Search lodging via Google Places Text Search, then enrich with Place Details.
+ * Search lodging via Google Places Text Search (full page, no artificial slice).
+ * Supports pagination via next_page_token (Google returns up to ~20 per page, ~60 total).
  */
 async function searchHotelsPlaces({
   destination,
+  placeId,
+  latitude,
+  longitude,
+  pageToken,
   checkIn,
   checkOut,
   guests,
@@ -108,25 +150,28 @@ async function searchHotelsPlaces({
 }) {
   const started = Date.now();
   const destinationLabel = String(destination || "").trim();
-  if (!destinationLabel) {
+  if (!destinationLabel && !pageToken) {
     throw new GooglePlacesError("Destination is required", { status: 400, code: "INVALID_DESTINATION" });
   }
 
   const query = `hotels in ${destinationLabel.replace(/-/g, " ")}`;
-  const text = await googleGet("textsearch", {
+  const text = await textSearchLodging({
     query,
-    type: "lodging",
+    location:
+      latitude != null && longitude != null
+        ? { lat: Number(latitude), lng: Number(longitude) }
+        : null,
+    pageToken: pageToken || null,
   });
 
+  // Use the full page Google returns — do NOT artificially slice
   const basics = Array.isArray(text.results) ? text.results : [];
-  const limited = basics.slice(0, 16);
 
   const details = await Promise.all(
-    limited.map(async (item) => {
+    basics.map(async (item) => {
       try {
         const detail = await fetchPlaceDetails(item.place_id);
         if (!detail) return item;
-        // Keep text-search photos if details omit them
         if ((!detail.photos || !detail.photos.length) && item.photos?.length) {
           detail.photos = item.photos;
         }
@@ -152,18 +197,24 @@ async function searchHotelsPlaces({
   };
 
   const hotels = details.map((p) => mapPlaceToHotel(p, ctx)).filter(Boolean);
+  const nextPageToken = text.next_page_token || null;
 
   console.info("[places] hotel search ok", {
     destination: destinationLabel,
+    placeId: placeId || null,
     query,
-    count: hotels.length,
+    pageCount: hotels.length,
+    hasMore: Boolean(nextPageToken),
     durationMs: Date.now() - started,
   });
 
   return {
     count: hotels.length,
     hotels,
-    nextPageToken: text.next_page_token || null,
+    nextPageToken,
+    hasMore: Boolean(nextPageToken),
+    // Google Text Search does not return a reliable grand total across pages
+    totalResults: null,
     durationMs: Date.now() - started,
   };
 }
@@ -204,14 +255,16 @@ async function autocompleteHotelDestinations(input) {
     return { predictions: [] };
   }
 
+  // Broad worldwide predictions (cities, regions, countries) — not a hardcoded list
   const data = await googleGet("autocomplete", {
     input: q,
-    types: "(cities)",
+    types: "(regions)",
   });
 
   const predictions = Array.isArray(data.predictions)
     ? data.predictions.map((p) => ({
         id: p.place_id,
+        placeId: p.place_id,
         description: p.description || "",
         mainText: p.structured_formatting?.main_text || p.description || "",
         secondaryText: p.structured_formatting?.secondary_text || "",
@@ -222,9 +275,36 @@ async function autocompleteHotelDestinations(input) {
   return { predictions };
 }
 
+async function getDestinationPlaceDetails(placeId) {
+  const id = String(placeId || "").trim();
+  if (!id) {
+    throw new GooglePlacesError("placeId is required", { status: 400, code: "INVALID_PLACE_ID" });
+  }
+  const detail = await fetchPlaceDetails(id);
+  if (!detail) {
+    throw new GooglePlacesError("Place not found", { status: 404, code: "PLACE_NOT_FOUND" });
+  }
+
+  const components = Array.isArray(detail.address_components) ? detail.address_components : [];
+  const find = (type) =>
+    components.find((c) => Array.isArray(c.types) && c.types.includes(type))?.long_name || null;
+
+  return {
+    placeId: detail.place_id,
+    name: detail.name || null,
+    formattedAddress: detail.formatted_address || null,
+    latitude: detail.geometry?.location?.lat ?? null,
+    longitude: detail.geometry?.location?.lng ?? null,
+    city: find("locality") || find("postal_town") || find("administrative_area_level_2"),
+    region: find("administrative_area_level_1"),
+    country: find("country"),
+  };
+}
+
 module.exports = {
   searchHotelsPlaces,
   fetchPlacePhoto,
   autocompleteHotelDestinations,
+  getDestinationPlaceDetails,
   GooglePlacesError,
 };
