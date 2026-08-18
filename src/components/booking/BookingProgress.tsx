@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-const STEPS = [
+const ALL_STEPS = [
   { id: 1, label: "Traveller", path: "/booking/traveller-details" },
-  { id: 2, label: "Travel Documents", path: "/booking/travel-documents" },
+  { id: 2, label: "Travel Documents", path: "/booking/travel-documents", internationalOnly: true },
   { id: 3, label: "Hotel", path: "/booking/hotel" },
   { id: 4, label: "Review", path: "/booking/review" },
   { id: 5, label: "Payment", path: "/booking/payment" },
@@ -13,18 +13,26 @@ type Props = {
   currentStep: 1 | 2 | 3 | 4 | 5;
   /** Highest step the user may navigate back to (completed or current). */
   maxReachableStep?: number;
+  /** When false, passport / travel-documents step is hidden (domestic India). */
+  isInternational?: boolean;
 };
 
-export function BookingProgress({ currentStep, maxReachableStep }: Props) {
+export function BookingProgress({
+  currentStep,
+  maxReachableStep,
+  isInternational = true,
+}: Props) {
   const reachable = maxReachableStep ?? currentStep;
+  const steps = ALL_STEPS.filter((s) => isInternational || !("internationalOnly" in s && s.internationalOnly));
 
   return (
     <nav aria-label="Booking progress" className="mb-8 overflow-x-auto">
       <ol className="flex min-w-max items-center gap-2 text-sm md:gap-3">
-        {STEPS.map((step, index) => {
+        {steps.map((step, index) => {
           const done = step.id < currentStep;
           const active = step.id === currentStep;
           const clickable = step.id <= reachable && step.id < 5 && (done || active);
+          const displayNum = index + 1;
           const content = (
             <span
               className={cn(
@@ -40,7 +48,7 @@ export function BookingProgress({ currentStep, maxReachableStep }: Props) {
                   active || done ? "bg-[#d4a853] text-[#0a1628]" : "bg-white/10 text-white/50"
                 )}
               >
-                {step.id}
+                {displayNum}
               </span>
               <span className="whitespace-nowrap font-medium">{step.label}</span>
             </span>
@@ -55,7 +63,7 @@ export function BookingProgress({ currentStep, maxReachableStep }: Props) {
               ) : (
                 content
               )}
-              {index < STEPS.length - 1 && (
+              {index < steps.length - 1 && (
                 <span className="text-white/25" aria-hidden>
                   →
                 </span>

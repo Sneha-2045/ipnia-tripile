@@ -12,14 +12,15 @@ import type { Gender, TravellerTitle } from "@/types/booking";
 
 const TravellerDetailsPage = () => {
   const navigate = useNavigate();
-  const { state, updateTraveller } = useFlightBooking();
+  const { state, updateTraveller, isInternational } = useFlightBooking();
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const onContinue = () => {
     const next = validateTravellerBasics(state.travellers);
     setErrors(next);
     if (Object.keys(next).length) return;
-    navigate("/booking/travel-documents");
+    // Domestic India↔India: skip passport step. International (any point outside India): collect passport.
+    navigate(isInternational ? "/booking/travel-documents" : "/booking/hotel");
   };
 
   return (

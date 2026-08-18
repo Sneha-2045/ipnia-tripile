@@ -2,6 +2,7 @@ import type { CabinClass } from "@/services/bookingApi";
 import type { SelectedFlight } from "@/types/booking";
 import { splitFare } from "@/types/booking";
 import type { NormalizedFlightOffer } from "@/types/duffelFlight";
+import { getAirportByCode } from "@/data/airports";
 
 function mapCabin(cabin: string | null | undefined): CabinClass {
   const c = String(cabin || "economy").toLowerCase();
@@ -16,6 +17,32 @@ function dateFromIso(iso: string | null | undefined, fallback = "") {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return fallback;
   return d.toISOString().slice(0, 10);
+}
+
+/** India ISO / name variants used by Duffel and our airport list */
+export function isIndiaCountry(value: string | null | undefined): boolean {
+  const v = String(value || "")
+    .trim()
+    .toLowerCase();
+  return v === "in" || v === "ind" || v === "india";
+}
+
+function resolveCountryCode(iata: string | null | undefined, fromOffer: string | null | undefined): string {
+  const offered = String(fromOffer || "").trim();
+  if (offered) return offered;
+  const airport = iata ? getAirportByCode(iata) : undefined;
+  return airport?.country || "";
+}
+
+/**
+ * Passport required when origin OR destination is outside India.
+ * Domestic India↔India does not require passport details.
+ */
+export function isInternationalIndiaRoute(
+  originCountry: string | null | undefined,
+  destinationCountry: string | null | undefined
+): boolean {
+  return !(isIndiaCountry(originCountry) && isIndiaCountry(destinationCountry));
 }
 
 /**
@@ -43,17 +70,26 @@ export function mapDuffelOfferToSelectedFlight(
     fare = split.fare;
     taxes = split.taxes;
   } else if (Math.abs(fare + taxes - safeTotal) > 1) {
-    // Prefer explicit total; keep base/tax as provided when they roughly match
     const split = splitFare(safeTotal);
     fare = split.fare;
     taxes = split.taxes;
   }
 
-  const originCountry = firstSeg?.origin?.countryCode || outbound?.origin?.countryCode || "";
-  const destCountry =
-    lastSeg?.destination?.countryCode || outbound?.destination?.countryCode || "";
-  const isInternational =
-    originCountry && destCountry ? originCountry !== destCountry : true;
+  const originIata = outbound?.origin?.iataCode || firstSeg?.origin?.iataCode || "";
+  const destIata =
+    outbound?.destination?.iataCode || lastSeg?.destination?.iataCode || "";
+
+  const originCountry = resolveCountryCode(
+    originIata,
+    firstSeg?.origin?.countryCode || outbound?.origin?.countryCode || ""
+  );
+  const destCountry = resolveCountryCode(
+    destIata,
+    lastSeg?.destination?.countryCode || outbound?.destination?.countryCode || ""
+  );
+
+  // Domestic within India → no passport. Any point outside India → passport.
+  const isInternational = isInternationalIndiaRoute(originCountry, destCountry);
 
   const airline =
     offer.primaryCarrier?.name ||
@@ -66,15 +102,13 @@ export function mapDuffelOfferToSelectedFlight(
     id: offer.id,
     airline,
     flightNumber: offer.primaryFlightNumber || firstSeg?.flightNumber || "",
-    origin: outbound?.origin?.iataCode || firstSeg?.origin?.iataCode || "",
+    origin: originIata,
     originCity: outbound?.origin?.cityName || firstSeg?.origin?.cityName || "",
-    destination: outbound?.destination?.iataCode || lastSeg?.destination?.iataCode || "",
+    destination: destIata,
     destinationCity: outbound?.destination?.cityName || lastSeg?.destination?.cityName || "",
     originCountry: originCountry || "Unknown",
     destinationCountry: destCountry || "Unknown",
-    departureDate:
-      opts.departureDate ||
-      dateFromIso(firstSeg?.departingAt, ""),
+    departureDate: opts.departureDate || dateFromIso(firstSeg?.departingAt, ""),
     departureTime: offer.departureTime || firstSeg?.departureTime || "",
     arrivalTime: offer.arrivalTime || lastSeg?.arrivalTime || "",
     duration: offer.durationLabel || outbound?.duration?.label || "",

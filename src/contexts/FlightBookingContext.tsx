@@ -16,6 +16,7 @@ import {
   type SelectedHotelBooking,
   type Traveller,
 } from "@/types/booking";
+import { isInternationalIndiaRoute } from "@/lib/mapOfferToBooking";
 
 type FlightBookingContextValue = {
   state: FlightBookingState;
@@ -171,7 +172,12 @@ export function FlightBookingProvider({ children }: { children: ReactNode }) {
       setPaymentStatus,
       setBookingReference,
       resetBooking,
-      isInternational: Boolean(state.selectedFlight?.isInternational),
+      isInternational: state.selectedFlight
+        ? isInternationalIndiaRoute(
+            state.selectedFlight.originCountry,
+            state.selectedFlight.destinationCountry
+          )
+        : false,
       grandTotal: state.priceBreakdown.grandTotal,
     }),
     [

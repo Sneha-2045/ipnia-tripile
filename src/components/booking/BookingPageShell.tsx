@@ -86,7 +86,11 @@ export function BookingPageShell({ children, step, require, title, subtitle }: P
     <div className="min-h-screen bg-[#0a1628] text-white">
       <BookingNav />
       <main className="mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-6 lg:px-8">
-        <BookingProgress currentStep={step} maxReachableStep={Math.min(maxReachable, step)} />
+        <BookingProgress
+          currentStep={step}
+          maxReachableStep={Math.min(maxReachable, step)}
+          isInternational={isInternational}
+        />
         <div className="mb-8">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d4a853]">Booking</p>
           <h1 className="mt-2 text-3xl font-bold md:text-4xl">{title}</h1>

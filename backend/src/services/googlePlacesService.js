@@ -74,34 +74,88 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function textSearchLodging({ query, location, pageToken }) {
+/** Google next_page_token is briefly invalid — retry until OK. */
+async function fetchWithPageToken(pathname, pageToken) {
+  let data = null;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    await sleep(attempt === 0 ? 2000 : 1500);
+    data = await googleGet(pathname, { pagetoken: pageToken }, { allowInvalidRequest: true });
+    if (data.status === "OK" || data.status === "ZERO_RESULTS") return data;
+  }
+  throw new GooglePlacesError("Unable to load more hotels. Please try again.", {
+    status: 502,
+    code: "PLACES_PAGE_TOKEN",
+  });
+}
+
+/**
+ * Nearby Search (lodging) — best when we have lat/lng.
+ * Do NOT combine Text Search type=lodging + location bias; that combo often returns only ~5–6 hits.
+ */
+async function nearbySearchLodging({ location, pageToken, radius = 25000 }) {
   if (pageToken) {
-    // Google requires a short delay before next_page_token becomes valid
-    let data = null;
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      await sleep(attempt === 0 ? 2000 : 1500);
-      data = await googleGet(
-        "textsearch",
-        { pagetoken: pageToken },
-        { allowInvalidRequest: true }
-      );
-      if (data.status === "OK" || data.status === "ZERO_RESULTS") return data;
-    }
-    throw new GooglePlacesError("Unable to load more hotels. Please try again.", {
-      status: 502,
-      code: "PLACES_PAGE_TOKEN",
+    return fetchWithPageToken("nearbysearch", pageToken);
+  }
+  if (location?.lat == null || location?.lng == null) {
+    throw new GooglePlacesError("Location is required for nearby hotel search", {
+      status: 400,
+      code: "INVALID_LOCATION",
     });
   }
-
-  const params = {
-    query: query || "hotels",
+  return googleGet("nearbysearch", {
+    location: `${location.lat},${location.lng}`,
+    radius: String(radius),
     type: "lodging",
-  };
-  if (location?.lat != null && location?.lng != null) {
-    params.location = `${location.lat},${location.lng}`;
-    params.radius = "50000";
+  });
+}
+
+/**
+ * Text Search for hotels — query only (no location+type bias).
+ * Returns up to ~20 per page with next_page_token.
+ */
+async function textSearchHotels({ query, pageToken }) {
+  if (pageToken) {
+    return fetchWithPageToken("textsearch", pageToken);
   }
-  return googleGet("textsearch", params);
+  return googleGet("textsearch", {
+    query: query || "hotels",
+  });
+}
+
+/** Collect up to 3 Google pages (~60 results) for a search mode. */
+async function collectAllPages(fetchPage, { maxPages = 3 } = {}) {
+  const all = [];
+  let pageToken = null;
+  let pages = 0;
+  let lastStatus = "ZERO_RESULTS";
+
+  while (pages < maxPages) {
+    const data = await fetchPage(pageToken);
+    lastStatus = data.status || lastStatus;
+    const batch = Array.isArray(data.results) ? data.results : [];
+    all.push(...batch);
+    pages += 1;
+    pageToken = data.next_page_token || null;
+    if (!pageToken || !batch.length) break;
+  }
+
+  return { results: all, pages, exhausted: !pageToken, status: lastStatus };
+}
+
+async function mapWithOptionalDetails(basics, ctx) {
+  // Map list results from Nearby/Text Search fields directly.
+  // Avoid N Place Details calls (rate limits + multi-second delays) so all pages stay usable.
+  return basics
+    .map((item) => {
+      if (!item) return null;
+      // Nearby Search uses vicinity instead of formatted_address
+      if (!item.formatted_address && item.vicinity) {
+        return { ...item, formatted_address: item.vicinity };
+      }
+      return item;
+    })
+    .map((p) => mapPlaceToHotel(p, ctx))
+    .filter(Boolean);
 }
 
 async function fetchPlaceDetails(placeId) {
@@ -133,8 +187,10 @@ async function fetchPlaceDetails(placeId) {
 }
 
 /**
- * Search lodging via Google Places Text Search (full page, no artificial slice).
- * Supports pagination via next_page_token (Google returns up to ~20 per page, ~60 total).
+ * Search lodging via Google Places.
+ * - With coordinates: Nearby Search (lodging) — full local inventory (~20/page)
+ * - Without: Text Search "hotels in {destination}" (no location+type combo)
+ * Auto-fetches all available Google pages (max ~60) so the UI is not stuck on 5–6 hotels.
  */
 async function searchHotelsPlaces({
   destination,
@@ -154,33 +210,86 @@ async function searchHotelsPlaces({
     throw new GooglePlacesError("Destination is required", { status: 400, code: "INVALID_DESTINATION" });
   }
 
-  const query = `hotels in ${destinationLabel.replace(/-/g, " ")}`;
-  const text = await textSearchLodging({
-    query,
-    location:
-      latitude != null && longitude != null
-        ? { lat: Number(latitude), lng: Number(longitude) }
-        : null,
-    pageToken: pageToken || null,
-  });
+  const hasCoords = latitude != null && longitude != null && Number.isFinite(Number(latitude)) && Number.isFinite(Number(longitude));
+  const location = hasCoords ? { lat: Number(latitude), lng: Number(longitude) } : null;
+  // Prefer a short city-style label for text queries (avoid ultra-long formatted addresses)
+  const shortLabel = destinationLabel
+    .replace(/-/g, " ")
+    .split(",")
+    .slice(0, 2)
+    .join(",")
+    .trim();
+  const textQuery = `hotels in ${shortLabel || destinationLabel.replace(/-/g, " ")}`;
 
-  // Use the full page Google returns — do NOT artificially slice
-  const basics = Array.isArray(text.results) ? text.results : [];
+  let basics = [];
+  let mode = "text";
 
-  const details = await Promise.all(
-    basics.map(async (item) => {
-      try {
-        const detail = await fetchPlaceDetails(item.place_id);
-        if (!detail) return item;
-        if ((!detail.photos || !detail.photos.length) && item.photos?.length) {
-          detail.photos = item.photos;
-        }
-        return detail;
-      } catch {
-        return item;
-      }
-    })
-  );
+  // Client-driven single-page pagination (Load More) — keep for compatibility
+  if (pageToken) {
+    const data = hasCoords
+      ? await nearbySearchLodging({ location, pageToken })
+      : await textSearchHotels({ query: textQuery, pageToken });
+    basics = Array.isArray(data.results) ? data.results : [];
+    const resolvedApiBase =
+      apiBaseUrl ||
+      process.env.API_PUBLIC_URL ||
+      `http://localhost:${process.env.PORT || 5001}`;
+    const ctx = {
+      destinationLabel: shortLabel || destinationLabel.replace(/-/g, " "),
+      checkIn: checkIn || null,
+      checkOut: checkOut || null,
+      guests: guests ?? null,
+      rooms: rooms ?? null,
+      apiBaseUrl: String(resolvedApiBase).replace(/\/$/, ""),
+    };
+    const hotels = await mapWithOptionalDetails(basics, ctx);
+    const next = data.next_page_token || null;
+    return {
+      count: hotels.length,
+      hotels,
+      nextPageToken: next,
+      hasMore: Boolean(next),
+      totalResults: null,
+      durationMs: Date.now() - started,
+    };
+  }
+
+  // Initial search: pull all Google pages so users see the full Places inventory
+  if (hasCoords) {
+    mode = "nearby";
+    const nearby = await collectAllPages(
+      (token) => nearbySearchLodging({ location, pageToken: token, radius: 25000 }),
+      { maxPages: 3 }
+    );
+    basics = nearby.results;
+
+    // If nearby was thin, supplement with text search (dedupe later)
+    if (basics.length < 20) {
+      const text = await collectAllPages(
+        (token) => textSearchHotels({ query: textQuery, pageToken: token }),
+        { maxPages: 3 }
+      );
+      basics = [...basics, ...text.results];
+      mode = "nearby+text";
+    }
+  } else {
+    mode = "text";
+    const text = await collectAllPages(
+      (token) => textSearchHotels({ query: textQuery, pageToken: token }),
+      { maxPages: 3 }
+    );
+    basics = text.results;
+  }
+
+  // Dedupe by place_id — never invent or duplicate hotels
+  const seen = new Set();
+  const uniqueBasics = [];
+  for (const item of basics) {
+    const id = item?.place_id;
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    uniqueBasics.push(item);
+  }
 
   const resolvedApiBase =
     apiBaseUrl ||
@@ -188,7 +297,7 @@ async function searchHotelsPlaces({
     `http://localhost:${process.env.PORT || 5001}`;
 
   const ctx = {
-    destinationLabel: destinationLabel.replace(/-/g, " "),
+    destinationLabel: shortLabel || destinationLabel.replace(/-/g, " "),
     checkIn: checkIn || null,
     checkOut: checkOut || null,
     guests: guests ?? null,
@@ -196,25 +305,25 @@ async function searchHotelsPlaces({
     apiBaseUrl: String(resolvedApiBase).replace(/\/$/, ""),
   };
 
-  const hotels = details.map((p) => mapPlaceToHotel(p, ctx)).filter(Boolean);
-  const nextPageToken = text.next_page_token || null;
+  const hotels = await mapWithOptionalDetails(uniqueBasics, ctx);
 
   console.info("[places] hotel search ok", {
     destination: destinationLabel,
     placeId: placeId || null,
-    query,
+    mode,
+    query: textQuery,
     pageCount: hotels.length,
-    hasMore: Boolean(nextPageToken),
+    hasMore: false,
     durationMs: Date.now() - started,
   });
 
   return {
     count: hotels.length,
     hotels,
-    nextPageToken,
-    hasMore: Boolean(nextPageToken),
-    // Google Text Search does not return a reliable grand total across pages
-    totalResults: null,
+    // All Google pages already fetched for initial search
+    nextPageToken: null,
+    hasMore: false,
+    totalResults: hotels.length,
     durationMs: Date.now() - started,
   };
 }
