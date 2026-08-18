@@ -9,10 +9,57 @@ const {
   mapCashfreeOrderStatus,
 } = require("../services/cashfreeService");
 
+/** Production public API host — Cashfree notify_url must be HTTPS (never localhost). */
+const PRODUCTION_API_PUBLIC_URL = "https://ipnia-tripile.onrender.com";
+
 function generateIpniaOrderId() {
   const stamp = Date.now().toString(36).toUpperCase();
   const rand = uuidv4().split("-")[0].toUpperCase();
   return `IPNIA_${stamp}_${rand}`;
+}
+
+function isLocalhostUrl(url) {
+  return /localhost|127\.0\.0\.1|\[::1\]/i.test(String(url || ""));
+}
+
+/**
+ * Resolve public API base for Cashfree notify_url / absolute links.
+ * In production, never allow http://localhost fallbacks (Render PORT is often 10000).
+ */
+function resolveApiPublicUrl(req) {
+  const isProd = (process.env.NODE_ENV || "development") === "production";
+  let base = String(process.env.API_PUBLIC_URL || "")
+    .trim()
+    .replace(/\/$/, "");
+
+  if (base && isLocalhostUrl(base) && isProd) {
+    console.warn(
+      "[payments] API_PUBLIC_URL is localhost in production; using",
+      PRODUCTION_API_PUBLIC_URL
+    );
+    base = "";
+  }
+
+  if (!base && isProd) {
+    // Prefer the incoming Host header on Render when available
+    const host = req?.get?.("host");
+    if (host && !isLocalhostUrl(host)) {
+      base = `https://${host}`;
+    } else {
+      base = PRODUCTION_API_PUBLIC_URL;
+    }
+  }
+
+  if (!base) {
+    base = `http://localhost:${process.env.PORT || 5000}`;
+  }
+
+  // Cashfree rejects non-HTTPS notify_url
+  if (isProd && base.startsWith("http://")) {
+    base = base.replace(/^http:\/\//i, "https://");
+  }
+
+  return base.replace(/\/$/, "");
 }
 
 function publicPaymentView(payment) {
@@ -65,13 +112,21 @@ async function createOrder(req, res, next) {
     const frontendUrl = isDev
       ? process.env.FRONTEND_DEV_URL || "http://localhost:8080"
       : process.env.FRONTEND_URL || "https://ipnia.com";
-    const apiPublicUrl =
-      process.env.API_PUBLIC_URL ||
-      `http://localhost:${process.env.PORT || 5000}`;
+    const apiPublicUrl = resolveApiPublicUrl(req);
 
     // Cashfree redirects here after checkout; frontend verifies via GET /api/payments/:orderId/status
     const returnUrl = `${frontendUrl}/booking/payment-status?order_id=${ipniaOrderId}`;
     const notifyUrl = `${apiPublicUrl}/api/payments/webhook`;
+
+    if (!/^https:\/\//i.test(notifyUrl) && !isDev) {
+      return res.status(500).json({
+        success: false,
+        message:
+          "Payment webhook URL must be HTTPS in production. Set API_PUBLIC_URL to your Render HTTPS URL.",
+      });
+    }
+
+    console.info("[payments] create-order notify_url", notifyUrl);
 
     // Persist PENDING record before calling Cashfree (idempotent anchor)
     const payment = await Payment.create({
