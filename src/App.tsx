@@ -35,6 +35,24 @@ import EducationTravel from "./pages/EducationTravel";
 import ExperienceTravel from "./pages/ExperienceTravel";
 import PilgrimTravel from "./pages/PilgrimTravel";
 import ForexTravel from "./pages/ForexTravel";
+import HtmlSitemapPage from "./pages/seo/HtmlSitemapPage";
+import { DestinationDetailPage, DestinationsIndexPage } from "./pages/seo/DestinationPages";
+import {
+  AirlineDetailPage,
+  AirlinesIndexPage,
+  FlightDestinationsIndexPage,
+  FlightRoutePage,
+  FlightToDestinationPage,
+} from "./pages/seo/FlightSeoPages";
+import {
+  FlightCountriesIndexPage,
+  FlightCountryPage,
+  HotelCountriesIndexPage,
+  HotelCountryPage,
+  HotelDestinationPage,
+  HotelDestinationsIndexPage,
+} from "./pages/seo/HotelCountryPages";
+import { DealDetailPage, DealsIndexPage } from "./pages/seo/DealPages";
 
 const queryClient = new QueryClient();
 
@@ -49,8 +67,34 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/travel-ecosystem" element={<TravelEcosystem />} />
+              <Route path="/sitemap" element={<HtmlSitemapPage />} />
+
+              {/* Flights SEO */}
               <Route path="/flights" element={<Index />} />
               <Route path="/flights/search" element={<FlightSearch />} />
+              <Route path="/flights/destinations" element={<FlightDestinationsIndexPage />} />
+              <Route path="/flights/to/:slug" element={<FlightToDestinationPage />} />
+              <Route path="/flights/from/:fromSlug/to/:toSlug" element={<FlightRoutePage />} />
+              <Route path="/flights/airlines" element={<AirlinesIndexPage />} />
+              <Route path="/flights/airlines/:slug" element={<AirlineDetailPage />} />
+              <Route path="/flights/countries" element={<FlightCountriesIndexPage />} />
+              <Route path="/flights/countries/:slug" element={<FlightCountryPage />} />
+
+              {/* Hotels SEO — static segments before :slug */}
+              <Route path="/hotels" element={<HotelSearch />} />
+              <Route path="/hotels/search" element={<HotelSearch />} />
+              <Route path="/hotels/destinations" element={<HotelDestinationsIndexPage />} />
+              <Route path="/hotels/countries" element={<HotelCountriesIndexPage />} />
+              <Route path="/hotels/countries/:slug" element={<HotelCountryPage />} />
+              <Route path="/hotels/:slug" element={<HotelDestinationPage />} />
+
+              {/* Destinations + deals */}
+              <Route path="/destinations" element={<DestinationsIndexPage />} />
+              <Route path="/destinations/:slug" element={<DestinationDetailPage />} />
+              <Route path="/deals" element={<DealsIndexPage />} />
+              <Route path="/deals/:slug" element={<DealDetailPage />} />
+
+              {/* Booking (noindex via exclusion from sitemap) */}
               <Route path="/booking/traveller-details" element={<TravellerDetailsPage />} />
               <Route path="/booking/travel-documents" element={<TravelDocumentsPage />} />
               <Route path="/booking/hotel" element={<BookingHotelPage />} />
@@ -58,8 +102,7 @@ const App = () => (
               <Route path="/booking/payment" element={<BookingPaymentPage />} />
               <Route path="/booking/payment-status" element={<BookingPaymentStatusPage />} />
               <Route path="/booking/confirmation" element={<BookingConfirmationPage />} />
-              <Route path="/hotels" element={<HotelSearch />} />
-              <Route path="/hotels/search" element={<HotelSearch />} />
+
               <Route path="/business-travel" element={<BusinessTravel />} />
               <Route path="/education-travel" element={<EducationTravel />} />
               <Route path="/experience-travel" element={<ExperienceTravel />} />
@@ -73,11 +116,14 @@ const App = () => (
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/payment/:course" element={<PaymentPage />} />
               <Route path="/thankyou/:course" element={<ThankYou />} />
               <Route path="/thankyou" element={<ThankYou />} />

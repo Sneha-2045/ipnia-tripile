@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
 const links = [
-  { label: "Flights", href: "/#booking" },
-  { label: "Hotels", href: "/hotels/search" },
+  { label: "Flights", href: "/flights/destinations" },
+  { label: "Hotels", href: "/hotels/destinations" },
+  { label: "Deals", href: "/deals" },
   { label: "Travel Ecosystem", href: "/travel-ecosystem" },
   { label: "Business Travel", href: "/business-travel" },
   { label: "Education Travel", href: "/education-travel" },

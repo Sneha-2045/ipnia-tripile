@@ -3,8 +3,13 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { Separator } from "@/components/ui/separator";
 
 const segments = [
-  { label: "Book Flights", href: "/" },
+  { label: "Book Flights", href: "/flights/search" },
+  { label: "Flight Destinations", href: "/flights/destinations" },
+  { label: "Airlines", href: "/flights/airlines" },
   { label: "Book Hotels", href: "/hotels/search" },
+  { label: "Hotel Destinations", href: "/hotels/destinations" },
+  { label: "Destinations", href: "/destinations" },
+  { label: "Travel Deals", href: "/deals" },
   { label: "Travel Ecosystem", href: "/travel-ecosystem" },
   { label: "Business Travel", href: "/business-travel" },
   { label: "Education Travel", href: "/education-travel" },
@@ -105,6 +110,11 @@ export function SiteFooter() {
               <li>
                 <Link to="/contact" className="hover:text-[#d4a853]">
                   Contact
+                </Link>
+              </li>
+              <li>
+                <Link to="/sitemap" className="hover:text-[#d4a853]">
+                  Sitemap
                 </Link>
               </li>
               <li>

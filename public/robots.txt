@@ -1,3 +1,4 @@
+# IPNIA robots.txt
 User-agent: Googlebot
 Allow: /
 
@@ -12,3 +13,16 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Private / transactional areas
+Disallow: /booking/
+Disallow: /dashboard
+Disallow: /login
+Disallow: /signup
+Disallow: /payment/
+Disallow: /thankyou
+
+# Temporary hotel search query URLs (canonical landing pages remain indexable)
+Disallow: /hotels/search?
+
+Sitemap: https://ipnia.com/sitemap.xml

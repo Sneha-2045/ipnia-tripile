@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { SITE_ORIGIN } from "@/lib/seo/site";
 
 type SEOProps = {
   title: string;
@@ -39,12 +40,14 @@ const setCanonical = (url: string) => {
 const SEO = ({ title, description, path, keywords, image, jsonLd }: SEOProps) => {
   useEffect(() => {
     const fullTitle = title.includes("IPNIA") ? title : `${title} | IPNIA`;
-    const canonicalUrl = `${window.location.origin}${path}`;
+    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+    // Always canonicalize to production HTTPS host (no www / query duplicates)
+    const canonicalUrl = `${SITE_ORIGIN}${normalizedPath.split("?")[0]}`;
     const ogImage = image
       ? image.startsWith("http")
         ? image
-        : `${window.location.origin}${image}`
-      : `${window.location.origin}/assets/ipnia/china-business-tour.jpg`;
+        : `${SITE_ORIGIN}${image}`
+      : `${SITE_ORIGIN}/assets/ipnia/china-business-tour.jpg`;
 
     document.title = fullTitle;
     setMetaTag("description", description);
