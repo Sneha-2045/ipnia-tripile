@@ -357,4 +357,5 @@ function toInrAmounts({ totalAmount, totalCurrency, baseAmount, taxAmount }) {
 module.exports = {
   mapDuffelOfferToFlight,
   parseIsoDuration,
+  convertAmountToInr,
 };

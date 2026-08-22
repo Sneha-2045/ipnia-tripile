@@ -293,7 +293,7 @@ export function HotelCard({
               onClick={onSelect}
               className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
             >
-              View Rooms
+              Book Stay
             </Button>
             <Button
               type="button"

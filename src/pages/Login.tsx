@@ -16,10 +16,9 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const { signIn, signInWithGoogle, user } = useAuth();
+  const { signIn } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,7 +30,6 @@ const Login = () => {
       [name]: value
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -59,7 +57,7 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -84,10 +82,10 @@ const Login = () => {
         if (redirectTo) {
           navigate(redirectTo, { replace: true });
         } else {
-        navigate('/');
+          navigate('/dashboard');
         }
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'An unexpected error occurred. Please try again.',
@@ -98,37 +96,13 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setIsGoogleLoading(true);
-    try {
-      const redirectTo = location.state?.redirectTo || '/';
-      const { error } = await signInWithGoogle(redirectTo);
-
-      if (error) {
-        toast({
-          title: 'Google Sign-In Failed',
-          description: error,
-          variant: 'destructive',
-        });
-      }
-    } catch {
-      toast({
-        title: 'Google Sign-In Failed',
-        description: 'Unable to continue with Google. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
           <CardDescription>
-            Sign in to your Traveled account
+            Sign in to your IPNIA account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -194,25 +168,6 @@ const Login = () => {
               {isLoading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
-
-          {/* Google Sign-In Button */}
-          {!user && (
-            <div className="mt-6 flex flex-col items-center">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 mt-2"
-                onClick={handleGoogleSignIn}
-                disabled={isGoogleLoading}
-              >
-                <span className="inline-block align-middle mr-2">
-                  {/* Google SVG icon */}
-                  <svg width="20" height="20" viewBox="0 0 48 48"><g><path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.23l6.85-6.85C36.68 2.36 30.74 0 24 0 14.82 0 6.71 5.06 2.69 12.44l7.99 6.21C12.13 13.13 17.62 9.5 24 9.5z"/><path fill="#34A853" d="M46.1 24.55c0-1.64-.15-3.22-.42-4.74H24v9.01h12.42c-.54 2.9-2.18 5.36-4.65 7.01l7.19 5.59C43.98 37.13 46.1 31.3 46.1 24.55z"/><path fill="#FBBC05" d="M10.68 28.65c-1.13-3.36-1.13-6.99 0-10.35l-7.99-6.21C.99 16.09 0 19.92 0 24c0 4.08.99 7.91 2.69 11.91l7.99-6.21z"/><path fill="#EA4335" d="M24 48c6.48 0 11.92-2.15 15.89-5.85l-7.19-5.59c-2.01 1.35-4.59 2.15-8.7 2.15-6.38 0-11.87-3.63-14.32-8.9l-7.99 6.21C6.71 42.94 14.82 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></g></svg>
-                </span>
-                {isGoogleLoading ? 'Redirecting to Google...' : 'Sign in with Google'}
-              </Button>
-            </div>
-          )}
 
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">

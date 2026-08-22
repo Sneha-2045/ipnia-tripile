@@ -197,8 +197,63 @@ async function createOfferRequest(searchParams) {
   };
 }
 
+async function getOfferById(offerId) {
+  const config = getDuffelConfig();
+  if (!config.isConfigured) {
+    throw new DuffelApiError("Flight search is not configured", {
+      status: 503,
+      code: "DUFFEL_NOT_CONFIGURED",
+    });
+  }
+  const id = String(offerId || "").trim();
+  if (!id) {
+    throw new DuffelApiError("Offer id is required", { status: 400, code: "INVALID_OFFER_ID" });
+  }
+
+  const url = `${config.baseUrl}/air/offers/${encodeURIComponent(id)}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), config.httpTimeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip",
+        "Duffel-Version": config.version,
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+      signal: controller.signal,
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new DuffelApiError("Unable to verify flight offer price.", {
+        status: response.status === 404 ? 404 : 502,
+        code: "DUFFEL_OFFER_FETCH",
+        details: payload,
+      });
+    }
+    return payload?.data || null;
+  } catch (err) {
+    if (err instanceof DuffelApiError) throw err;
+    if (err.name === "AbortError") {
+      throw new DuffelApiError("Flight offer verification timed out.", {
+        status: 504,
+        code: "DUFFEL_TIMEOUT",
+      });
+    }
+    throw new DuffelApiError("Unable to verify flight offer price.", {
+      status: 502,
+      code: "DUFFEL_NETWORK",
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 module.exports = {
   createOfferRequest,
+  getOfferById,
   DuffelApiError,
   mapCabinClass,
 };

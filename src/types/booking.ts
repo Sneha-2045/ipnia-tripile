@@ -23,6 +23,9 @@ export type SelectedFlight = {
   taxes: number;
   totalAmount: number;
   travellerCount: number;
+  adults: number;
+  children: number;
+  infants: number;
   isInternational: boolean;
 };
 
@@ -34,8 +37,11 @@ export type TravelDocument = {
   nationality: string;
 };
 
+export type TravellerType = "adult" | "child" | "infant";
+
 export type Traveller = {
   id: string;
+  type: TravellerType;
   title: TravellerTitle;
   firstName: string;
   middleName: string;
@@ -60,7 +66,12 @@ export type SelectedHotelBooking = {
   roomPrice: number;
   taxes: number;
   totalPrice: number;
+  /** Google Place id when booking from hotel search (server uses deposit). */
+  placeId?: string | null;
+  /** When true, payable amount is server deposit rather than room estimate. */
+  isDeposit?: boolean;
 } | null;
+
 
 export type PriceBreakdown = {
   flightFare: number;
@@ -86,10 +97,11 @@ export type FlightBookingState = {
 
 export const BOOKING_STORAGE_KEY = "ipnia_flight_booking_v1";
 
-export function emptyTraveller(index = 0): Traveller {
+export function emptyTraveller(index = 0, type: TravellerType = "adult"): Traveller {
   return {
     id: `traveller-${index + 1}-${Date.now()}`,
-    title: "Mr",
+    type,
+    title: type === "infant" ? "Other" : "Mr",
     firstName: "",
     middleName: "",
     lastName: "",
@@ -106,6 +118,15 @@ export function emptyTraveller(index = 0): Traveller {
       nationality: "India",
     },
   };
+}
+
+export function buildTravellersFromCounts(adults: number, children: number, infants: number): Traveller[] {
+  const list: Traveller[] = [];
+  let index = 0;
+  for (let i = 0; i < Math.max(0, adults); i += 1) list.push(emptyTraveller(index++, "adult"));
+  for (let i = 0; i < Math.max(0, children); i += 1) list.push(emptyTraveller(index++, "child"));
+  for (let i = 0; i < Math.max(0, infants); i += 1) list.push(emptyTraveller(index++, "infant"));
+  return list.length ? list : [emptyTraveller(0, "adult")];
 }
 
 export function computePriceBreakdown(

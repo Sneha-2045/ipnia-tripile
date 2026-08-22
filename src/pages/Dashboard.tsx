@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, BookOpen, Award } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -21,7 +21,7 @@ const Dashboard = () => {
           <div>
             <h1 className="text-3xl font-bold">Welcome to Your Dashboard</h1>
             <p className="text-muted-foreground mt-2">
-              Hello, {user?.user_metadata?.full_name || user?.email}!
+              Hello, {user?.fullName || user?.email}!
             </p>
           </div>
           <Button onClick={handleSignOut} variant="outline">
@@ -38,50 +38,19 @@ const Dashboard = () => {
                 Profile
               </CardTitle>
               <CardDescription>
-                Manage your account settings
+                Your IPNIA account
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-1">
               <p className="text-sm text-muted-foreground">
                 Email: {user?.email}
               </p>
               <p className="text-sm text-muted-foreground">
-                Name: {user?.user_metadata?.full_name || 'Not set'}
+                Name: {user?.fullName || 'Not set'}
               </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <BookOpen className="h-5 w-5 mr-2" />
-                My Courses
-              </CardTitle>
-              <CardDescription>
-                View your enrolled courses
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                No courses enrolled yet. Start learning today!
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Award className="h-5 w-5 mr-2" />
-                Achievements
-              </CardTitle>
-              <CardDescription>
-                Track your progress and certificates
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Complete your first course to earn achievements!
-              </p>
+              {user?.phone ? (
+                <p className="text-sm text-muted-foreground">Phone: {user.phone}</p>
+              ) : null}
             </CardContent>
           </Card>
         </div>

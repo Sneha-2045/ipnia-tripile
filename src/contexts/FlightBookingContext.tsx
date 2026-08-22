@@ -9,6 +9,7 @@ import {
 } from "react";
 import {
   BOOKING_STORAGE_KEY,
+  buildTravellersFromCounts,
   computePriceBreakdown,
   emptyTraveller,
   type FlightBookingState,
@@ -21,6 +22,7 @@ import { isInternationalIndiaRoute } from "@/lib/mapOfferToBooking";
 type FlightBookingContextValue = {
   state: FlightBookingState;
   setSelectedFlight: (flight: SelectedFlight) => void;
+  startHotelBooking: (hotel: NonNullable<SelectedHotelBooking>, guestCount: number) => void;
   setTravellers: (travellers: Traveller[]) => void;
   updateTraveller: (index: number, patch: Partial<Traveller>) => void;
   setHotel: (hotel: SelectedHotelBooking) => void;
@@ -36,6 +38,7 @@ type FlightBookingContextValue = {
   resetBooking: () => void;
   isInternational: boolean;
   grandTotal: number;
+  isHotelOnly: boolean;
 };
 
 const initialState: FlightBookingState = {
@@ -78,12 +81,29 @@ export function FlightBookingProvider({ children }: { children: ReactNode }) {
   }, [state]);
 
   const setSelectedFlight = useCallback((flight: SelectedFlight) => {
-    const travellers = Array.from({ length: flight.travellerCount }, (_, i) => emptyTraveller(i));
+    const travellers = buildTravellersFromCounts(
+      flight.adults ?? flight.travellerCount,
+      flight.children ?? 0,
+      flight.infants ?? 0
+    );
     setState({
       ...initialState,
       selectedFlight: flight,
       travellers,
       priceBreakdown: computePriceBreakdown(flight, null),
+    });
+  }, []);
+
+  const startHotelBooking = useCallback((hotel: NonNullable<SelectedHotelBooking>, guestCount: number) => {
+    const guests = Math.max(1, guestCount || hotel.guests || 1);
+    const travellers = Array.from({ length: guests }, (_, i) => emptyTraveller(i, "adult"));
+    setState({
+      ...initialState,
+      selectedFlight: null,
+      hotel,
+      hotelSkipped: false,
+      travellers,
+      priceBreakdown: computePriceBreakdown(null, hotel),
     });
   }, []);
 
@@ -163,6 +183,7 @@ export function FlightBookingProvider({ children }: { children: ReactNode }) {
     () => ({
       state,
       setSelectedFlight,
+      startHotelBooking,
       setTravellers,
       updateTraveller,
       setHotel,
@@ -179,10 +200,12 @@ export function FlightBookingProvider({ children }: { children: ReactNode }) {
           )
         : false,
       grandTotal: state.priceBreakdown.grandTotal,
+      isHotelOnly: Boolean(state.hotel && !state.selectedFlight),
     }),
     [
       state,
       setSelectedFlight,
+      startHotelBooking,
       setTravellers,
       updateTraveller,
       setHotel,

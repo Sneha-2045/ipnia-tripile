@@ -54,6 +54,9 @@ export function mapDuffelOfferToSelectedFlight(
   opts: {
     departureDate?: string;
     travellerCount: number;
+    adults?: number;
+    children?: number;
+    infants?: number;
   }
 ): SelectedFlight {
   const outbound = offer.slices[0];
@@ -88,8 +91,12 @@ export function mapDuffelOfferToSelectedFlight(
     lastSeg?.destination?.countryCode || outbound?.destination?.countryCode || ""
   );
 
-  // Domestic within India → no passport. Any point outside India → passport.
   const isInternational = isInternationalIndiaRoute(originCountry, destCountry);
+
+  const adults = Math.max(1, opts.adults ?? opts.travellerCount);
+  const children = Math.max(0, opts.children ?? 0);
+  const infants = Math.max(0, opts.infants ?? 0);
+  const travellerCount = Math.max(1, adults + children + infants);
 
   const airline =
     offer.primaryCarrier?.name ||
@@ -117,7 +124,10 @@ export function mapDuffelOfferToSelectedFlight(
     fare,
     taxes,
     totalAmount: safeTotal,
-    travellerCount: Math.max(1, opts.travellerCount),
+    travellerCount,
+    adults,
+    children,
+    infants,
     isInternational,
   };
 }

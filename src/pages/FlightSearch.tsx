@@ -30,7 +30,7 @@ const FlightSearch = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const query = useMemo(() => {
-    const adults = Math.max(1, Number(params.get("adults") || params.get("travellers") || 1));
+    const adults = Math.max(1, Number(params.get("adults") || 1));
     const children = Math.max(0, Number(params.get("children") || 0));
     const infants = Math.max(0, Number(params.get("infants") || 0));
     const maxConnectionsRaw = params.get("maxConnections");
@@ -39,9 +39,12 @@ const FlightSearch = () => {
         ? null
         : Number(maxConnectionsRaw);
 
+    const from = (params.get("from") || "").toUpperCase();
+    const to = (params.get("to") || "").toUpperCase();
+
     return {
-      origin: (params.get("from") || "DEL").toUpperCase(),
-      destination: (params.get("to") || "JFK").toUpperCase(),
+      origin: from,
+      destination: to,
       departureDate: params.get("departure") || "",
       returnDate: params.get("return") || null,
       adults,
@@ -50,13 +53,22 @@ const FlightSearch = () => {
       cabinClass: params.get("cabin") || "economy",
       maxConnections: Number.isFinite(maxConnections as number) ? maxConnections : null,
       tripType: params.get("tripType") || (params.get("return") ? "roundtrip" : "oneway"),
+      hasRoute: Boolean(from && to),
     };
   }, [params]);
 
-  const fromCity = getAirportByCode(query.origin)?.city || query.origin;
-  const toCity = getAirportByCode(query.destination)?.city || query.destination;
+  const fromCity = query.origin ? getAirportByCode(query.origin)?.city || query.origin : "";
+  const toCity = query.destination
+    ? getAirportByCode(query.destination)?.city || query.destination
+    : "";
 
   useEffect(() => {
+    if (!query.hasRoute) {
+      setLoading(false);
+      setOffers([]);
+      setError("Select origin and destination airports to search flights.");
+      return;
+    }
     if (!query.departureDate) {
       setLoading(false);
       setOffers([]);
@@ -143,12 +155,15 @@ const FlightSearch = () => {
     .filter(Boolean)
     .join(" · ");
 
-  const travellerCount = Math.max(1, query.adults + query.children);
+  const travellerCount = Math.max(1, query.adults + query.children + query.infants);
 
   const handleBookNow = (offer: NormalizedFlightOffer) => {
     const flight = mapDuffelOfferToSelectedFlight(offer, {
       departureDate: query.departureDate,
       travellerCount,
+      adults: query.adults,
+      children: query.children,
+      infants: query.infants,
     });
     setSelectedFlight(flight);
     navigate("/booking/traveller-details");
@@ -170,12 +185,14 @@ const FlightSearch = () => {
             Flight Search
           </p>
           <h1 className="mt-2 text-3xl font-bold md:text-5xl">
-            {fromCity} → {toCity}
+            {query.hasRoute ? `${fromCity} → ${toCity}` : "Search flights"}
           </h1>
           <p className="mt-2 text-white/60">
-            {query.departureDate || "Select dates"}
-            {query.returnDate ? ` → ${query.returnDate}` : ""} · {passengerLabel} ·{" "}
-            {formatCabinLabel(query.cabinClass) || query.cabinClass}
+            {query.hasRoute
+              ? `${query.departureDate || "Select dates"}${
+                  query.returnDate ? ` → ${query.returnDate}` : ""
+                } · ${passengerLabel} · ${formatCabinLabel(query.cabinClass) || query.cabinClass}`
+              : "Choose origin, destination and dates using the search form below."}
           </p>
         </div>
 

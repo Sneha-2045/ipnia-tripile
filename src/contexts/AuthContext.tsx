@@ -1,9 +1,15 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
-import { User } from '@supabase/supabase-js';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import {
+  getAuthToken,
+  loginRequest,
+  meRequest,
+  setAuthToken,
+  signupRequest,
+  type AuthUser,
+} from "@/lib/authApi";
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   loading: boolean;
   signUp: (
     email: string,
@@ -24,36 +30,39 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session (no-op if Supabase env is not configured)
-    supabase.auth
-      .getSession()
-      .then(({ data: { session } }) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
+    let active = true;
+    const token = getAuthToken();
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    meRequest(token)
+      .then((u) => {
+        if (!active) return;
+        setUser(u);
       })
       .catch(() => {
-        setLoading(false);
+        if (!active) return;
+        setAuthToken(null);
+        setUser(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
     return () => {
-      subscription.unsubscribe();
+      active = false;
     };
   }, []);
 
@@ -66,120 +75,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       source?: string;
     }
   ) => {
-    console.log('AuthProvider: Sign up attempt for', email);
     try {
-      const signupDetails = {
-        full_name: details.fullName,
-        phone: details.phone || null,
-        email,
-        source: details.source || 'email_password',
-        created_at: new Date().toISOString(),
-      };
-
-      const { error } = await supabase.auth.signUp({
+      const { token, user: created } = await signupRequest({
         email,
         password,
-        options: {
-          data: {
-            ...signupDetails,
-            signup_details: signupDetails,
-          },
-        },
+        fullName: details.fullName,
+        phone: details.phone,
+        source: details.source || "email_password",
       });
-
-      if (error) {
-        console.error('AuthProvider: Sign up error:', error);
-        return { error: error.message };
-      }
-
-      console.log('AuthProvider: Sign up successful');
+      setAuthToken(token);
+      setUser(created);
       return { error: null };
     } catch (error) {
-      console.error('AuthProvider: Sign up exception:', error);
-      return { error: 'An unexpected error occurred' };
+      return { error: error instanceof Error ? error.message : "An unexpected error occurred" };
     }
   };
 
   const signIn = async (email: string, password: string) => {
-    console.log('AuthProvider: Sign in attempt for', email);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        console.error('AuthProvider: Sign in error:', error);
-        return { error: error.message };
-      }
-
-      if (data.user) {
-        const metadata = data.user.user_metadata || {};
-        const signInHistory = Array.isArray(metadata.signin_history) ? metadata.signin_history : [];
-        const signInEvent = {
-          at: new Date().toISOString(),
-          source: 'email_password',
-          email,
-        };
-
-        await supabase.auth.updateUser({
-          data: {
-            ...metadata,
-            last_signin_details: signInEvent,
-            signin_history: [...signInHistory.slice(-9), signInEvent],
-          },
-        });
-      }
-
-      console.log('AuthProvider: Sign in successful');
+      const { token, user: loggedIn } = await loginRequest({ email, password });
+      setAuthToken(token);
+      setUser(loggedIn);
       return { error: null };
     } catch (error) {
-      console.error('AuthProvider: Sign in exception:', error);
-      return { error: 'An unexpected error occurred' };
+      return { error: error instanceof Error ? error.message : "An unexpected error occurred" };
     }
   };
 
   const signOut = async () => {
-    console.log('AuthProvider: Sign out attempt');
-    try {
-      await supabase.auth.signOut();
-      console.log('AuthProvider: Sign out successful');
-    } catch (error) {
-      console.error('AuthProvider: Sign out error:', error);
-    }
+    setAuthToken(null);
+    setUser(null);
   };
 
-  const signInWithGoogle = async (redirectTo?: string) => {
-    try {
-      const resolvedRedirectTo = redirectTo
-        ? `${window.location.origin}${redirectTo.startsWith('/') ? redirectTo : `/${redirectTo}`}`
-        : undefined;
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: resolvedRedirectTo ? { redirectTo: resolvedRedirectTo } : undefined,
-      });
-      if (error) {
-        console.error('AuthProvider: Google sign-in error:', error);
-        return { error: error.message };
-      }
-      return { error: null };
-    } catch (error) {
-      console.error('AuthProvider: Google sign-in exception:', error);
-      return { error: 'An unexpected error occurred' };
-    }
+  const signInWithGoogle = async () => {
+    return {
+      error: "Google sign-in is not available. Please use email and password.",
+    };
   };
 
-  const value = {
-    user,
-    loading,
-    signUp,
-    signIn,
-    signOut,
-    signInWithGoogle,
-  };
-
-  console.log('AuthProvider: Rendering with state', { user: !!user, loading });
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        signUp,
+        signIn,
+        signOut,
+        signInWithGoogle,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };

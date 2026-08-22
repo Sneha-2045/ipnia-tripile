@@ -25,9 +25,12 @@ import SEO from "@/components/SEO";
 import StickyCTA from "@/components/StickyCTA";
 import { WhyBookWithUs } from "@/components/WhyBookWithUs";
 import { Button } from "@/components/ui/button";
+import { useFlightBooking } from "@/contexts/FlightBookingContext";
 import { stayCategories } from "@/data/hotels";
+import { HOTEL_BOOKING_DEPOSIT_INR } from "@/lib/hotelBooking";
 import { loadRecentHotelDestinations } from "@/lib/recentHotelDestinations";
 import { searchHotelsViaApi, type SelectedHotelDestination } from "@/services/hotelSearchApi";
+import type { SelectedHotelBooking } from "@/types/booking";
 import type { NormalizedHotel } from "@/types/hotel";
 
 function formatLabel(value: string) {
@@ -45,12 +48,32 @@ function defaultDates() {
   };
 }
 
+function tonightISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function plusDaysISO(days: number, from = tonightISO()) {
+  const d = new Date(`${from}T00:00:00`);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 function nightsBetween(checkIn: string, checkOut: string) {
   if (!checkIn || !checkOut) return null;
   const a = new Date(`${checkIn}T00:00:00`);
   const b = new Date(`${checkOut}T00:00:00`);
   if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime()) || b <= a) return null;
   return Math.round((b.getTime() - a.getTime()) / 86400000);
+}
+
+/** Clamp URL dates so check-in is never in the past and check-out is after check-in. */
+function sanitizeStayDates(checkIn: string, checkOut: string) {
+  const today = tonightISO();
+  let inDate = checkIn || plusDaysISO(1);
+  let outDate = checkOut || plusDaysISO(3);
+  if (inDate < today) inDate = today;
+  if (outDate <= inDate) outDate = plusDaysISO(1, inDate);
+  return { checkIn: inDate, checkOut: outDate };
 }
 
 function scrollToHotelSearch() {
@@ -60,6 +83,7 @@ function scrollToHotelSearch() {
 const HotelSearch = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const { startHotelBooking } = useFlightBooking();
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
@@ -79,6 +103,10 @@ const HotelSearch = () => {
     const lngRaw = params.get("lng");
     const lat = latRaw != null && latRaw !== "" ? Number(latRaw) : null;
     const lng = lngRaw != null && lngRaw !== "" ? Number(lngRaw) : null;
+    const dates = sanitizeStayDates(
+      params.get("checkIn") || defaults.checkIn,
+      params.get("checkOut") || defaults.checkOut
+    );
     return {
       destination: params.get("destination") || "",
       placeId: params.get("placeId") || null,
@@ -86,10 +114,10 @@ const HotelSearch = () => {
       longitude: Number.isFinite(lng) ? lng : null,
       city: params.get("city") || null,
       country: params.get("country") || null,
-      checkIn: params.get("checkIn") || defaults.checkIn,
-      checkOut: params.get("checkOut") || defaults.checkOut,
-      guests: Number(params.get("guests") || 2),
-      rooms: Number(params.get("rooms") || 1),
+      checkIn: dates.checkIn,
+      checkOut: dates.checkOut,
+      guests: Math.max(1, Number(params.get("guests") || 2) || 2),
+      rooms: Math.max(1, Number(params.get("rooms") || 1) || 1),
     };
   }, [params, defaults]);
 
@@ -98,6 +126,19 @@ const HotelSearch = () => {
     ? formatLabel(query.destination)
     : query.city || "your next stay";
   const nights = nightsBetween(query.checkIn, query.checkOut);
+
+  // Rewrite URL if past / invalid stay dates were shared
+  useEffect(() => {
+    const rawIn = params.get("checkIn");
+    const rawOut = params.get("checkOut");
+    if (!rawIn && !rawOut) return;
+    const fixed = sanitizeStayDates(rawIn || defaults.checkIn, rawOut || defaults.checkOut);
+    if (rawIn === fixed.checkIn && rawOut === fixed.checkOut) return;
+    const next = new URLSearchParams(params);
+    next.set("checkIn", fixed.checkIn);
+    next.set("checkOut", fixed.checkOut);
+    navigate(`/hotels/search?${next.toString()}`, { replace: true });
+  }, [params, defaults, navigate]);
 
   useEffect(() => {
     setRecentDestinations(loadRecentHotelDestinations());
@@ -267,17 +308,32 @@ const HotelSearch = () => {
     return Array.from(set).sort();
   }, [results]);
 
-  const goEnquire = (hotel: NormalizedHotel) => {
-    const q = new URLSearchParams({
-      subject: `Hotel enquiry: ${hotel.name}`,
-      hotel: hotel.name,
+  const goBookHotel = (hotel: NormalizedHotel) => {
+    const stayNights = nightsBetween(query.checkIn, query.checkOut) || 1;
+    const perNight = hotel.pricePerNight ?? hotel.price;
+    const hasLiveRate = perNight != null && Number.isFinite(Number(perNight)) && Number(perNight) > 0;
+    // Live inventory rates are not yet bookable online — charge a confirmation deposit.
+    const roomPrice = hasLiveRate
+      ? Math.round(Number(perNight) * stayNights)
+      : HOTEL_BOOKING_DEPOSIT_INR;
+    const taxes = hasLiveRate ? Math.round(roomPrice * 0.12) : 0;
+    const booking: NonNullable<SelectedHotelBooking> = {
+      id: hotel.placeId || hotel.id,
       placeId: hotel.placeId || hotel.id,
+      name: hotel.name,
+      location: hotel.address || [hotel.city, hotel.country].filter(Boolean).join(", ") || "Stay",
+      roomType: "Standard Room",
       checkIn: query.checkIn,
       checkOut: query.checkOut,
-      guests: String(query.guests),
-      rooms: String(query.rooms),
-    });
-    navigate(`/contact?${q.toString()}`);
+      guests: query.guests,
+      nights: stayNights,
+      roomPrice: hasLiveRate ? roomPrice : HOTEL_BOOKING_DEPOSIT_INR,
+      taxes,
+      totalPrice: hasLiveRate ? roomPrice + taxes : HOTEL_BOOKING_DEPOSIT_INR,
+      isDeposit: true,
+    };
+    startHotelBooking(booking, query.guests);
+    navigate("/booking/traveller-details");
   };
 
   const searchFromRecent = (dest: SelectedHotelDestination) => {
@@ -509,7 +565,7 @@ const HotelSearch = () => {
                           setSelected(hotel);
                           setDetailsOpen(true);
                         }}
-                        onSelect={() => goEnquire(hotel)}
+                        onSelect={() => goBookHotel(hotel)}
                       />
                     ))}
                     {hasMore && nextPageToken && (
@@ -607,7 +663,7 @@ const HotelSearch = () => {
         hotel={selected}
         open={detailsOpen}
         onOpenChange={setDetailsOpen}
-        onSelect={() => selected && goEnquire(selected)}
+        onSelect={() => selected && goBookHotel(selected)}
       />
       <SiteFooter />
       <StickyCTA label="Enquire About Stays" to="/contact" />

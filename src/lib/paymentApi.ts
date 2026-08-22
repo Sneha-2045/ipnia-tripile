@@ -28,7 +28,8 @@ export type PaymentStatusResponse = {
 };
 
 export async function createPaymentOrder(payload: {
-  amount: number;
+  flightOfferId?: string | null;
+  hotelPlaceId?: string | null;
   currency?: string;
   customer: { name: string; email: string; phone: string };
 }): Promise<CreateOrderResponse> {
@@ -36,7 +37,8 @@ export async function createPaymentOrder(payload: {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      amount: payload.amount,
+      flightOfferId: payload.flightOfferId || null,
+      hotelPlaceId: payload.hotelPlaceId || null,
       currency: payload.currency || "INR",
       customer: payload.customer,
     }),
@@ -44,7 +46,7 @@ export async function createPaymentOrder(payload: {
 
   const data = await res.json();
   if (!res.ok || !data.success) {
-    throw new Error(data.message || "Failed to create payment order");
+    throw new Error(data.message || data.errors?.[0] || "Failed to create payment order");
   }
   return data as CreateOrderResponse;
 }

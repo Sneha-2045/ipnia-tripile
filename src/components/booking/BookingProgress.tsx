@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 const ALL_STEPS = [
   { id: 1, label: "Traveller", path: "/booking/traveller-details" },
   { id: 2, label: "Travel Documents", path: "/booking/travel-documents", internationalOnly: true },
-  { id: 3, label: "Hotel", path: "/booking/hotel" },
+  { id: 3, label: "Hotel", path: "/booking/hotel", flightOnly: true },
   { id: 4, label: "Review", path: "/booking/review" },
   { id: 5, label: "Payment", path: "/booking/payment" },
 ] as const;
@@ -15,15 +15,23 @@ type Props = {
   maxReachableStep?: number;
   /** When false, passport / travel-documents step is hidden (domestic India). */
   isInternational?: boolean;
+  /** Hotel-only bookings skip flight hotel + documents steps. */
+  isHotelOnly?: boolean;
 };
 
 export function BookingProgress({
   currentStep,
   maxReachableStep,
   isInternational = true,
+  isHotelOnly = false,
 }: Props) {
   const reachable = maxReachableStep ?? currentStep;
-  const steps = ALL_STEPS.filter((s) => isInternational || !("internationalOnly" in s && s.internationalOnly));
+  const steps = ALL_STEPS.filter((s) => {
+    if (isHotelOnly && ("flightOnly" in s && s.flightOnly)) return false;
+    if (isHotelOnly && ("internationalOnly" in s && s.internationalOnly)) return false;
+    if (!isInternational && "internationalOnly" in s && s.internationalOnly) return false;
+    return true;
+  });
 
   return (
     <nav aria-label="Booking progress" className="mb-8 overflow-x-auto">

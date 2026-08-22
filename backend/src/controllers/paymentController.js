@@ -84,26 +84,68 @@ function publicPaymentView(payment) {
 /**
  * POST /api/payments/create-order
  *
- * NOTE ON AMOUNT TRUST:
- * Frontend amount is validated for now. When bookings exist, pass bookingId
- * and resolve amount from the booking record (sourceAmountFromBooking=true).
+ * Payable amount is resolved server-side only:
+ * - Flight: live Duffel offer total (INR)
+ * - Hotel-only (no flight): fixed booking deposit from HOTEL_BOOKING_DEPOSIT_INR
+ * Client-supplied `amount` / `hotelAmount` are never trusted for charging.
  */
 async function createOrder(req, res, next) {
   try {
-    let { amount, currency, customer, bookingId } = req.body;
+    const { currency, customer, flightOfferId, hotelPlaceId } = req.body;
 
-    // Future hook: resolve amount from booking record
+    let amount = 0;
     let sourceAmountFromBooking = false;
-    if (bookingId) {
-      // Placeholder for future /api/bookings integration:
-      // const booking = await Booking.findById(bookingId);
-      // if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
-      // amount = booking.payableAmount;
-      // sourceAmountFromBooking = true;
-      return res.status(501).json({
+    let amountKind = null;
+
+    if (flightOfferId) {
+      const { getOfferById, DuffelApiError } = require("../services/duffelService");
+      const { mapDuffelOfferToFlight } = require("../services/mapDuffelOffer");
+      try {
+        const rawOffer = await getOfferById(flightOfferId);
+        const mapped = mapDuffelOfferToFlight(rawOffer);
+        const flightTotal = Math.round(Number(mapped?.totalAmount || 0));
+        if (!Number.isFinite(flightTotal) || flightTotal < 1) {
+          return res.status(400).json({
+            success: false,
+            message: "Unable to determine payable flight amount from the selected offer.",
+          });
+        }
+        amount += flightTotal;
+        sourceAmountFromBooking = true;
+        amountKind = "flight_offer";
+      } catch (err) {
+        if (err instanceof DuffelApiError) {
+          return res.status(err.status || 502).json({
+            success: false,
+            message: err.message || "Unable to verify flight offer price.",
+            code: err.code,
+          });
+        }
+        throw err;
+      }
+    } else if (hotelPlaceId) {
+      const deposit = Math.round(Number(process.env.HOTEL_BOOKING_DEPOSIT_INR || 2999));
+      if (!Number.isFinite(deposit) || deposit < 1) {
+        return res.status(500).json({
+          success: false,
+          message: "Hotel booking deposit is not configured.",
+        });
+      }
+      amount = deposit;
+      sourceAmountFromBooking = true;
+      amountKind = "hotel_deposit";
+    }
+
+    if (!Number.isFinite(amount) || amount < 1) {
+      return res.status(400).json({
         success: false,
-        message:
-          "bookingId is reserved for future booking APIs. Omit bookingId and send amount for now.",
+        message: "Payable amount could not be calculated from the booking.",
+      });
+    }
+    if (amount > 500000) {
+      return res.status(400).json({
+        success: false,
+        message: "Payable amount exceeds allowed maximum.",
       });
     }
 
@@ -114,7 +156,6 @@ async function createOrder(req, res, next) {
       : process.env.FRONTEND_URL || "https://ipnia.com";
     const apiPublicUrl = resolveApiPublicUrl(req);
 
-    // Cashfree redirects here after checkout; frontend verifies via GET /api/payments/:orderId/status
     const returnUrl = `${frontendUrl}/booking/payment-status?order_id=${ipniaOrderId}`;
     const notifyUrl = `${apiPublicUrl}/api/payments/webhook`;
 
@@ -126,16 +167,22 @@ async function createOrder(req, res, next) {
       });
     }
 
-    console.info("[payments] create-order notify_url", notifyUrl);
+    console.info("[payments] create-order", {
+      notify_url: notifyUrl,
+      amount,
+      amountKind,
+      flightOfferId: flightOfferId || null,
+      hotelPlaceId: hotelPlaceId || null,
+      sourceAmountFromBooking,
+    });
 
-    // Persist PENDING record before calling Cashfree (idempotent anchor)
     const payment = await Payment.create({
       ipniaOrderId,
       customer,
       amount,
       currency,
       paymentStatus: "PENDING",
-      bookingId: bookingId || null,
+      bookingId: flightOfferId || hotelPlaceId || null,
       sourceAmountFromBooking,
       webhookReceived: false,
     });

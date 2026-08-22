@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BookingProgress } from "@/components/booking/BookingProgress";
 import { useFlightBooking } from "@/contexts/FlightBookingContext";
 import type { ReactNode } from "react";
+import type { Traveller } from "@/types/booking";
 
 type GuardLevel = "flight" | "travellers" | "documents" | "hotel" | "review" | "payment" | "paid";
 
@@ -15,19 +16,24 @@ type Props = {
   subtitle?: string;
 };
 
-function travellersComplete(hasDocs: boolean, isIntl: boolean, travellers: ReturnType<typeof useFlightBooking>["state"]["travellers"]) {
-  if (!travellers.length) return false;
-  const basicsOk = travellers.every(
-    (t) =>
-      t.firstName.trim() &&
-      t.lastName.trim() &&
-      t.dateOfBirth &&
-      t.gender &&
-      t.nationality.trim() &&
-      t.email.trim() &&
-      t.phone.trim()
+function hasBasics(t: Traveller) {
+  return Boolean(
+    t.firstName.trim() && t.lastName.trim() && t.dateOfBirth && t.gender && t.nationality.trim()
   );
-  if (!basicsOk) return false;
+}
+
+function travellersComplete(
+  hasDocs: boolean,
+  isIntl: boolean,
+  travellers: Traveller[]
+) {
+  if (!travellers.length) return false;
+  if (!travellers.every(hasBasics)) return false;
+
+  const primaryIdx = travellers.findIndex((t) => (t.type || "adult") === "adult");
+  const primary = travellers[primaryIdx >= 0 ? primaryIdx : 0];
+  if (!primary?.email.trim() || !primary?.phone.trim()) return false;
+
   if (!hasDocs || !isIntl) return true;
   return travellers.every(
     (t) =>
@@ -39,9 +45,9 @@ function travellersComplete(hasDocs: boolean, isIntl: boolean, travellers: Retur
 }
 
 export function BookingPageShell({ children, step, require, title, subtitle }: Props) {
-  const { state, isInternational } = useFlightBooking();
+  const { state, isInternational, isHotelOnly } = useFlightBooking();
 
-  if (!state.selectedFlight) {
+  if (!state.selectedFlight && !isHotelOnly) {
     return <Navigate to="/flights/search" replace />;
   }
 
@@ -52,14 +58,25 @@ export function BookingPageShell({ children, step, require, title, subtitle }: P
     }
   }
 
-  if ((require === "documents" || require === "hotel" || require === "review" || require === "payment" || require === "paid") && isInternational) {
+  if (
+    !isHotelOnly &&
+    (require === "documents" || require === "hotel" || require === "review" || require === "payment" || require === "paid") &&
+    isInternational
+  ) {
     const docsOk = travellersComplete(true, true, state.travellers);
     if (!docsOk && step > 2) {
       return <Navigate to="/booking/travel-documents" replace />;
     }
   }
 
-  if ((require === "review" || require === "payment" || require === "paid") && !state.hotelSkipped && !state.hotel && step > 3) {
+  // Hotel-only bookings already have a hotel selected — skip flight hotel step
+  if (
+    !isHotelOnly &&
+    (require === "review" || require === "payment" || require === "paid") &&
+    !state.hotelSkipped &&
+    !state.hotel &&
+    step > 3
+  ) {
     return <Navigate to="/booking/hotel" replace />;
   }
 
@@ -71,16 +88,15 @@ export function BookingPageShell({ children, step, require, title, subtitle }: P
     return <Navigate to="/booking/payment-status" replace />;
   }
 
-  const maxReachable =
-    !travellersComplete(false, isInternational, state.travellers)
-      ? 1
-      : isInternational && !travellersComplete(true, true, state.travellers)
-        ? 2
-        : !state.hotelSkipped && !state.hotel
-          ? 3
-          : !state.reviewConsent
-            ? 4
-            : 5;
+  const maxReachable = !travellersComplete(false, isInternational, state.travellers)
+    ? 1
+    : !isHotelOnly && isInternational && !travellersComplete(true, true, state.travellers)
+      ? 2
+      : !isHotelOnly && !state.hotelSkipped && !state.hotel
+        ? 3
+        : !state.reviewConsent
+          ? 4
+          : 5;
 
   return (
     <div className="min-h-screen bg-[#0a1628] text-white">
@@ -89,7 +105,8 @@ export function BookingPageShell({ children, step, require, title, subtitle }: P
         <BookingProgress
           currentStep={step}
           maxReachableStep={Math.min(maxReachable, step)}
-          isInternational={isInternational}
+          isInternational={!isHotelOnly && isInternational}
+          isHotelOnly={isHotelOnly}
         />
         <div className="mb-8">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d4a853]">Booking</p>

@@ -1,21 +1,18 @@
 function validateCreatePayment(req, res, next) {
   const errors = [];
-  const { amount, currency, customer, bookingId } = req.body || {};
+  const { currency, customer, flightOfferId, hotelPlaceId } = req.body || {};
 
-  // Amount validation — later this may be overwritten from a booking record
-  if (amount === undefined || amount === null || amount === "") {
-    errors.push("amount is required");
-  } else if (typeof amount !== "number" || Number.isNaN(amount)) {
-    errors.push("amount must be a number");
-  } else if (amount < 1) {
-    errors.push("amount must be at least 1");
-  } else if (amount > 500000) {
-    errors.push("amount exceeds allowed maximum");
-  }
+  // Amount is resolved server-side only. Client-supplied `amount` / `hotelAmount` are ignored.
 
   const curr = (currency || "INR").toUpperCase();
   if (curr !== "INR") {
     errors.push("only INR currency is supported currently");
+  }
+
+  const offerId = flightOfferId != null ? String(flightOfferId).trim() : "";
+  const placeId = hotelPlaceId != null ? String(hotelPlaceId).trim() : "";
+  if (!offerId && !placeId) {
+    errors.push("flightOfferId or hotelPlaceId is required");
   }
 
   if (!customer || typeof customer !== "object") {
@@ -34,10 +31,6 @@ function validateCreatePayment(req, res, next) {
     }
   }
 
-  if (bookingId !== undefined && bookingId !== null && typeof bookingId !== "string") {
-    errors.push("bookingId must be a string when provided");
-  }
-
   if (errors.length) {
     return res.status(400).json({
       success: false,
@@ -46,14 +39,14 @@ function validateCreatePayment(req, res, next) {
     });
   }
 
-  // Normalize
   req.body.currency = curr;
+  req.body.flightOfferId = offerId || null;
+  req.body.hotelPlaceId = placeId || null;
   req.body.customer = {
     name: String(customer.name).trim(),
     email: String(customer.email).trim().toLowerCase(),
     phone: String(customer.phone).replace(/\D/g, "").slice(-10),
   };
-  req.body.amount = Number(amount);
 
   return next();
 }

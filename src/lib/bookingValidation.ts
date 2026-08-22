@@ -1,4 +1,4 @@
-import type { Traveller } from "@/types/booking";
+import type { Traveller, TravellerType } from "@/types/booking";
 
 const NAME_RE = /^[A-Za-z][A-Za-z\s'.-]{0,49}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -12,11 +12,31 @@ function isValidDate(value: string) {
   return !Number.isNaN(d.getTime());
 }
 
-export function validateTravellerBasics(travellers: Traveller[]): FieldErrors {
+function ageOnDate(dob: string, onDate: string) {
+  const birth = new Date(`${dob}T00:00:00`);
+  const on = new Date(`${onDate}T00:00:00`);
+  if (Number.isNaN(birth.getTime()) || Number.isNaN(on.getTime())) return null;
+  let age = on.getFullYear() - birth.getFullYear();
+  const m = on.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && on.getDate() < birth.getDate())) age -= 1;
+  return age;
+}
+
+export function normalizeIndianMobile(raw: string): string {
+  return String(raw || "").replace(/\D/g, "").slice(-10);
+}
+
+export function validateTravellerBasics(
+  travellers: Traveller[],
+  travelDate = ""
+): FieldErrors {
   const errors: FieldErrors = {};
+  const onDate = travelDate || new Date().toISOString().slice(0, 10);
 
   travellers.forEach((t, i) => {
     const p = `t${i}`;
+    const type: TravellerType = t.type || "adult";
+
     if (!t.firstName.trim() || !NAME_RE.test(t.firstName.trim())) {
       errors[`${p}.firstName`] = "Enter a valid first name";
     }
@@ -31,12 +51,35 @@ export function validateTravellerBasics(travellers: Traveller[]): FieldErrors {
     } else {
       const dob = new Date(t.dateOfBirth);
       if (dob > new Date()) errors[`${p}.dateOfBirth`] = "Date of birth cannot be in the future";
+      const age = ageOnDate(t.dateOfBirth, onDate);
+      if (age != null) {
+        if (type === "infant" && age >= 2) {
+          errors[`${p}.dateOfBirth`] = "Infant must be under 2 years on travel date";
+        }
+        if (type === "child" && (age < 2 || age >= 12)) {
+          errors[`${p}.dateOfBirth`] = "Child must be 2–11 years on travel date";
+        }
+        if (type === "adult" && age < 12) {
+          errors[`${p}.dateOfBirth`] = "Adult must be 12+ years on travel date";
+        }
+      }
     }
     if (!t.gender) errors[`${p}.gender`] = "Select gender";
     if (!t.nationality.trim()) errors[`${p}.nationality`] = "Nationality is required";
-    if (!EMAIL_RE.test(t.email.trim())) errors[`${p}.email`] = "Enter a valid email";
-    const phone = t.phone.replace(/\D/g, "").slice(-10);
-    if (!PHONE_RE.test(phone)) errors[`${p}.phone`] = "Enter a valid 10-digit mobile number";
+
+    // Contact required on primary adult only
+    if (type === "adult" && i === travellers.findIndex((x) => (x.type || "adult") === "adult")) {
+      if (!EMAIL_RE.test(t.email.trim())) errors[`${p}.email`] = "Enter a valid email";
+      const phone = normalizeIndianMobile(t.phone);
+      if (!PHONE_RE.test(phone)) {
+        errors[`${p}.phone`] = "Enter a valid 10-digit Indian mobile number";
+      }
+    } else if (t.phone.trim()) {
+      const phone = normalizeIndianMobile(t.phone);
+      if (phone.length > 0 && !PHONE_RE.test(phone)) {
+        errors[`${p}.phone`] = "Enter a valid 10-digit Indian mobile number";
+      }
+    }
   });
 
   return errors;
@@ -75,6 +118,12 @@ export function validateTravelDocuments(
 
 export function travellerFullName(t: Traveller) {
   return [t.title, t.firstName, t.middleName, t.lastName].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+}
+
+export function travellerTypeLabel(type: TravellerType | undefined) {
+  if (type === "child") return "Child";
+  if (type === "infant") return "Infant";
+  return "Adult";
 }
 
 export function formatInr(amount: number) {
