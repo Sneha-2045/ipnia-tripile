@@ -9,9 +9,9 @@ type PageShellProps = {
 
 export function PageShell({ children, className = "" }: PageShellProps) {
   return (
-    <div className={`min-h-screen bg-[#0a1628] text-white ${className}`}>
+    <div className={`ipnia-page ${className}`}>
       <SiteNav />
-      <main className="pt-16">{children}</main>
+      <main className="pt-[4.25rem]">{children}</main>
       <SiteFooter />
     </div>
   );

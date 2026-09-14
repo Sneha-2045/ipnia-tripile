@@ -63,30 +63,31 @@ const socials = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-white/10 bg-[#07111f]">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-4">
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[#050b14]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,168,83,0.06),transparent_45%)]" />
+      <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid gap-12 md:grid-cols-4">
           <div className="md:col-span-1">
-            <div className="mb-4 flex items-center gap-2.5">
-              <BrandLogo size={32} />
+            <div className="mb-5 flex items-center gap-2.5">
+              <BrandLogo size={34} />
               <div>
-                <p className="text-lg font-bold text-white">IPNIA</p>
-                <p className="text-xs uppercase tracking-widest text-[#d4a853]/80">
+                <p className="font-heading text-2xl font-bold text-white">IPNIA</p>
+                <p className="text-[11px] uppercase tracking-[0.22em] text-[#d4a853]/85">
                   Every Journey
                 </p>
               </div>
             </div>
-            <p className="text-sm leading-relaxed text-white/60">
+            <p className="text-sm leading-relaxed text-white/55">
               A complete travel ecosystem for business, education, experiences, pilgrimage and
               forex — built for Indian travelers and enterprises.
             </p>
           </div>
 
           <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#d4a853]">
+            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
               Travel Verticals
             </h4>
-            <ul className="space-y-2 text-sm text-white/70">
+            <ul className="space-y-2.5 text-sm text-white/65">
               {segments.map((s) => (
                 <li key={s.href}>
                   <Link to={s.href} className="transition-colors hover:text-[#d4a853]">
@@ -98,10 +99,10 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#d4a853]">
+            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
               Company
             </h4>
-            <ul className="space-y-2 text-sm text-white/70">
+            <ul className="space-y-2.5 text-sm text-white/65">
               <li>
                 <Link to="/about" className="hover:text-[#d4a853]">
                   About IPNIA
@@ -141,10 +142,10 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#d4a853]">
+            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
               Contact
             </h4>
-            <ul className="space-y-2 text-sm text-white/70">
+            <ul className="space-y-2.5 text-sm text-white/65">
               <li>Email: Help@ipnia.com</li>
               <li>Phone: 01145534440</li>
               <li>A199 Gujranwala Town Part 01, Delhi 110009</li>
@@ -152,9 +153,8 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <Separator className="my-8 bg-white/10" />
+        <Separator className="my-10 bg-white/10" />
 
-        {/* Follow us + Payment & Security */}
         <div className="grid gap-8 md:grid-cols-2 md:items-start">
           <div>
             <h4 className="mb-4 text-sm font-semibold text-white">Follow us on:</h4>
@@ -176,23 +176,23 @@ export function SiteFooter() {
 
           <div>
             <h4 className="mb-4 text-sm font-semibold text-white">Payment & Security</h4>
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex h-11 items-center rounded-md bg-white px-3 py-1.5">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex h-11 items-center rounded-xl bg-white px-3 py-1.5 shadow-sm">
                 <img src="/visa.svg" alt="Visa" className="h-6 w-auto" />
               </div>
-              <div className="flex h-11 items-center rounded-md bg-white px-3 py-1.5">
+              <div className="flex h-11 items-center rounded-xl bg-white px-3 py-1.5 shadow-sm">
                 <img src="/mastercard.svg" alt="Mastercard" className="h-7 w-auto" />
               </div>
-              <div className="flex h-11 items-center rounded-md bg-white px-3 py-1.5">
+              <div className="flex h-11 items-center rounded-xl bg-white px-3 py-1.5 shadow-sm">
                 <img src="/rupay.svg" alt="RuPay" className="h-6 w-auto" />
               </div>
             </div>
           </div>
         </div>
 
-        <Separator className="my-8 bg-white/10" />
+        <Separator className="my-10 bg-white/10" />
 
-        <div className="text-center text-sm text-white/50">
+        <div className="text-center text-sm text-white/45">
           <p>© {new Date().getFullYear()} IPNIA. All rights reserved.</p>
           <p className="mt-1">Ipnia Services Pvt Ltd</p>
         </div>

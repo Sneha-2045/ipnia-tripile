@@ -128,7 +128,7 @@ export function FlightOfferCard({
   const refund = offer.conditions.refundBeforeDeparture;
 
   return (
-    <article className="rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e] p-5 md:p-6">
+    <article className="travel-hover rounded-2xl border border-white/10 bg-[#0c1a2e]/90 p-5 shadow-travel md:p-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-stretch lg:justify-between">
         <div className="min-w-0 flex-1 space-y-6">
           {outbound && <SliceSummary slice={outbound} label={inbound ? "Outbound" : undefined} />}
@@ -172,7 +172,7 @@ export function FlightOfferCard({
         <div className="flex shrink-0 flex-col justify-between border-t border-white/10 pt-4 lg:w-52 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
           <div className="lg:text-right">
             <p className="text-sm text-white/50">Total</p>
-            <p className="text-3xl font-bold text-[#d4a853]">
+            <p className="font-heading text-3xl font-bold text-[#d4a853]">
               {formatMoney(offer.totalAmount, "INR")}
             </p>
             <p className="text-xs text-white/40">INR</p>
@@ -184,18 +184,14 @@ export function FlightOfferCard({
             )}
           </div>
           <div className="mt-4 flex flex-col gap-2">
-            <Button
-              type="button"
-              onClick={onBookNow}
-              className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
-            >
+            <Button type="button" onClick={onBookNow} className="ipnia-btn-gold rounded-xl">
               Book Now
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={onViewDetails}
-              className="border-white/20 bg-transparent text-white hover:bg-white/5"
+              className="rounded-xl border-white/15 bg-transparent text-white hover:bg-white/5"
             >
               View Details
             </Button>

@@ -99,9 +99,9 @@ export function BookingPageShell({ children, step, require, title, subtitle }: P
           : 5;
 
   return (
-    <div className="min-h-screen bg-[#0a1628] text-white">
+    <div className="ipnia-page">
       <BookingNav />
-      <main className="mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 pb-20 pt-28 sm:px-6 lg:px-8">
         <BookingProgress
           currentStep={step}
           maxReachableStep={Math.min(maxReachable, step)}
@@ -109,9 +109,9 @@ export function BookingPageShell({ children, step, require, title, subtitle }: P
           isHotelOnly={isHotelOnly}
         />
         <div className="mb-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d4a853]">Booking</p>
-          <h1 className="mt-2 text-3xl font-bold md:text-4xl">{title}</h1>
-          {subtitle && <p className="mt-2 text-white/60">{subtitle}</p>}
+          <p className="ipnia-eyebrow">Booking</p>
+          <h1 className="mt-3 font-heading text-3xl font-bold md:text-5xl">{title}</h1>
+          {subtitle && <p className="mt-3 max-w-2xl text-white/60">{subtitle}</p>}
         </div>
         {children}
       </main>

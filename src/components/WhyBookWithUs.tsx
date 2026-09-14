@@ -25,22 +25,34 @@ const benefits = [
 
 export function WhyBookWithUs() {
   return (
-    <section className="border-y border-[#d4a853]/20 bg-[#07111f] py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-center text-3xl font-bold text-white md:text-4xl">Why Book with Us?</h2>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0">
-          {benefits.map((item, index) => (
+    <section className="travel-bg-section relative border-y border-[#d4a853]/15 py-20">
+      <div className="travel-bg-media">
+        <img
+          src="/assets/destinations/hotel-luxury-1.jpg"
+          alt=""
+          aria-hidden
+          className="ken-burns"
+        />
+      </div>
+      <div className="travel-bg-overlay" />
+      <div className="ipnia-section relative z-10">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="ipnia-eyebrow">Why IPNIA</p>
+          <h2 className="mt-3 font-heading text-4xl font-bold text-white md:text-5xl">
+            Why Book with Us?
+          </h2>
+        </div>
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {benefits.map((item) => (
             <div
               key={item.title}
-              className={`flex flex-col items-center px-5 text-center sm:px-6 ${
-                index < benefits.length - 1 ? "lg:border-r lg:border-[#d4a853]/25" : ""
-              }`}
+              className="travel-hover flex flex-col items-center rounded-2xl border border-white/10 bg-[#0c1a2e]/75 px-5 py-8 text-center backdrop-blur-md"
             >
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#d4a853]/35 bg-[#0c1a2e]">
-                <item.icon className="h-8 w-8 text-[#d4a853]" strokeWidth={1.75} />
+              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#d4a853]/30 bg-gradient-to-br from-[#d4a853]/20 to-transparent transition duration-300 group-hover:scale-105">
+                <item.icon className="h-7 w-7 text-[#d4a853]" strokeWidth={1.75} />
               </div>
-              <h3 className="text-lg font-bold text-white">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/65">{item.text}</p>
+              <h3 className="font-heading text-xl font-bold text-white">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-white/60">{item.text}</p>
             </div>
           ))}
         </div>

@@ -170,7 +170,15 @@ const FlightSearch = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a1628] text-white">
+    <div className="ipnia-page relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 opacity-25">
+        <img
+          src="/assets/destinations/dest-london.jpg"
+          alt=""
+          className="ken-burns h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a1628] via-[#0a1628]/92 to-[#0a1628]" />
+      </div>
       <SEO
         title={`Flights from ${fromCity} to ${toCity} | IPNIA`}
         description={`Search live flights from ${fromCity} to ${toCity} with IPNIA powered by Duffel.`}
@@ -179,15 +187,13 @@ const FlightSearch = () => {
       />
       <BookingNav />
 
-      <main className="mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d4a853]">
-            Flight Search
-          </p>
-          <h1 className="mt-2 text-3xl font-bold md:text-5xl">
+      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-28 sm:px-6 lg:px-8">
+        <div className="mb-10">
+          <p className="ipnia-eyebrow">Flight Search</p>
+          <h1 className="mt-3 font-heading text-4xl font-bold md:text-6xl">
             {query.hasRoute ? `${fromCity} → ${toCity}` : "Search flights"}
           </h1>
-          <p className="mt-2 text-white/60">
+          <p className="mt-3 max-w-2xl text-white/60">
             {query.hasRoute
               ? `${query.departureDate || "Select dates"}${
                   query.returnDate ? ` → ${query.returnDate}` : ""
@@ -196,12 +202,12 @@ const FlightSearch = () => {
           </p>
         </div>
 
-        <div className="mb-10 max-w-3xl">
+        <div className="mb-12 max-w-3xl">
           <BookingSearchCard defaultMode="flights" />
         </div>
 
         {loading ? (
-          <div className="rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e] p-8">
+          <div className="rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e]/90 p-8 shadow-travel">
             <p className="text-lg font-semibold text-[#d4a853]">Searching airlines...</p>
             <p className="mt-2 text-white/60">Finding available flights for your route.</p>
           </div>

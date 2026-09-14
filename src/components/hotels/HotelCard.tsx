@@ -79,7 +79,7 @@ export function HotelCard({
   }, [hotel]);
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+    <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_14px_40px_rgba(10,22,40,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(10,22,40,0.14)]">
       <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[380px_1fr]">
         {/* Image — API photos only */}
         <div className="relative aspect-[16/10] bg-slate-100 md:aspect-auto md:min-h-[240px]">
@@ -291,7 +291,7 @@ export function HotelCard({
             <Button
               type="button"
               onClick={onSelect}
-              className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+              className="ipnia-btn-gold rounded-xl"
             >
               Book Stay
             </Button>

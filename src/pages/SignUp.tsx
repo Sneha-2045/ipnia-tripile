@@ -122,19 +122,19 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
+    <div className="auth-travel-bg px-4 py-16">
+      <Card className="relative z-10 w-full max-w-md border-white/10 bg-[#0c1a2e]/92 text-white shadow-travel backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-[#d4a853]/35 hover:shadow-[0_30px_70px_rgba(0,0,0,0.45)]">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
-          <CardDescription>
+          <CardTitle className="font-heading text-3xl font-bold text-white">Create Account</CardTitle>
+          <CardDescription className="text-white/60">
             Join IPNIA to manage bookings and travel plans
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="flex items-center">
-                <User className="h-4 w-4 mr-2" />
+              <Label htmlFor="fullName" className="flex items-center text-white/80">
+                <User className="mr-2 h-4 w-4 text-[#d4a853]" />
                 Full Name
               </Label>
               <Input
@@ -144,16 +144,16 @@ const SignUp = () => {
                 placeholder="Enter your full name"
                 value={formData.fullName}
                 onChange={handleInputChange}
-                className={errors.fullName ? 'border-red-500' : ''}
+                className={`h-11 rounded-xl border-white/15 bg-[#07111f] text-white ${errors.fullName ? 'border-red-500' : ''}`}
               />
               {errors.fullName && (
-                <p className="text-sm text-red-500">{errors.fullName}</p>
+                <p className="text-sm text-red-400">{errors.fullName}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="flex items-center">
-                <Mail className="h-4 w-4 mr-2" />
+              <Label htmlFor="email" className="flex items-center text-white/80">
+                <Mail className="mr-2 h-4 w-4 text-[#d4a853]" />
                 Email Address
               </Label>
               <Input
@@ -163,16 +163,16 @@ const SignUp = () => {
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className={errors.email ? 'border-red-500' : ''}
+                className={`h-11 rounded-xl border-white/15 bg-[#07111f] text-white ${errors.email ? 'border-red-500' : ''}`}
               />
               {errors.email && (
-                <p className="text-sm text-red-500">{errors.email}</p>
+                <p className="text-sm text-red-400">{errors.email}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone" className="flex items-center">
-                <Phone className="h-4 w-4 mr-2" />
+              <Label htmlFor="phone" className="flex items-center text-white/80">
+                <Phone className="mr-2 h-4 w-4 text-[#d4a853]" />
                 Phone Number (Optional)
               </Label>
               <Input
@@ -184,16 +184,16 @@ const SignUp = () => {
                 placeholder="10-digit mobile number"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className={errors.phone ? 'border-red-500' : ''}
+                className={`h-11 rounded-xl border-white/15 bg-[#07111f] text-white ${errors.phone ? 'border-red-500' : ''}`}
               />
               {errors.phone && (
-                <p className="text-sm text-red-500">{errors.phone}</p>
+                <p className="text-sm text-red-400">{errors.phone}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="flex items-center">
-                <Lock className="h-4 w-4 mr-2" />
+              <Label htmlFor="password" className="flex items-center text-white/80">
+                <Lock className="mr-2 h-4 w-4 text-[#d4a853]" />
                 Password
               </Label>
               <div className="relative">
@@ -204,13 +204,13 @@ const SignUp = () => {
                   placeholder="Create a strong password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
+                  className={`h-11 rounded-xl border-white/15 bg-[#07111f] text-white ${errors.password ? 'border-red-500 pr-10' : 'pr-10'}`}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-full px-3 py-2 text-white/50 hover:bg-transparent hover:text-white"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -221,13 +221,13 @@ const SignUp = () => {
                 </Button>
               </div>
               {errors.password && (
-                <p className="text-sm text-red-500">{errors.password}</p>
+                <p className="text-sm text-red-400">{errors.password}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="flex items-center">
-                <Lock className="h-4 w-4 mr-2" />
+              <Label htmlFor="confirmPassword" className="flex items-center text-white/80">
+                <Lock className="mr-2 h-4 w-4 text-[#d4a853]" />
                 Confirm Password
               </Label>
               <div className="relative">
@@ -238,13 +238,13 @@ const SignUp = () => {
                   placeholder="Confirm your password"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={errors.confirmPassword ? 'border-red-500 pr-10' : 'pr-10'}
+                  className={`h-11 rounded-xl border-white/15 bg-[#07111f] text-white ${errors.confirmPassword ? 'border-red-500 pr-10' : 'pr-10'}`}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-full px-3 py-2 text-white/50 hover:bg-transparent hover:text-white"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   {showConfirmPassword ? (
@@ -255,13 +255,13 @@ const SignUp = () => {
                 </Button>
               </div>
               {errors.confirmPassword && (
-                <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+                <p className="text-sm text-red-400">{errors.confirmPassword}</p>
               )}
             </div>
 
             <Button
               type="submit"
-              className="w-full"
+              className="ipnia-btn-gold w-full rounded-xl"
               disabled={isLoading}
             >
               {isLoading ? 'Creating Account...' : 'Create Account'}
@@ -269,9 +269,9 @@ const SignUp = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-white/55">
               Already have an account?{' '}
-              <Link to="/login" className="text-primary hover:underline">
+              <Link to="/login" className="text-[#d4a853] hover:underline">
                 Sign In
               </Link>
             </p>

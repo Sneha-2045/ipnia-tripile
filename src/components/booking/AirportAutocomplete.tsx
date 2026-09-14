@@ -47,9 +47,7 @@ export function AirportAutocomplete({
 
   return (
     <div ref={wrapRef} className="relative">
-      <Label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#d4a853]">
-        {label}
-      </Label>
+      <Label className="ipnia-label">{label}</Label>
       <div className="relative">
         <Plane className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
         <Input
@@ -61,11 +59,11 @@ export function AirportAutocomplete({
             setOpen(true);
             if (!e.target.value) onChange(null);
           }}
-          className="h-12 border-white/15 bg-[#07111f] pl-10 text-white placeholder:text-white/35 focus-visible:ring-[#d4a853]"
+          className="ipnia-input pl-10 placeholder:text-white/35"
         />
       </div>
       {open && (
-        <div className="absolute z-40 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-[#d4a853]/30 bg-[#0c1a2e] shadow-2xl">
+        <div className="absolute z-40 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-[#d4a853]/25 bg-[#0c1a2e]/98 shadow-travel backdrop-blur-xl">
           {results.length === 0 ? (
             <p className="px-4 py-3 text-sm text-white/50">No airports found</p>
           ) : (
@@ -80,7 +78,7 @@ export function AirportAutocomplete({
                   setOpen(false);
                 }}
               >
-                <span className="mt-0.5 rounded bg-[#d4a853]/15 px-2 py-0.5 text-xs font-bold text-[#d4a853]">
+                <span className="mt-0.5 rounded-md bg-[#d4a853]/15 px-2 py-0.5 text-xs font-bold text-[#d4a853]">
                   {airport.code}
                 </span>
                 <span>

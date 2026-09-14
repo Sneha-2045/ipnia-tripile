@@ -367,21 +367,22 @@ const HotelSearch = () => {
       />
       <BookingNav />
 
-      <section className="relative overflow-hidden pt-16">
+      <section className="relative overflow-hidden pt-[4.25rem]">
         <div className="absolute inset-0">
           <img
             src="/assets/destinations/hotel-luxury-1.jpg"
             alt="Book beautiful hotel stays with IPNIA"
-            className="h-full w-full object-cover object-center"
+            className="h-full w-full scale-105 object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#07111f] via-[#07111f]/85 to-[#07111f]/40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#050b14]/95 via-[#07111f]/80 to-[#0a1628]/40" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(212,168,83,0.16),transparent_55%)]" />
         </div>
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:items-center lg:px-8 lg:py-16">
+        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:items-center lg:px-8 lg:py-20">
           <div>
-            <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.35em] text-[#d4a853]">
+            <p className="ipnia-eyebrow inline-flex items-center gap-2">
               <ConciergeBell className="h-3.5 w-3.5" /> Hotels by IPNIA
             </p>
-            <h1 className="mt-4 text-4xl font-bold capitalize md:text-6xl">
+            <h1 className="mt-5 font-heading text-5xl font-bold capitalize leading-[1.05] md:text-6xl">
               {hasSearch ? `Stays in ${cityLabel}` : "Stay beautifully. Anywhere."}
             </h1>
             <p className="mt-4 max-w-xl text-lg text-white/75">

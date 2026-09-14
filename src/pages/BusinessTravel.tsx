@@ -42,14 +42,16 @@ function CreativeFrame({
 }) {
   return (
     <div
-      className={`overflow-hidden rounded-2xl border border-[#d4a853]/35 bg-[#07111f] shadow-[0_20px_60px_rgba(0,0,0,0.35)] ${className}`}
+      className={`overflow-hidden rounded-2xl border border-[#d4a853]/25 bg-[#07111f] p-2 shadow-travel sm:p-3 ${className}`}
     >
-      <img
-        src={src}
-        alt={alt}
-        loading="lazy"
-        className="mx-auto block h-auto w-full max-w-full object-contain"
-      />
+      <div className="overflow-hidden rounded-xl">
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          className="mx-auto block h-auto w-full max-w-full object-contain transition duration-500 hover:scale-[1.01]"
+        />
+      </div>
     </div>
   );
 }

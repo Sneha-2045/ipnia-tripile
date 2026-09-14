@@ -43,39 +43,39 @@ export function SiteNav() {
     location.pathname === href || location.pathname.startsWith(href + "/");
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0a1628]/90 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex shrink-0 items-center gap-2.5" onClick={() => setOpen(false)}>
+    <nav className="ipnia-nav">
+      <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <Link to="/" className="group flex shrink-0 items-center gap-2.5" onClick={() => setOpen(false)}>
           <BrandLogo size={34} className="shrink-0" />
-          <span className="text-xl font-bold tracking-tight text-white">IPNIA</span>
+          <span className="font-heading text-2xl font-bold tracking-tight text-white transition-colors group-hover:text-[#d4a853]">
+            IPNIA
+          </span>
         </Link>
 
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="hidden items-center gap-0.5 lg:flex">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className={`inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive("/business-travel")
-                    ? "text-[#d4a853]"
-                    : "text-white/80 hover:text-[#d4a853]"
+                className={`ipnia-nav-link inline-flex items-center gap-1 ${
+                  isActive("/business-travel") ? "ipnia-nav-link-active" : ""
                 }`}
               >
                 Business Travel
-                <ChevronDown className="h-3.5 w-3.5" />
+                <ChevronDown className="h-3.5 w-3.5 opacity-70" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
-              className="w-56 border-[#d4a853]/30 bg-[#0c1a2e] text-white"
+              className="w-60 rounded-xl border-[#d4a853]/25 bg-[#0c1a2e]/98 p-1.5 text-white shadow-travel backdrop-blur-xl"
             >
-              <DropdownMenuItem asChild className="focus:bg-[#d4a853]/15 focus:text-[#d4a853]">
+              <DropdownMenuItem asChild className="rounded-lg focus:bg-[#d4a853]/15 focus:text-[#d4a853]">
                 <Link to="/business-travel">Overview</Link>
               </DropdownMenuItem>
               {businessLinks.map((item) => (
                 <DropdownMenuItem
                   key={item.href}
                   asChild
-                  className="focus:bg-[#d4a853]/15 focus:text-[#d4a853]"
+                  className="rounded-lg focus:bg-[#d4a853]/15 focus:text-[#d4a853]"
                 >
                   <Link to={item.href}>{item.label}</Link>
                 </DropdownMenuItem>
@@ -87,20 +87,18 @@ export function SiteNav() {
             <Link
               key={link.href}
               to={link.href}
-              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                isActive(link.href) ? "text-[#d4a853]" : "text-white/80 hover:text-[#d4a853]"
-              }`}
+              className={`ipnia-nav-link ${isActive(link.href) ? "ipnia-nav-link-active" : ""}`}
             >
               {link.label}
             </Link>
           ))}
         </div>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-4 lg:flex">
           {!loading && !user && (
             <Link
               to="/login"
-              className="text-sm font-medium text-white/70 transition-colors hover:text-white"
+              className="text-sm font-medium text-white/65 transition-colors hover:text-white"
             >
               Sign In
             </Link>
@@ -108,32 +106,29 @@ export function SiteNav() {
           {!loading && user && (
             <button
               onClick={() => signOut()}
-              className="text-sm font-medium text-white/70 transition-colors hover:text-white"
+              className="text-sm font-medium text-white/65 transition-colors hover:text-white"
             >
               Sign Out
             </button>
           )}
-          <Button
-            asChild
-            className="bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a] font-semibold"
-          >
+          <Button asChild className="ipnia-btn-gold rounded-full px-5">
             <Link to="/contact">Plan Your Journey</Link>
           </Button>
         </div>
 
         <button
-          className="rounded-md p-2 text-white lg:hidden"
+          className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-white transition hover:border-[#d4a853]/40 hover:text-[#d4a853] lg:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
         >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-white/10 bg-[#0a1628] px-4 py-4 lg:hidden">
+        <div className="animate-fade-up border-t border-white/10 bg-[#07111f]/98 px-4 py-4 backdrop-blur-xl lg:hidden">
           <button
-            className="flex w-full items-center justify-between py-3 text-left text-sm font-semibold text-[#d4a853]"
+            className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#d4a853]"
             onClick={() => setBizOpen((v) => !v)}
           >
             Business Travel
@@ -143,7 +138,7 @@ export function SiteNav() {
             <div className="mb-2 ml-3 space-y-1 border-l border-[#d4a853]/30 pl-3">
               <Link
                 to="/business-travel"
-                className="block py-2 text-sm text-white/80"
+                className="block rounded-lg py-2.5 text-sm text-white/80"
                 onClick={() => setOpen(false)}
               >
                 Overview
@@ -152,7 +147,7 @@ export function SiteNav() {
                 <Link
                   key={item.href}
                   to={item.href}
-                  className="block py-2 text-sm text-white/80"
+                  className="block rounded-lg py-2.5 text-sm text-white/80"
                   onClick={() => setOpen(false)}
                 >
                   {item.label}
@@ -164,7 +159,7 @@ export function SiteNav() {
             <Link
               key={link.href}
               to={link.href}
-              className="block py-3 text-sm font-medium text-white/85"
+              className="block rounded-xl px-3 py-3 text-sm font-medium text-white/85 hover:bg-white/5"
               onClick={() => setOpen(false)}
             >
               {link.label}
@@ -174,16 +169,13 @@ export function SiteNav() {
             {!loading && !user && (
               <Link
                 to="/login"
-                className="py-2 text-sm text-white/70"
+                className="px-3 py-2 text-sm text-white/70"
                 onClick={() => setOpen(false)}
               >
                 Sign In
               </Link>
             )}
-            <Button
-              asChild
-              className="w-full bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a] font-semibold"
-            >
+            <Button asChild className="ipnia-btn-gold w-full rounded-full">
               <Link to="/contact" onClick={() => setOpen(false)}>
                 Plan Your Journey
               </Link>

@@ -29,65 +29,90 @@ export function BookingNav() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0a1628]/92 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex shrink-0 items-center gap-2.5" onClick={() => setOpen(false)}>
+    <nav className="ipnia-nav">
+      <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <Link to="/" className="group flex shrink-0 items-center gap-2.5" onClick={() => setOpen(false)}>
           <BrandLogo size={34} />
-          <span className="text-xl font-bold text-white">IPNIA</span>
+          <span className="font-heading text-2xl font-bold tracking-tight text-white transition-colors group-hover:text-[#d4a853]">
+            IPNIA
+          </span>
         </Link>
 
-        <div className="hidden items-center gap-1 xl:flex">
+        <div className="hidden items-center gap-0.5 xl:flex">
           {links.map((link) => (
             <Link
               key={link.href}
               to={link.href}
-              className={`rounded-md px-2.5 py-2 text-sm font-medium transition-colors ${
-                isActive(link.href) ? "text-[#d4a853]" : "text-white/75 hover:text-[#d4a853]"
-              }`}
+              className={`ipnia-nav-link ${isActive(link.href) ? "ipnia-nav-link-active" : ""}`}
             >
               {link.label}
             </Link>
           ))}
         </div>
 
-        <div className="hidden items-center gap-3 xl:flex">
+        <div className="hidden items-center gap-4 xl:flex">
           {!loading && !user && (
-            <Link to="/login" className="text-sm font-medium text-white/70 hover:text-white">
+            <Link
+              to="/login"
+              className="text-sm font-medium text-white/65 transition-colors hover:text-white"
+            >
               Sign In
             </Link>
           )}
           {!loading && user && (
-            <button onClick={() => signOut()} className="text-sm text-white/70 hover:text-white">
+            <button
+              onClick={() => signOut()}
+              className="text-sm font-medium text-white/65 transition-colors hover:text-white"
+            >
               Sign Out
             </button>
           )}
-          <Button asChild className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+          <Button asChild className="ipnia-btn-gold rounded-full px-5">
             <Link to="/contact">Plan Your Journey</Link>
           </Button>
         </div>
 
-        <button className="p-2 text-white xl:hidden" onClick={() => setOpen((v) => !v)} aria-label="Menu">
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        <button
+          className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-white transition hover:border-[#d4a853]/40 hover:text-[#d4a853] xl:hidden"
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Menu"
+        >
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-white/10 bg-[#0a1628] px-4 py-3 xl:hidden">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              to={link.href}
-              className="block py-2.5 text-sm text-white/85"
-              onClick={() => setOpen(false)}
-            >
-              {link.label}
-            </Link>
-          ))}
-          <Button asChild className="mt-3 w-full bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
-            <Link to="/contact" onClick={() => setOpen(false)}>
-              Plan Your Journey
-            </Link>
-          </Button>
+        <div className="animate-fade-up border-t border-white/10 bg-[#07111f]/98 px-4 py-4 backdrop-blur-xl xl:hidden">
+          <div className="mx-auto max-w-7xl space-y-1">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                className={`block rounded-xl px-3 py-3 text-sm font-medium transition ${
+                  isActive(link.href)
+                    ? "bg-[#d4a853]/12 text-[#d4a853]"
+                    : "text-white/85 hover:bg-white/5"
+                }`}
+                onClick={() => setOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            {!loading && !user && (
+              <Link
+                to="/login"
+                className="block rounded-xl px-3 py-3 text-sm text-white/70"
+                onClick={() => setOpen(false)}
+              >
+                Sign In
+              </Link>
+            )}
+            <Button asChild className="ipnia-btn-gold mt-3 w-full rounded-full">
+              <Link to="/contact" onClick={() => setOpen(false)}>
+                Plan Your Journey
+              </Link>
+            </Button>
+          </div>
         </div>
       )}
     </nav>
