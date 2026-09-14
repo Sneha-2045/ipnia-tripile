@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react';
+import { X, Send, User, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BrandLogo } from '@/components/BrandLogo';
 import aiService from '@/services/aiService';
 
 interface Message {
@@ -58,9 +59,8 @@ const ChatWidget = () => {
     setIsLoading(true);
 
     try {
-      // Use the AI service for responses
       const aiResponse = await aiService.getAIResponse(inputValue.trim());
-      
+
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: aiResponse.text,
@@ -92,44 +92,41 @@ const ChatWidget = () => {
 
   return (
     <>
-      {/* Floating Chat Button */}
       <div className="fixed bottom-6 right-6 z-50">
         <Button
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? 'Close chat' : 'Open IPNIA assistant'}
           className={cn(
-            "h-16 w-16 rounded-full shadow-lg transition-all duration-300 hover:scale-110 p-0",
-            isOpen 
-              ? "bg-red-500 hover:bg-red-600" 
-              : "bg-primary hover:bg-primary/90"
+            "h-16 w-16 rounded-full p-0 shadow-[0_12px_36px_rgba(0,0,0,0.45)] transition-all duration-300 hover:scale-110",
+            isOpen
+              ? "bg-red-500 hover:bg-red-600"
+              : "border-2 border-[#d4a853] bg-[#0a1628] hover:border-[#e0b96a] hover:bg-[#0c1a2e]"
           )}
         >
           {isOpen ? (
-            <X className="h-6 w-6" />
+            <X className="h-6 w-6 text-white" />
           ) : (
-            <img src="/ai-logo.jpeg" alt="AI Mascot" className="h-12 w-12 rounded-full object-cover" />
+            <BrandLogo size={40} className="shrink-0" title="IPNIA" />
           )}
         </Button>
       </div>
 
-      {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-96 h-[500px]">
-          <Card className="h-full shadow-2xl border-2 border-primary/20">
-            <CardContent className="p-0 h-full flex flex-col">
-              {/* Header */}
-              <div className="bg-primary text-primary-foreground p-4 rounded-t-lg">
+        <div className="fixed bottom-24 right-6 z-50 h-[500px] w-96">
+          <Card className="flex h-full flex-col border-2 border-[#d4a853]/30 bg-[#0c1a2e] text-white shadow-2xl">
+            <CardContent className="flex h-full flex-col p-0">
+              <div className="rounded-t-lg border-b border-[#d4a853]/25 bg-[#0a1628] p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
-                    <img src="/ai-logo.jpeg" alt="AI Mascot" className="h-10 w-10 object-cover rounded-full" />
+                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#d4a853]/40 bg-[#07111f]">
+                    <BrandLogo size={28} title="IPNIA" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">IPNIA AI Assistant</h3>
-                    <p className="text-sm opacity-90">Online • Ready to help</p>
+                    <h3 className="font-semibold text-white">IPNIA AI Assistant</h3>
+                    <p className="text-sm text-[#d4a853]/90">Online • Ready to help</p>
                   </div>
                 </div>
               </div>
 
-              {/* Messages */}
               <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
                   {messages.map((message) => (
@@ -141,42 +138,42 @@ const ChatWidget = () => {
                       )}
                     >
                       {message.sender === 'bot' && (
-                        <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          <img src="/ai-logo.jpeg" alt="AI Mascot" className="h-8 w-8 object-cover rounded-full" />
+                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#d4a853]/30 bg-[#07111f]">
+                          <BrandLogo size={22} title="IPNIA" />
                         </div>
                       )}
                       <div
                         className={cn(
-                          "max-w-[80%] p-3 rounded-lg",
+                          "max-w-[80%] rounded-lg p-3",
                           message.sender === 'user'
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
+                            ? "bg-[#d4a853] text-[#0a1628]"
+                            : "bg-white/10 text-white"
                         )}
                       >
                         <p className="text-sm">{message.text}</p>
-                        <p className="text-xs opacity-70 mt-1">
-                          {message.timestamp.toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
+                        <p className="mt-1 text-xs opacity-70">
+                          {message.timestamp.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
                           })}
                         </p>
                       </div>
                       {message.sender === 'user' && (
-                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                          <User className="h-4 w-4 text-primary-foreground" />
+                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#d4a853]">
+                          <User className="h-4 w-4 text-[#0a1628]" />
                         </div>
                       )}
                     </div>
                   ))}
                   {isLoading && (
-                    <div className="flex gap-3 justify-start">
-                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center overflow-hidden">
-                        <img src="/ai-logo.jpeg" alt="AI Mascot" className="h-8 w-8 object-cover rounded-full" />
+                    <div className="flex justify-start gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[#d4a853]/30 bg-[#07111f]">
+                        <BrandLogo size={22} title="IPNIA" />
                       </div>
-                      <div className="bg-muted p-3 rounded-lg">
+                      <div className="rounded-lg bg-white/10 p-3">
                         <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span className="text-sm">AI is thinking...</span>
+                          <Loader2 className="h-4 w-4 animate-spin text-[#d4a853]" />
+                          <span className="text-sm text-white/80">AI is thinking...</span>
                         </div>
                       </div>
                     </div>
@@ -185,8 +182,7 @@ const ChatWidget = () => {
                 <div ref={messagesEndRef} />
               </ScrollArea>
 
-              {/* Input */}
-              <div className="p-4 border-t">
+              <div className="border-t border-white/10 p-4">
                 <div className="flex gap-2">
                   <Input
                     ref={inputRef}
@@ -195,12 +191,13 @@ const ChatWidget = () => {
                     onKeyPress={handleKeyPress}
                     placeholder="Type your message..."
                     disabled={isLoading}
-                    className="flex-1"
+                    className="flex-1 border-white/15 bg-[#07111f] text-white placeholder:text-white/40"
                   />
                   <Button
                     onClick={handleSendMessage}
                     disabled={!inputValue.trim() || isLoading}
                     size="icon"
+                    className="bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a]"
                   >
                     <Send className="h-4 w-4" />
                   </Button>
@@ -214,4 +211,4 @@ const ChatWidget = () => {
   );
 };
 
-export default ChatWidget; 
+export default ChatWidget;
