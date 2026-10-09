@@ -31,11 +31,8 @@ export function BookingNav() {
   return (
     <nav className="ipnia-nav">
       <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="group flex shrink-0 items-center gap-2.5" onClick={() => setOpen(false)}>
-          <BrandLogo size={34} />
-          <span className="font-heading text-2xl font-bold tracking-tight text-white transition-colors group-hover:text-[#d4a853]">
-            IPNIA
-          </span>
+        <Link to="/" className="group flex shrink-0 items-center" onClick={() => setOpen(false)} aria-label="IPNIA.com home">
+          <BrandLogo size={34} className="h-[34px] w-[133px] object-contain object-left" />
         </Link>
 
         <div className="hidden items-center gap-0.5 xl:flex">

@@ -106,7 +106,7 @@ const ChatWidget = () => {
           {isOpen ? (
             <X className="h-6 w-6 text-white" />
           ) : (
-            <BrandLogo size={40} className="shrink-0" title="IPNIA" />
+            <BrandLogo size={40} className="shrink-0" title="IPNIA" markOnly />
           )}
         </Button>
       </div>
@@ -118,7 +118,7 @@ const ChatWidget = () => {
               <div className="rounded-t-lg border-b border-[#d4a853]/25 bg-[#0a1628] p-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#d4a853]/40 bg-[#07111f]">
-                    <BrandLogo size={28} title="IPNIA" />
+                    <BrandLogo size={28} title="IPNIA" markOnly />
                   </div>
                   <div>
                     <h3 className="font-semibold text-white">IPNIA AI Assistant</h3>
@@ -139,7 +139,7 @@ const ChatWidget = () => {
                     >
                       {message.sender === 'bot' && (
                         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#d4a853]/30 bg-[#07111f]">
-                          <BrandLogo size={22} title="IPNIA" />
+                          <BrandLogo size={22} title="IPNIA" markOnly />
                         </div>
                       )}
                       <div
@@ -168,7 +168,7 @@ const ChatWidget = () => {
                   {isLoading && (
                     <div className="flex justify-start gap-3">
                       <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[#d4a853]/30 bg-[#07111f]">
-                        <BrandLogo size={22} title="IPNIA" />
+                        <BrandLogo size={22} title="IPNIA" markOnly />
                       </div>
                       <div className="rounded-lg bg-white/10 p-3">
                         <div className="flex items-center gap-2">

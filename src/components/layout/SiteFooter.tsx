@@ -68,14 +68,8 @@ export function SiteFooter() {
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-4">
           <div className="md:col-span-1">
-            <div className="mb-5 flex items-center gap-2.5">
-              <BrandLogo size={34} />
-              <div>
-                <p className="font-heading text-2xl font-bold text-white">IPNIA</p>
-                <p className="text-[11px] uppercase tracking-[0.22em] text-[#d4a853]/85">
-                  Every Journey
-                </p>
-              </div>
+            <div className="mb-5">
+              <BrandLogo size={52} className="h-[52px] w-[203px] object-contain object-left" />
             </div>
             <p className="text-sm leading-relaxed text-white/55">
               A complete travel ecosystem for business, education, experiences, pilgrimage and
