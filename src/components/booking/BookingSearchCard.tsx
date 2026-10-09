@@ -6,6 +6,7 @@ import { CabinClass, TripType } from "@/services/bookingApi";
 import { AirportAutocomplete } from "./AirportAutocomplete";
 import { HotelDestinationAutocomplete } from "./HotelDestinationAutocomplete";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -30,9 +31,10 @@ type Mode = "flights" | "hotels";
 
 type Props = {
   defaultMode?: Mode;
+  flightOnly?: boolean;
 };
 
-export function BookingSearchCard({ defaultMode = "flights" }: Props) {
+export function BookingSearchCard({ defaultMode = "flights", flightOnly = false }: Props) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [mode, setMode] = useState<Mode>(defaultMode);
@@ -64,6 +66,8 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
     () => `${guests} Guest${guests === "1" ? "" : "s"} · ${rooms} Room${rooms === "1" ? "" : "s"}`,
     [guests, rooms]
   );
+  const travellerCount = Number(adults) + Number(children) + Number(infants);
+  const travellerLabel = `${travellerCount} Traveller${travellerCount === 1 ? "" : "s"}`;
 
   const swapAirports = () => {
     setFrom(to);
@@ -199,7 +203,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
 
   return (
     <div className="ipnia-search-panel">
-      <div className="mb-6 flex flex-wrap gap-2">
+      {!flightOnly && <div className="mb-6 flex flex-wrap gap-2">
         <button
           type="button"
           onClick={() => setMode("flights")}
@@ -222,20 +226,20 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
         >
           <Hotel className="h-4 w-4" /> Hotels
         </button>
-      </div>
+      </div>}
 
       {mode === "flights" ? (
         <div className="space-y-4 search-mode-enter">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex w-fit rounded-full border border-sky-500 p-1">
             {(["oneway", "roundtrip"] as TripType[]).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setTripType(t)}
-                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide transition-all ${
+                className={`rounded-full px-5 py-2 text-sm font-semibold transition-all ${
                   tripType === t
-                    ? "bg-amber-50 text-[#805d12] ring-1 ring-amber-500/50"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-[#17324d]"
+                    ? "bg-sky-600 text-white shadow-sm"
+                    : "text-slate-800 hover:bg-sky-50"
                 }`}
               >
                 {t === "oneway" ? "One way" : "Round trip"}
@@ -243,19 +247,19 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
             ))}
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr]">
-            <AirportAutocomplete label="From" value={from} onChange={setFrom} />
-            <div className="flex items-end justify-center pb-1">
+          <div className="grid items-end gap-3 sm:grid-cols-[1fr_auto_1fr]">
+            <AirportAutocomplete label="Depart From" value={from} onChange={setFrom} />
+            <div className="flex justify-center pb-1 sm:pb-0.5">
               <button
                 type="button"
                 onClick={swapAirports}
-                className="rounded-full border border-slate-300 bg-white p-2.5 text-slate-600 transition hover:border-[#e2b552]/50 hover:bg-[#e2b552]/10 hover:text-[#805d12]"
+                className="rounded-full border border-sky-500 bg-white p-2.5 text-sky-700 transition hover:bg-sky-50 hover:shadow-sm"
                 aria-label="Swap airports"
               >
                 <ArrowLeftRight className="h-4 w-4" />
               </button>
             </div>
-            <AirportAutocomplete label="To" value={to} onChange={setTo} />
+            <AirportAutocomplete label="Going To" value={to} onChange={setTo} />
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
@@ -269,9 +273,9 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
                 className="ipnia-input"
               />
             </div>
-            {tripType === "roundtrip" && (
-              <div className="search-mode-enter">
-                <Label className="ipnia-label">Return</Label>
+            <div className="search-mode-enter">
+              <Label className="ipnia-label">Return Date</Label>
+              {tripType === "roundtrip" ? (
                 <Input
                   type="date"
                   min={departure || minDeparture}
@@ -279,57 +283,51 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
                   onChange={(e) => setReturnDate(e.target.value)}
                   className="ipnia-input"
                 />
-              </div>
-            )}
+              ) : (
+                <button type="button" onClick={() => setTripType("roundtrip")} className="flex h-12 w-full items-center rounded-xl border border-slate-200 bg-white px-3 text-left text-sm font-medium text-sky-700 transition hover:border-sky-400 hover:bg-sky-50">
+                  Book a round trip to save more
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <Label className="ipnia-label">Adults</Label>
-              <Select value={adults} onValueChange={setAdults}>
-                <SelectTrigger className="ipnia-input [&>svg]:text-[#f0ca72] [&>svg]:opacity-90">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 9 }, (_, i) => String(i + 1)).map((n) => (
-                    <SelectItem key={n} value={n}>
-                      {n}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label className="ipnia-label">Travellers</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button type="button" className="ipnia-input flex w-full items-center justify-between px-3 text-left text-base font-medium">
+                    {travellerLabel}<span aria-hidden="true" className="text-slate-500">⌄</span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-80 border-slate-200 bg-white text-[#18324b] shadow-xl">
+                  {(["Adults", "Children", "Infants"] as const).map((label) => {
+                    const value = label === "Adults" ? adults : label === "Children" ? children : infants;
+                    const setter = label === "Adults" ? setAdults : label === "Children" ? setChildren : setInfants;
+                    const count = Number(value);
+                    const min = label === "Adults" ? 1 : 0;
+                    const max = label === "Infants" ? Math.min(5, Number(adults)) : 9;
+                    return <div key={label} className="flex items-center justify-between border-b border-slate-100 py-3 last:border-0">
+                      <div><p className="font-semibold">{label}</p><p className="text-xs text-slate-500">{label === "Adults" ? "Age 12+" : label === "Children" ? "Age 2–11" : "Under 2"}</p></div>
+                      <div className="flex items-center gap-3"><button type="button" aria-label={`Remove ${label.toLowerCase()}`} disabled={count <= min} onClick={() => setter(String(count - 1))} className="h-8 w-8 rounded-full border border-slate-300 disabled:opacity-40">−</button><span className="w-4 text-center">{count}</span><button type="button" aria-label={`Add ${label.toLowerCase()}`} disabled={count >= max || travellerCount >= 9} onClick={() => setter(String(count + 1))} className="h-8 w-8 rounded-full border border-slate-300 disabled:opacity-40">+</button></div>
+                    </div>;
+                  })}
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
-              <Label className="ipnia-label">Children</Label>
-              <Select value={children} onValueChange={setChildren}>
-                <SelectTrigger className="ipnia-input [&>svg]:text-[#f0ca72] [&>svg]:opacity-90">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 9 }, (_, i) => String(i)).map((n) => (
-                    <SelectItem key={n} value={n}>
-                      {n}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="ipnia-label">Infants</Label>
-              <Select value={infants} onValueChange={setInfants}>
-                <SelectTrigger className="ipnia-input [&>svg]:text-[#f0ca72] [&>svg]:opacity-90">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 5 }, (_, i) => String(i)).map((n) => (
-                    <SelectItem key={n} value={n}>
-                      {n}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+              <Label className="ipnia-label">Cabin</Label>
+              <Select value={cabin} onValueChange={(v) => setCabin(v as CabinClass)}>
+                <SelectTrigger className="ipnia-input [&>svg]:text-[#8a6412]"><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="economy">Economy</SelectItem><SelectItem value="premium">Premium Economy</SelectItem><SelectItem value="business">Business</SelectItem><SelectItem value="first">First</SelectItem></SelectContent>
               </Select>
             </div>
           </div>
+
+          <details className="group">
+            <summary className="w-fit cursor-pointer text-sm font-semibold text-slate-600 underline decoration-slate-300 underline-offset-4 hover:text-[#805d12]">More flight options</summary>
+            <div className="mt-3 max-w-sm"><Label className="ipnia-label">Stops</Label><Select value={maxConnections} onValueChange={setMaxConnections}><SelectTrigger className="ipnia-input [&>svg]:text-[#8a6412]"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="any">Any</SelectItem><SelectItem value="0">Non-stop</SelectItem><SelectItem value="1">Max 1 stop</SelectItem><SelectItem value="2">Max 2 stops</SelectItem></SelectContent></Select></div>
+          </details>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
@@ -365,7 +363,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
           <Button
             type="button"
             onClick={searchFlights}
-            className="ipnia-btn-gold ipnia-search-submit h-12 w-full rounded-xl text-base"
+            className="ipnia-btn-gold ipnia-search-submit h-14 w-full rounded-full text-lg"
           >
             Search Flights <ArrowRight className="ml-1 h-4 w-4" />
           </Button>

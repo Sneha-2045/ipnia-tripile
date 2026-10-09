@@ -202,8 +202,8 @@ const FlightSearch = () => {
           </p>
         </div>
 
-        <div className="mb-12 max-w-3xl">
-          <BookingSearchCard defaultMode="flights" />
+        <div className="mb-12 max-w-5xl">
+          <BookingSearchCard defaultMode="flights" flightOnly />
         </div>
 
         {loading ? (

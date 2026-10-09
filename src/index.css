@@ -155,7 +155,7 @@
   }
 
   .ipnia-search-panel {
-    @apply w-full max-w-3xl p-5 backdrop-blur-2xl sm:p-7;
+    @apply w-full max-w-5xl p-5 backdrop-blur-2xl sm:p-7;
     border-radius: 1.35rem;
     border: 1px solid rgba(226, 181, 82, 0.52);
     background-color: rgba(255, 255, 255, 0.94);
