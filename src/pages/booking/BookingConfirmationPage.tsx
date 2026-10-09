@@ -20,7 +20,7 @@ const BookingConfirmationPage = () => {
   const primary = state.travellers[0];
 
   return (
-    <div className="min-h-screen bg-[#0a1628] text-white">
+    <div className="ipnia-page min-h-screen">
       <SEO
         title="Booking Confirmed | IPNIA"
         description="Your IPNIA booking payment was successful."
@@ -28,18 +28,18 @@ const BookingConfirmationPage = () => {
       />
       <BookingNav />
       <main className="mx-auto max-w-3xl px-4 pb-20 pt-28 sm:px-6">
-        <div className="rounded-2xl border border-[#d4a853]/30 bg-[#0c1a2e] p-8">
-          <p className="text-4xl text-[#d4a853]">✓</p>
+        <div className="rounded-2xl border border-[#e2b552]/30 bg-[#0c1a2e] p-8">
+          <p className="text-4xl text-[#e2b552]">✓</p>
           <h1 className="mt-3 text-3xl font-bold">Booking Confirmed</h1>
           <p className="mt-2 text-white/60">Your payment was successful.</p>
 
           <p className="mt-6 text-sm text-white/50">IPNIA Booking Reference</p>
-          <p className="text-xl font-semibold text-[#d4a853]">
+          <p className="text-xl font-semibold text-[#e2b552]">
             {state.bookingReference || state.cashfreeOrderId}
           </p>
 
           <section className="mt-8 border-t border-white/10 pt-6">
-            <h2 className="font-semibold text-[#d4a853]">Flight</h2>
+            <h2 className="font-semibold text-[#e2b552]">Flight</h2>
             <p className="mt-2">
               {flight.airline} · {flight.flightNumber}
             </p>
@@ -52,7 +52,7 @@ const BookingConfirmationPage = () => {
           </section>
 
           <section className="mt-6 border-t border-white/10 pt-6">
-            <h2 className="font-semibold text-[#d4a853]">Traveller</h2>
+            <h2 className="font-semibold text-[#e2b552]">Traveller</h2>
             <p className="mt-2">{primary ? travellerFullName(primary) : "—"}</p>
             {state.travellers.length > 1 && (
               <p className="text-sm text-white/55">+ {state.travellers.length - 1} more</p>
@@ -61,7 +61,7 @@ const BookingConfirmationPage = () => {
 
           {state.hotel && (
             <section className="mt-6 border-t border-white/10 pt-6">
-              <h2 className="font-semibold text-[#d4a853]">Hotel</h2>
+              <h2 className="font-semibold text-[#e2b552]">Hotel</h2>
               <p className="mt-2">{state.hotel.name}</p>
               <p className="text-white/70">{state.hotel.roomType}</p>
               <p className="text-white/70">
@@ -71,7 +71,7 @@ const BookingConfirmationPage = () => {
           )}
 
           <section className="mt-6 border-t border-white/10 pt-6">
-            <h2 className="font-semibold text-[#d4a853]">Payment</h2>
+            <h2 className="font-semibold text-[#e2b552]">Payment</h2>
             <p className="mt-2">Amount: {formatInr(state.priceBreakdown.grandTotal)}</p>
             <p className="text-white/70">Status: SUCCESS</p>
             {state.cashfreeOrderId && (
@@ -80,7 +80,7 @@ const BookingConfirmationPage = () => {
           </section>
 
           <section className="mt-6 border-t border-white/10 pt-6">
-            <h2 className="font-semibold text-[#d4a853]">PNR / Ticket</h2>
+            <h2 className="font-semibold text-[#e2b552]">PNR / Ticket</h2>
             <p className="mt-2 text-white/65">
               Ticket/PNR will be generated after flight booking confirmation.
             </p>
@@ -89,7 +89,7 @@ const BookingConfirmationPage = () => {
           <div className="mt-8 flex flex-wrap gap-3">
             <Button
               onClick={() => window.print()}
-              className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+              className="bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
             >
               Download / View Booking
             </Button>

@@ -60,7 +60,7 @@ export function HotelDestinationPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="space-y-6 lg:col-span-2">
           <div className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-6">
-            <h2 className="text-xl font-semibold text-[#d4a853]">Staying in {dest.name}</h2>
+            <h2 className="text-xl font-semibold text-[#e2b552]">Staying in {dest.name}</h2>
             <p className="mt-3 text-white/75">
               Search live lodging for {dest.name} with IPNIA’s Google Places–powered hotel search.
               Results include photos, guest ratings, maps and property details when available.
@@ -81,7 +81,7 @@ export function HotelDestinationPage() {
             </ul>
           </div>
           <div className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-6">
-            <h2 className="text-xl font-semibold text-[#d4a853]">Stay styles</h2>
+            <h2 className="text-xl font-semibold text-[#e2b552]">Stay styles</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {stayCategories.map((c) => (
                 <div key={c.id} className="rounded-xl border border-white/10 p-4">
@@ -92,7 +92,7 @@ export function HotelDestinationPage() {
             </div>
           </div>
           <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-6">
-            <h2 className="text-lg font-semibold text-[#d4a853]">FAQ — Hotels in {dest.name}</h2>
+            <h2 className="text-lg font-semibold text-[#e2b552]">FAQ — Hotels in {dest.name}</h2>
             <div className="mt-3 space-y-3 text-sm text-white/70">
               <p>
                 <strong className="text-white">Are these live hotel rates?</strong>
@@ -110,26 +110,26 @@ export function HotelDestinationPage() {
           </section>
         </section>
         <aside className="space-y-4">
-          <div className="rounded-2xl border border-[#d4a853]/30 bg-[#0c1a2e] p-5">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#d4a853]">Also explore</p>
+          <div className="rounded-2xl border border-[#e2b552]/30 bg-[#0c1a2e] p-5">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#e2b552]">Also explore</p>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <Link className="hover:text-[#d4a853]" to={`/destinations/${dest.slug}`}>
+                <Link className="hover:text-[#e2b552]" to={`/destinations/${dest.slug}`}>
                   {dest.name} destination guide
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-[#d4a853]" to={`/flights/to/${dest.slug}`}>
+                <Link className="hover:text-[#e2b552]" to={`/flights/to/${dest.slug}`}>
                   Cheap flights to {dest.name}
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-[#d4a853]" to={`/hotels/countries/${dest.countrySlug}`}>
+                <Link className="hover:text-[#e2b552]" to={`/hotels/countries/${dest.countrySlug}`}>
                   Hotels in {dest.countryName}
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-[#d4a853]" to="/deals/hotel-deals">
+                <Link className="hover:text-[#e2b552]" to="/deals/hotel-deals">
                   Hotel deals
                 </Link>
               </li>

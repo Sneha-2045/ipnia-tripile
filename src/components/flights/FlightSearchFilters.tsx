@@ -141,7 +141,7 @@ export function FlightSearchFilters({
 
   return (
     <div className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-4">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
+      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#e2b552]">
         Filter & sort
       </p>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

@@ -45,15 +45,15 @@ export function BookingProgress({
             <span
               className={cn(
                 "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 transition",
-                active && "border-[#d4a853] bg-[#d4a853]/15 text-[#d4a853]",
-                done && !active && "border-[#d4a853]/40 text-[#d4a853]/90",
+                active && "border-[#e2b552] bg-[#e2b552]/15 text-[#e2b552]",
+                done && !active && "border-[#e2b552]/40 text-[#e2b552]/90",
                 !done && !active && "border-white/15 text-white/45"
               )}
             >
               <span
                 className={cn(
                   "flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
-                  active || done ? "bg-[#d4a853] text-[#0a1628]" : "bg-white/10 text-white/50"
+                  active || done ? "bg-[#e2b552] text-[#0a1628]" : "bg-white/10 text-white/50"
                 )}
               >
                 {displayNum}

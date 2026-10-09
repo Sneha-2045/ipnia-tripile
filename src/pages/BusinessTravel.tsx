@@ -42,7 +42,7 @@ function CreativeFrame({
 }) {
   return (
     <div
-      className={`overflow-hidden rounded-2xl border border-[#d4a853]/25 bg-[#07111f] p-2 shadow-travel sm:p-3 ${className}`}
+      className={`overflow-hidden rounded-2xl border border-[#e2b552]/25 bg-[#07111f] p-2 shadow-travel sm:p-3 ${className}`}
     >
       <div className="overflow-hidden rounded-xl">
         <img
@@ -105,21 +105,21 @@ const BusinessTravel = () => {
       />
 
       {/* Hero — copy separate from full creative */}
-      <section className="border-b border-[#d4a853]/20 bg-[#07111f]">
+      <section className="border-b border-[#e2b552]/20 bg-[#07111f]">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20">
           <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-[#d4a853]">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-[#e2b552]">
               Business Travel
             </p>
             <h1 className="text-4xl font-bold text-white md:text-6xl">CHINA BUSINESS TRAVEL</h1>
-            <p className="mt-4 text-2xl font-semibold text-[#d4a853]">Go Beyond Buying From China.</p>
+            <p className="mt-4 text-2xl font-semibold text-[#e2b552]">Go Beyond Buying From China.</p>
             <p className="mt-3 text-lg text-white/80">Meet. Verify. Source. Build.</p>
             <p className="mt-5 max-w-xl text-white/65">
               IPNIA is your China sourcing and business travel partner for Indian entrepreneurs,
               importers, exporters and business leaders.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+              <Button asChild className="bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
                 <Link to="/contact">
                   Book a Business Tour <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
@@ -127,7 +127,7 @@ const BusinessTravel = () => {
               <Button
                 asChild
                 variant="outline"
-                className="border-[#d4a853]/50 bg-transparent text-white hover:bg-[#d4a853]/10 hover:text-white"
+                className="border-[#e2b552]/50 bg-transparent text-white hover:bg-[#e2b552]/10 hover:text-white"
               >
                 <a href="#canton-fair">Explore Canton Fair 2026</a>
               </Button>
@@ -141,14 +141,14 @@ const BusinessTravel = () => {
       </section>
 
       {/* Services strip */}
-      <section className="border-b border-[#d4a853]/25 bg-[#0a1628]">
+      <section className="border-b border-[#e2b552]/25 bg-[#0a1628]">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <h2 className="mb-6 text-2xl font-bold text-white">Complete business coordination</h2>
           <div className="flex flex-wrap gap-2">
             {services.map((service) => (
               <span
                 key={service}
-                className="rounded-full border border-[#d4a853]/30 bg-[#0c1a2e] px-3 py-1.5 text-xs font-medium text-white/85"
+                className="rounded-full border border-[#e2b552]/30 bg-[#0c1a2e] px-3 py-1.5 text-xs font-medium text-white/85"
               >
                 {service}
               </span>
@@ -164,7 +164,7 @@ const BusinessTravel = () => {
       >
         <div className="grid items-start gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d4a853]">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#e2b552]">
               China Business Tours
             </p>
             <h2 className="mt-3 text-4xl font-bold text-white md:text-5xl">
@@ -181,19 +181,19 @@ const BusinessTravel = () => {
                 "Interpreter, hotel and local transport support",
               ].map((item) => (
                 <li key={item} className="flex gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#d4a853]" />
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#e2b552]" />
                   {item}
                 </li>
               ))}
             </ul>
-            <div className="mt-8 rounded-2xl border border-[#d4a853]/30 bg-[#0c1a2e] p-5">
-              <p className="text-sm font-semibold text-[#d4a853]">Tour focus</p>
+            <div className="mt-8 rounded-2xl border border-[#e2b552]/30 bg-[#0c1a2e] p-5">
+              <p className="text-sm font-semibold text-[#e2b552]">Tour focus</p>
               <p className="mt-2 text-sm text-white/75">
                 Visit Canton Fair · Factory Visits · Supplier Meetings · Complete Business
                 Coordination
               </p>
             </div>
-            <Button asChild className="mt-8 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+            <Button asChild className="mt-8 bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
               <Link to="/contact">Request a Quote</Link>
             </Button>
           </div>
@@ -213,8 +213,8 @@ const BusinessTravel = () => {
             src="/assets/ipnia/canton-fair-2026.jpg"
             alt="Canton Fair 2026 China Business Trip with IPNIA"
           />
-          <div className="flex flex-col justify-center rounded-2xl border border-[#d4a853]/30 bg-[#0c1a2e] p-8 lg:p-10">
-            <Building2 className="mb-4 h-8 w-8 text-[#d4a853]" />
+          <div className="flex flex-col justify-center rounded-2xl border border-[#e2b552]/30 bg-[#0c1a2e] p-8 lg:p-10">
+            <Building2 className="mb-4 h-8 w-8 text-[#e2b552]" />
             <h2 className="text-4xl font-bold text-white">Canton Fair 2026</h2>
             <p className="mt-4 text-white/65">
               Access the world&apos;s largest trade platform with IPNIA assistance — planning,
@@ -228,7 +228,7 @@ const BusinessTravel = () => {
             </ul>
             <Button
               asChild
-              className="mt-8 w-fit bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+              className="mt-8 w-fit bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
             >
               <Link to="/contact">Talk to an Expert</Link>
             </Button>
@@ -242,7 +242,7 @@ const BusinessTravel = () => {
         className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8"
       >
         <div className="mb-8 max-w-2xl">
-          <div className="mb-3 flex items-center gap-3 text-[#d4a853]">
+          <div className="mb-3 flex items-center gap-3 text-[#e2b552]">
             <Factory className="h-7 w-7" />
             <p className="text-xs font-semibold uppercase tracking-[0.3em]">Factory Visits</p>
           </div>
@@ -262,8 +262,8 @@ const BusinessTravel = () => {
       {/* Supplier Verification */}
       <section id="supplier-verification" className="scroll-mt-24 bg-[#07111f] py-20">
         <div className="mx-auto grid max-w-7xl items-start gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-          <div className="rounded-2xl border border-[#d4a853]/30 bg-[#0c1a2e] p-8 lg:order-2 lg:p-10">
-            <ShieldCheck className="mb-3 h-7 w-7 text-[#d4a853]" />
+          <div className="rounded-2xl border border-[#e2b552]/30 bg-[#0c1a2e] p-8 lg:order-2 lg:p-10">
+            <ShieldCheck className="mb-3 h-7 w-7 text-[#e2b552]" />
             <h2 className="text-3xl font-bold text-white md:text-4xl">Supplier Verification</h2>
             <p className="mt-4 text-white/65">
               Don&apos;t just buy from China. Know your supplier. IPNIA helps Indian businesses move
@@ -271,16 +271,16 @@ const BusinessTravel = () => {
             </p>
             <ul className="mt-6 space-y-2 text-sm text-white/75">
               <li className="flex gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#d4a853]" /> Factory verified
+                <CheckCircle2 className="h-4 w-4 text-[#e2b552]" /> Factory verified
               </li>
               <li className="flex gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#d4a853]" /> Quality checked
+                <CheckCircle2 className="h-4 w-4 text-[#e2b552]" /> Quality checked
               </li>
               <li className="flex gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#d4a853]" /> On-site meetings
+                <CheckCircle2 className="h-4 w-4 text-[#e2b552]" /> On-site meetings
               </li>
             </ul>
-            <Button asChild className="mt-8 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+            <Button asChild className="mt-8 bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
               <Link to="/contact">Request Verification Support</Link>
             </Button>
           </div>
@@ -296,12 +296,12 @@ const BusinessTravel = () => {
       {/* Product Sourcing */}
       <section
         id="product-sourcing"
-        className="scroll-mt-24 border-y border-[#d4a853]/20 bg-[#0a1628] py-20"
+        className="scroll-mt-24 border-y border-[#e2b552]/20 bg-[#0a1628] py-20"
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d4a853]">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#e2b552]">
                 Product Sourcing
               </p>
               <h2 className="mt-2 text-4xl font-bold text-white">Source with clarity</h2>
@@ -331,9 +331,9 @@ const BusinessTravel = () => {
             ].map((card) => (
               <div
                 key={card.title}
-                className="rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e] p-6"
+                className="rounded-2xl border border-[#e2b552]/25 bg-[#0c1a2e] p-6"
               >
-                <card.icon className="mb-4 h-6 w-6 text-[#d4a853]" />
+                <card.icon className="mb-4 h-6 w-6 text-[#e2b552]" />
                 <h3 className="text-xl font-bold text-white">{card.title}</h3>
                 <p className="mt-2 text-sm text-white/60">{card.text}</p>
               </div>
@@ -349,7 +349,7 @@ const BusinessTravel = () => {
       >
         <div className="grid items-start gap-10 lg:grid-cols-2">
           <div>
-            <Users className="mb-4 h-8 w-8 text-[#d4a853]" />
+            <Users className="mb-4 h-8 w-8 text-[#e2b552]" />
             <h2 className="text-4xl font-bold text-white">Business Delegations</h2>
             <p className="mt-4 text-white/65">
               Join curated delegations designed for Indian business minds — real access, real
@@ -364,14 +364,14 @@ const BusinessTravel = () => {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="rounded-xl border border-[#d4a853]/30 bg-[#0c1a2e] p-4"
+                  className="rounded-xl border border-[#e2b552]/30 bg-[#0c1a2e] p-4"
                 >
-                  <p className="text-2xl font-bold text-[#d4a853]">{item.stat}</p>
+                  <p className="text-2xl font-bold text-[#e2b552]">{item.stat}</p>
                   <p className="text-sm text-white/70">{item.label}</p>
                 </div>
               ))}
             </div>
-            <Button asChild className="mt-8 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+            <Button asChild className="mt-8 bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
               <Link to="/contact">Join the Delegation</Link>
             </Button>
           </div>
@@ -389,13 +389,13 @@ const BusinessTravel = () => {
             <h2 className="text-4xl font-bold text-white">
               USA Dropshipping / China-to-USA Sourcing
             </h2>
-            <p className="mt-4 text-lg text-[#d4a853]">Your product. Made in China. Sold in America.</p>
+            <p className="mt-4 text-lg text-[#e2b552]">Your product. Made in China. Sold in America.</p>
             <p className="mt-3 text-white/65">
               Build your brand without holding inventory. IPNIA helps coordinate China sourcing
               journeys aligned to USA market fulfilment models — with clear guidance and travel
               support for founders and operators.
             </p>
-            <Button asChild className="mt-8 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+            <Button asChild className="mt-8 bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
               <Link to="/contact">
                 Apply Now <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -416,7 +416,7 @@ const BusinessTravel = () => {
 
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-[#d4a853]/40 bg-[#0c1a2e] px-8 py-12 text-center md:px-16">
+        <div className="rounded-3xl border border-[#e2b552]/40 bg-[#0c1a2e] px-8 py-12 text-center md:px-16">
           <h2 className="text-3xl font-bold text-white md:text-5xl">
             Ready to source with confidence?
           </h2>
@@ -428,7 +428,7 @@ const BusinessTravel = () => {
             <Button
               asChild
               size="lg"
-              className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+              className="bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
             >
               <Link to="/contact">Book a Business Tour</Link>
             </Button>
@@ -436,7 +436,7 @@ const BusinessTravel = () => {
               asChild
               size="lg"
               variant="outline"
-              className="border-[#d4a853]/50 bg-transparent text-white hover:bg-[#d4a853]/10 hover:text-white"
+              className="border-[#e2b552]/50 bg-transparent text-white hover:bg-[#e2b552]/10 hover:text-white"
             >
               <a href="tel:01145534440">Call 01145534440</a>
             </Button>

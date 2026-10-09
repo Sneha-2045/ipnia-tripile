@@ -28,8 +28,8 @@ export default {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
-				background: '#0a1628',
-				foreground: '#F8F9FB',
+				background: '#f4f7fb',
+				foreground: '#18324b',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
@@ -47,10 +47,10 @@ export default {
 					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
-					DEFAULT: '#d4a853',
-					gradient1: '#0c1a2e',
-					gradient2: '#0a1628',
-					gradient3: '#d4a853',
+					DEFAULT: '#e2b552',
+					gradient1: '#e8eef5',
+					gradient2: '#f4f7fb',
+					gradient3: '#e2b552',
 					foreground: 'hsl(var(--accent-foreground))'
 				},
 				popover: {
@@ -71,16 +71,16 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				cta: '#d4a853',
-				section1: '#0a1628',
-				section2: '#0c1a2e',
-				section3: '#07111f',
+				cta: '#e2b552',
+				section1: '#f4f7fb',
+				section2: '#e8eef5',
+				section3: '#f8fafc',
 				ipnia: {
-					navy: '#0a1628',
-					deep: '#07111f',
-					mid: '#0c1a2e',
-					gold: '#d4a853',
-					soft: '#e0b96a',
+					navy: '#17324d',
+					deep: '#10253b',
+					mid: '#e8eef5',
+					gold: '#e2b552',
+					soft: '#f0ca72',
 				},
 			},
 			borderRadius: {

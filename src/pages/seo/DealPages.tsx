@@ -63,7 +63,7 @@ export function DealDetailPage() {
       primaryCta={{ label: deal.ctaLabel, to: deal.ctaPath }}
     >
       <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-6">
-        <h2 className="text-xl font-semibold text-[#d4a853]">What you can do</h2>
+        <h2 className="text-xl font-semibold text-[#e2b552]">What you can do</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-white/75">
           {deal.bullets.map((b) => (
             <li key={b}>{b}</li>

@@ -130,13 +130,13 @@ export function HotelDestinationAutocomplete({
 
   return (
     <div ref={wrapRef} className="relative">
-      <Label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#d4a853]">
+      <Label className="ipnia-label">
         {label}
       </Label>
       <div className="relative">
-        <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+        <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
         {(loading || resolving) && (
-          <Loader2 className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-[#d4a853]" />
+          <Loader2 className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-[#f0ca72]" />
         )}
         <Input
           value={query}
@@ -151,36 +151,36 @@ export function HotelDestinationAutocomplete({
             onChange(null);
             setOpen(true);
           }}
-          className="h-12 border-white/15 bg-[#07111f] pl-10 pr-10 text-white placeholder:text-white/35 focus-visible:ring-[#d4a853]"
+          className="ipnia-input pl-10 pr-10 placeholder:text-slate-500"
           autoComplete="off"
         />
       </div>
 
       {showRecentDropdown && (
-        <div className="absolute z-40 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-[#d4a853]/30 bg-[#0c1a2e] shadow-2xl">
+        <div className="absolute z-40 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-[#e2b552]/35 bg-[#142a44] shadow-2xl">
           {recent.length > 0 ? (
             <>
-              <p className="px-4 pt-3 text-[10px] font-bold uppercase tracking-wider text-[#d4a853]/80">
+              <p className="px-4 pt-3 text-[10px] font-bold uppercase tracking-wider text-[#f0ca72]">
                 Recent destinations
               </p>
               {recent.map((item) => (
                 <button
                   key={item.placeId}
                   type="button"
-                  className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-[#d4a853]/10"
+                  className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-[#e2b552]/10"
                   onClick={() => {
                     setOpen(false);
                     setQuery(item.description || item.mainText);
                     onChange(item);
                   }}
                 >
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#d4a853]" />
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#e2b552]" />
                   <span>
                     <span className="block text-sm font-semibold text-white">
                       {item.mainText || item.description}
                     </span>
                     {(item.secondaryText || item.country) && (
-                      <span className="block text-xs text-white/50">
+                      <span className="block text-xs text-white/75">
                         {item.secondaryText || [item.region, item.country].filter(Boolean).join(", ")}
                       </span>
                     )}
@@ -190,8 +190,8 @@ export function HotelDestinationAutocomplete({
             </>
           ) : (
             <div className="px-4 py-3">
-              <p className="text-sm text-white/60">Search destinations worldwide</p>
-              <p className="mt-1 text-xs text-white/40">
+              <p className="text-sm text-white/85">Search destinations worldwide</p>
+              <p className="mt-1 text-xs text-white/70">
                 Type at least 2 letters for Google Places suggestions (cities, regions, countries).
               </p>
             </div>
@@ -200,28 +200,28 @@ export function HotelDestinationAutocomplete({
       )}
 
       {showPlacesDropdown && (
-        <div className="absolute z-40 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-[#d4a853]/30 bg-[#0c1a2e] shadow-2xl">
+        <div className="absolute z-40 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-[#e2b552]/35 bg-[#142a44] shadow-2xl">
           {loading && predictions.length === 0 ? (
-            <p className="px-4 py-3 text-sm text-white/50">Searching destinations...</p>
+            <p className="px-4 py-3 text-sm text-white/75">Searching destinations...</p>
           ) : error ? (
             <p className="px-4 py-3 text-sm text-red-300">{error}</p>
           ) : predictions.length === 0 ? (
-            <p className="px-4 py-3 text-sm text-white/50">No destinations found</p>
+            <p className="px-4 py-3 text-sm text-white/75">No destinations found</p>
           ) : (
             predictions.map((item) => (
               <button
                 key={item.placeId || item.id}
                 type="button"
-                className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-[#d4a853]/10"
+                className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-[#e2b552]/10"
                 onClick={() => pickPrediction(item)}
               >
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#d4a853]" />
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#e2b552]" />
                 <span>
                   <span className="block text-sm font-semibold text-white">
                     {item.mainText || item.description}
                   </span>
                   {item.secondaryText && (
-                    <span className="block text-xs text-white/50">{item.secondaryText}</span>
+                    <span className="block text-xs text-white/75">{item.secondaryText}</span>
                   )}
                 </span>
               </button>

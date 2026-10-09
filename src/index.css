@@ -6,55 +6,55 @@
 
 @layer base {
   :root {
-    --background: 218 48% 8%;
-    --foreground: 210 40% 98%;
+    --background: 210 35% 98%;
+    --foreground: 214 38% 17%;
 
-    --card: 218 40% 12%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 214 38% 17%;
 
-    --popover: 218 45% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 214 38% 17%;
 
-    --primary: 40 58% 58%;
+    --primary: 41 68% 62%;
     --primary-foreground: 218 48% 8%;
 
-    --secondary: 218 35% 14%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 212 30% 94%;
+    --secondary-foreground: 214 38% 17%;
 
-    --muted: 218 28% 16%;
-    --muted-foreground: 215 16% 68%;
+    --muted: 212 30% 94%;
+    --muted-foreground: 215 18% 40%;
 
-    --accent: 40 58% 58%;
+    --accent: 41 68% 62%;
     --accent-foreground: 218 48% 8%;
 
-    --ipnia-navy: #0a1628;
-    --ipnia-navy-deep: #07111f;
-    --ipnia-navy-mid: #0c1a2e;
-    --ipnia-gold: #d4a853;
-    --ipnia-gold-soft: #e0b96a;
+    --ipnia-navy: #17324d;
+    --ipnia-navy-deep: #10253b;
+    --ipnia-navy-mid: #e8eef5;
+    --ipnia-gold: #e2b552;
+    --ipnia-gold-soft: #f0ca72;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 218 25% 20%;
-    --input: 218 25% 18%;
-    --ring: 40 58% 58%;
+    --border: 213 22% 82%;
+    --input: 213 22% 84%;
+    --ring: 41 68% 62%;
 
     --radius: 1rem;
 
-    --sidebar-background: 218 48% 6%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 40 58% 58%;
+    --sidebar-background: 210 35% 98%;
+    --sidebar-foreground: 214 38% 17%;
+    --sidebar-primary: 41 68% 62%;
     --sidebar-primary-foreground: 218 48% 8%;
-    --sidebar-accent: 218 28% 16%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 218 25% 20%;
-    --sidebar-ring: 40 58% 58%;
+    --sidebar-accent: 212 30% 94%;
+    --sidebar-accent-foreground: 214 38% 17%;
+    --sidebar-border: 213 22% 82%;
+    --sidebar-ring: 41 68% 62%;
 
-    --cta: 40 58% 58%;
-    --section1: 218 48% 8%;
-    --section2: 218 40% 12%;
-    --section3: 218 48% 6%;
+    --cta: 41 68% 62%;
+    --section1: 210 35% 98%;
+    --section2: 212 30% 94%;
+    --section3: 210 30% 96%;
 
     font-family: "Outfit", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
   }
@@ -77,6 +77,11 @@
     @apply border-border;
   }
 
+  :focus-visible {
+    outline: 2px solid #f0ca72;
+    outline-offset: 3px;
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -84,23 +89,27 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background-color: #0a1628;
+    color-scheme: light;
+    color: #18324b;
+    background-color: #f4f7fb;
+    background-image: radial-gradient(ellipse at 82% 18%, rgba(99, 137, 174, 0.08), transparent 44%);
   }
 
   ::selection {
-    background: rgba(212, 168, 83, 0.35);
+    background: rgba(226, 181, 82, 0.35);
     color: #fff;
   }
 }
 
 @layer components {
   .gradient-bg {
-    background: linear-gradient(145deg, #07111f 0%, #0a1628 45%, #0f2744 100%);
+    background: linear-gradient(145deg, #f7f9fc 0%, #edf3f8 48%, #f8f6ef 100%);
   }
 
   .ipnia-page {
-    @apply min-h-screen text-white;
-    background-color: #0a1628;
+    @apply min-h-screen;
+    color: #18324b;
+    background: linear-gradient(180deg, #f7f9fc 0%, #eef3f8 50%, #f8fafc 100%);
   }
 
   .ipnia-section {
@@ -109,7 +118,7 @@
 
   .ipnia-eyebrow {
     @apply text-[11px] font-semibold uppercase tracking-[0.32em];
-    color: #d4a853;
+    color: #805d12;
   }
 
   .ipnia-heading {
@@ -119,14 +128,14 @@
 
   .ipnia-subcopy {
     @apply leading-relaxed;
-    color: rgba(255, 255, 255, 0.65);
+    color: #4b5e72;
   }
 
   .ipnia-card {
     @apply rounded-2xl transition-all duration-300;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background-color: rgba(12, 26, 46, 0.9);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(37, 67, 96, 0.12);
+    background-color: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 16px 40px rgba(33, 55, 78, 0.1);
   }
 
   .ipnia-card-hover {
@@ -135,98 +144,160 @@
 
   .ipnia-card-hover:hover {
     transform: translateY(-0.25rem);
-    border-color: rgba(212, 168, 83, 0.45);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+    border-color: rgba(226, 181, 82, 0.68);
+    box-shadow: 0 20px 44px rgba(33, 55, 78, 0.16);
   }
 
   .ipnia-glass {
     @apply backdrop-blur-xl;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(37, 67, 96, 0.14);
+    background-color: rgba(255, 255, 255, 0.76);
   }
 
   .ipnia-search-panel {
     @apply w-full max-w-3xl p-5 backdrop-blur-2xl sm:p-7;
     border-radius: 1.35rem;
-    border: 1px solid rgba(212, 168, 83, 0.3);
-    background-color: rgba(12, 26, 46, 0.88);
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(226, 181, 82, 0.52);
+    background-color: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 28px 64px rgba(30, 51, 74, 0.18), 0 1px 0 rgba(255, 255, 255, 0.9) inset;
     background-image:
-      linear-gradient(145deg, rgba(212, 168, 83, 0.08) 0%, transparent 42%),
-      linear-gradient(180deg, rgba(12, 26, 46, 0.95) 0%, rgba(7, 17, 31, 0.92) 100%);
+      linear-gradient(145deg, rgba(226, 181, 82, 0.09) 0%, transparent 42%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(245, 248, 251, 0.97) 100%);
   }
 
   .ipnia-nav {
     @apply fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl transition-all duration-300;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background-color: rgba(10, 22, 40, 0.85);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    border-bottom: 1px solid rgba(34, 60, 87, 0.12);
+    background-color: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 6px 24px rgba(30, 51, 74, 0.1);
   }
 
   .ipnia-nav-link {
     @apply rounded-lg px-2.5 py-2 text-[13px] font-medium tracking-wide transition-all duration-200;
-    color: rgba(255, 255, 255, 0.7);
+    color: #203950;
+    position: relative;
   }
 
   .ipnia-nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: #d4a853;
+    background-color: rgba(23, 50, 77, 0.045);
+    color: #8a6412;
+  }
+
+  .ipnia-nav-link::after {
+    position: absolute;
+    right: 0.65rem;
+    bottom: 0.28rem;
+    left: 0.65rem;
+    height: 2px;
+    content: "";
+    background: linear-gradient(90deg, #e2b552, #f5d989);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 220ms ease;
+  }
+
+  .ipnia-nav-link:hover::after,
+  .ipnia-nav-link-active::after {
+    transform: scaleX(1);
   }
 
   .ipnia-nav-link-active {
-    color: #d4a853;
-    background-color: rgba(212, 168, 83, 0.1);
+    color: #805d12;
+    background-color: rgba(226, 181, 82, 0.09);
   }
 
   .ipnia-btn-gold {
     @apply font-semibold transition-all duration-200 hover:brightness-105 active:scale-[0.98];
-    background-color: #d4a853;
+    background: linear-gradient(135deg, #edc15d 0%, #e2b552 55%, #d9a840 100%);
     color: #0a1628;
-    box-shadow: 0 10px 30px rgba(212, 168, 83, 0.25);
+    box-shadow: 0 10px 28px rgba(226, 181, 82, 0.25);
+    background-size: 140% 140%;
+    background-position: 10% 50%;
   }
 
   .ipnia-btn-gold:hover {
-    background-color: #e0b96a;
-    box-shadow: 0 14px 36px rgba(212, 168, 83, 0.35);
+    background-position: 90% 50%;
+    box-shadow: 0 14px 34px rgba(226, 181, 82, 0.34);
+    transform: translateY(-1px);
+  }
+
+  .ipnia-search-submit {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid rgba(255, 239, 190, 0.42);
+  }
+
+  .ipnia-search-submit::after {
+    position: absolute;
+    inset: -50% auto -50% -40%;
+    z-index: -1;
+    width: 26%;
+    content: "";
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+    transform: skewX(-18deg);
+    transition: left 520ms ease;
+  }
+
+  .ipnia-search-submit:hover::after {
+    left: 120%;
   }
 
   .ipnia-btn-navy {
-    @apply font-semibold text-white transition-all duration-200;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background-color: #0c1a2e;
+    @apply font-semibold transition-all duration-200;
+    color: #18324b;
+    border: 1px solid rgba(37, 67, 96, 0.2);
+    background-color: #e9eff5;
   }
 
   .ipnia-btn-navy:hover {
-    border-color: rgba(212, 168, 83, 0.4);
-    background-color: #12233a;
+    border-color: rgba(138, 100, 18, 0.42);
+    background-color: #dde7f0;
   }
 
   .ipnia-input {
-    @apply h-12 rounded-xl text-white transition-colors;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background-color: rgba(7, 17, 31, 0.9);
+    @apply h-12 rounded-xl transition-colors;
+    color: #18324b;
+    border: 1px solid rgba(37, 67, 96, 0.22);
+    background-color: #ffffff;
+    color-scheme: light;
   }
 
   .ipnia-input:focus-visible {
-    border-color: rgba(212, 168, 83, 0.5);
+    border-color: rgba(138, 100, 18, 0.75);
     outline: none;
-    box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.4);
+    box-shadow: 0 0 0 3px rgba(226, 181, 82, 0.24);
+  }
+
+  .ipnia-input::placeholder {
+    color: #63758a;
+  }
+
+  button.ipnia-input > svg {
+    color: #8a6412;
+    opacity: 0.9;
+  }
+
+  input[type="date"].ipnia-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(84%) sepia(28%) saturate(581%) hue-rotate(354deg) brightness(101%);
+    opacity: 0.95;
   }
 
   .ipnia-label {
     @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em];
-    color: #d4a853;
+    color: #805d12;
   }
 
   .hero-gradient {
-    background: linear-gradient(135deg, #d4a853 0%, #f0d59a 45%, #d4a853 100%);
+    background: linear-gradient(135deg, #e2b552 0%, #f0d59a 45%, #e2b552 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .traveled-brand-gradient {
-    background: linear-gradient(135deg, #d4a853 0%, #f0d59a 50%, #c49a45 100%);
+    background: linear-gradient(135deg, #e2b552 0%, #f0d59a 50%, #c49a45 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -234,9 +305,9 @@
 
   .traveled-equation-bg {
     background:
-      radial-gradient(circle at 18% 20%, rgba(212, 168, 83, 0.14) 0%, transparent 42%),
+      radial-gradient(circle at 18% 20%, rgba(226, 181, 82, 0.14) 0%, transparent 42%),
       radial-gradient(circle at 82% 28%, rgba(56, 120, 180, 0.12) 0%, transparent 40%),
-      radial-gradient(circle at 50% 85%, rgba(212, 168, 83, 0.08) 0%, transparent 45%);
+      radial-gradient(circle at 50% 85%, rgba(226, 181, 82, 0.08) 0%, transparent 45%);
   }
 
   .equation-pill {
@@ -247,13 +318,13 @@
 
   .equation-pill:hover {
     transform: translateY(-0.25rem);
-    border-color: rgba(212, 168, 83, 0.4);
-    box-shadow: 0 10px 24px rgba(212, 168, 83, 0.1);
+    border-color: rgba(226, 181, 82, 0.4);
+    box-shadow: 0 10px 24px rgba(226, 181, 82, 0.1);
   }
 
   .equation-operator {
     @apply text-3xl md:text-5xl font-bold;
-    color: #d4a853;
+    color: #e2b552;
   }
 
   .card-hover {
@@ -266,27 +337,27 @@
   }
 
   .glow-effect {
-    box-shadow: 0 0 24px rgba(212, 168, 83, 0.28);
+    box-shadow: 0 0 24px rgba(226, 181, 82, 0.28);
   }
 
   .gold-border {
-    border: 1px solid rgba(212, 168, 83, 0.35);
+    border: 1px solid rgba(226, 181, 82, 0.35);
   }
 
   .gold-text {
-    color: #d4a853;
+    color: #e2b552;
   }
 
   .segment-card {
     @apply relative overflow-hidden rounded-2xl p-6 transition-all duration-300;
-    border: 1px solid rgba(212, 168, 83, 0.25);
+    border: 1px solid rgba(226, 181, 82, 0.25);
     background-color: rgba(12, 26, 46, 0.85);
   }
 
   .segment-card:hover {
     transform: translateY(-0.25rem);
-    border-color: rgba(212, 168, 83, 0.55);
-    box-shadow: 0 10px 24px rgba(212, 168, 83, 0.1);
+    border-color: rgba(226, 181, 82, 0.55);
+    box-shadow: 0 10px 24px rgba(226, 181, 82, 0.1);
   }
 
   .editorial-overlay {
@@ -337,7 +408,7 @@
       transform: scale(1) translate(0, 0);
     }
     to {
-      transform: scale(1.12) translate(-1.5%, -1%);
+      transform: scale(1.06) translate(-0.6%, -0.4%);
     }
   }
 
@@ -347,25 +418,25 @@
   }
 
   .travel-hover:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.45);
-    border-color: rgba(212, 168, 83, 0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 42px rgba(0, 0, 0, 0.32);
+    border-color: rgba(240, 202, 114, 0.5);
   }
 
   .travel-dest-card {
     position: relative;
     overflow: hidden;
     border-radius: 1.25rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.3);
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease,
-      border-color 0.4s ease;
+    border: 1px solid rgba(210, 226, 244, 0.16);
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.26);
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.32s ease,
+      border-color 0.32s ease;
   }
 
   .travel-dest-card:hover {
-    transform: translateY(-10px) scale(1.01);
-    border-color: rgba(212, 168, 83, 0.55);
-    box-shadow: 0 32px 70px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 168, 83, 0.15);
+    transform: translateY(-5px) scale(1.005);
+    border-color: rgba(240, 202, 114, 0.58);
+    box-shadow: 0 24px 52px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(226, 181, 82, 0.12);
   }
 
   .travel-dest-card .travel-shine {
@@ -374,7 +445,7 @@
     background: linear-gradient(
       120deg,
       transparent 30%,
-      rgba(255, 255, 255, 0.12) 48%,
+      rgba(255, 255, 255, 0.08) 48%,
       transparent 62%
     );
     transform: translateX(-120%);
@@ -397,9 +468,9 @@
   }
 
   .travel-route-card:hover {
-    transform: translateY(-8px);
-    border-color: rgba(212, 168, 83, 0.5);
-    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.45);
+    transform: translateY(-4px);
+    border-color: rgba(240, 202, 114, 0.5);
+    box-shadow: 0 20px 44px rgba(0, 0, 0, 0.32);
   }
 
   .travel-route-card .route-plane {
@@ -425,7 +496,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.22;
+    opacity: 0.35;
   }
 
   .travel-bg-section > .travel-bg-overlay {
@@ -433,8 +504,8 @@
     inset: 0;
     z-index: 0;
     background:
-      linear-gradient(180deg, rgba(7, 17, 31, 0.92) 0%, rgba(10, 22, 40, 0.88) 50%, rgba(7, 17, 31, 0.95) 100%),
-      radial-gradient(ellipse at top right, rgba(212, 168, 83, 0.12), transparent 50%);
+      linear-gradient(180deg, rgba(9, 22, 39, 0.78) 0%, rgba(12, 27, 46, 0.72) 50%, rgba(9, 22, 39, 0.84) 100%),
+      radial-gradient(ellipse at top right, rgba(226, 181, 82, 0.16), transparent 50%);
   }
 
   .auth-travel-bg {
@@ -463,9 +534,9 @@
     inset: 0;
     background: linear-gradient(
       145deg,
-      rgba(5, 11, 20, 0.92) 0%,
-      rgba(10, 22, 40, 0.88) 45%,
-      rgba(7, 17, 31, 0.9) 100%
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(242, 246, 250, 0.62) 48%,
+      rgba(255, 255, 255, 0.72) 100%
     );
   }
 
@@ -474,13 +545,51 @@
   }
 
   .ipnia-search-panel:hover {
-    transform: translateY(-4px);
-    border-color: rgba(212, 168, 83, 0.45);
-    box-shadow: 0 48px 110px rgba(0, 0, 0, 0.55);
+    transform: translateY(-2px);
+    border-color: rgba(240, 202, 114, 0.52);
+    box-shadow: 0 34px 76px rgba(30, 51, 74, 0.24);
+  }
+
+  .search-mode-enter {
+    animation: searchModeEnter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes searchModeEnter {
+    from {
+      opacity: 0;
+      transform: translateY(7px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .reveal-on-scroll {
+    will-change: auto;
+  }
+
+  @keyframes revealOnScroll {
+    from {
+      opacity: 0.45;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    .reveal-on-scroll {
+      animation: revealOnScroll linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 28%;
+    }
   }
 
   .section-divider {
-    background: linear-gradient(135deg, rgba(212, 168, 83, 0.35) 0%, rgba(10, 22, 40, 0.9) 100%);
+    background: linear-gradient(135deg, rgba(226, 181, 82, 0.35) 0%, rgba(10, 22, 40, 0.9) 100%);
     height: 48px;
     clip-path: polygon(0 100%, 100% 0, 100% 100%, 0 100%);
   }
@@ -490,7 +599,7 @@
     top: 0;
     left: 0;
     height: 3px;
-    background: linear-gradient(90deg, #d4a853, #f0d59a);
+    background: linear-gradient(90deg, #e2b552, #f0d59a);
     z-index: 50;
     transition: width 0.2s;
   }
@@ -517,10 +626,10 @@
   @keyframes pulse-glow {
     0%,
     100% {
-      box-shadow: 0 0 18px rgba(212, 168, 83, 0.22);
+      box-shadow: 0 0 18px rgba(226, 181, 82, 0.22);
     }
     50% {
-      box-shadow: 0 0 28px rgba(212, 168, 83, 0.4);
+      box-shadow: 0 0 28px rgba(226, 181, 82, 0.4);
     }
   }
 
@@ -537,4 +646,108 @@
       transform: translateY(-8px);
     }
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ken-burns {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .reveal-on-scroll {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Light surfaces use navy text; image-led panels keep white text over their overlays. */
+.ipnia-page [class~="text-white"] {
+  color: #18324b !important;
+}
+
+.ipnia-page [class*="text-white/"] {
+  color: #4b5e72 !important;
+}
+
+.ipnia-page [class*="text-[#e2b552]"],
+.ipnia-page [class*="text-[#f0ca72]"] {
+  color: #805d12 !important;
+}
+
+.ipnia-page [class*="bg-[#0c1a2e]"],
+.ipnia-page [class*="bg-[#07111f]"],
+.ipnia-page [class*="bg-[#0a1628]"],
+.ipnia-page [class*="bg-[#091629]"],
+.ipnia-page [class*="bg-[#142a44]"],
+.ipnia-page [class*="bg-[#152b46]"],
+.ipnia-page [class*="bg-[#13233d]"],
+.ipnia-page [class*="bg-[#12233a]"],
+.ipnia-page [class*="bg-[#10233a]"],
+.ipnia-page [class*="bg-[#102038]"],
+.ipnia-page [class*="bg-[#12150f]"],
+.ipnia-page [class*="bg-[#1a1f14]"],
+.ipnia-page [class*="bg-[#0e120c]"] {
+  background-color: #ffffff !important;
+}
+
+.ipnia-page .travel-bg-section [class*="bg-[#0c1a2e]"],
+.ipnia-page .travel-bg-section [class*="bg-[#152b46]"] {
+  background-color: rgba(18, 39, 62, 0.86) !important;
+}
+
+.ipnia-page .hotel-mood-card [class*="text-white"],
+.ipnia-page .travel-bg-section [class*="text-white"],
+.ipnia-page .travel-bg-section [class*="text-[#e2b552]"],
+.ipnia-page .travel-bg-section [class*="text-[#f0ca72]"],
+.ipnia-page .travel-dest-card [class*="text-white"],
+.ipnia-page .travel-dest-card [class*="text-[#e2b552]"],
+.ipnia-page .travel-dest-card [class*="text-[#f0ca72]"],
+.ipnia-page .travel-route-card [class*="text-white"],
+.ipnia-page .travel-route-card [class*="text-[#e2b552]"],
+.ipnia-page .travel-route-card [class*="text-[#f0ca72]"],
+.ipnia-page .ecosystem-cta [class*="text-white"] {
+  color: #ffffff !important;
+}
+
+.ipnia-page .travel-bg-section .ipnia-eyebrow,
+.ipnia-page .travel-dest-card [class*="text-[#e2b552]"],
+.ipnia-page .travel-route-card [class*="text-[#e2b552]"],
+.ipnia-page .ecosystem-cta .ipnia-eyebrow {
+  color: #f0ca72 !important;
+}
+
+.auth-travel-bg [class*="bg-[#0c1a2e]"],
+.auth-travel-bg [class*="bg-[#07111f]"],
+.auth-travel-bg [class*="bg-[#0a1628]"] {
+  background-color: #ffffff !important;
+}
+
+.auth-travel-bg [class*="text-white"] {
+  color: #18324b !important;
+}
+
+.auth-travel-bg input,
+.auth-travel-bg select,
+.auth-travel-bg textarea {
+  color: #18324b !important;
+  border-color: #cbd5e1 !important;
+  background-color: #ffffff !important;
+}
+
+.auth-travel-bg input::placeholder {
+  color: #64748b !important;
 }

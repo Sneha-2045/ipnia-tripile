@@ -55,7 +55,7 @@ export function SeoPageLayout({
     : breadcrumbLd;
 
   return (
-    <div className="min-h-screen bg-[#0a1628] text-white">
+    <div className="ipnia-page min-h-screen">
       <SEO
         title={title}
         description={description}
@@ -72,7 +72,7 @@ export function SeoPageLayout({
               <li key={`${b.label}-${i}`} className="flex items-center gap-2">
                 {i > 0 && <span className="text-white/25">/</span>}
                 {b.to ? (
-                  <Link to={b.to} className="hover:text-[#d4a853]">
+                  <Link to={b.to} className="hover:text-[#e2b552]">
                     {b.label}
                   </Link>
                 ) : (
@@ -89,7 +89,7 @@ export function SeoPageLayout({
           {(primaryCta || secondaryCta) && (
             <div className="mt-6 flex flex-wrap gap-3">
               {primaryCta && (
-                <Button asChild className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+                <Button asChild className="bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
                   <Link to={primaryCta.to}>{primaryCta.label}</Link>
                 </Button>
               )}
@@ -97,7 +97,7 @@ export function SeoPageLayout({
                 <Button
                   asChild
                   variant="outline"
-                  className="border-[#d4a853]/40 bg-transparent text-white hover:bg-[#d4a853]/10 hover:text-white"
+                  className="border-[#e2b552]/40 bg-transparent text-white hover:bg-[#e2b552]/10 hover:text-white"
                 >
                   <Link to={secondaryCta.to}>{secondaryCta.label}</Link>
                 </Button>
@@ -126,13 +126,13 @@ export function SeoLinkGrid({
   return (
     <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-6">
       <div className="mb-4 flex items-end justify-between gap-3">
-        <h2 className="text-xl font-semibold text-[#d4a853]">{title}</h2>
+        <h2 className="text-xl font-semibold text-[#e2b552]">{title}</h2>
         <p className="text-sm text-white/45">{links.length} links</p>
       </div>
       <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {(showAll ? links : links.slice(0, initial)).map((l) => (
           <li key={l.to}>
-            <Link to={l.to} className="block rounded-lg px-2 py-2 text-sm text-white/85 hover:bg-[#d4a853]/10 hover:text-[#d4a853]">
+            <Link to={l.to} className="block rounded-lg px-2 py-2 text-sm text-white/85 hover:bg-[#e2b552]/10 hover:text-[#e2b552]">
               {l.label}
               {l.note && <span className="mt-0.5 block text-xs text-white/45">{l.note}</span>}
             </Link>
@@ -141,13 +141,13 @@ export function SeoLinkGrid({
       </ul>
       {!showAll && (
         <details className="mt-4">
-          <summary className="cursor-pointer text-sm font-medium text-[#d4a853]">
+          <summary className="cursor-pointer text-sm font-medium text-[#e2b552]">
             View all {links.length}
           </summary>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {links.slice(initial).map((l) => (
               <li key={l.to}>
-                <Link to={l.to} className="block rounded-lg px-2 py-2 text-sm text-white/85 hover:bg-[#d4a853]/10 hover:text-[#d4a853]">
+                <Link to={l.to} className="block rounded-lg px-2 py-2 text-sm text-white/85 hover:bg-[#e2b552]/10 hover:text-[#e2b552]">
                   {l.label}
                 </Link>
               </li>

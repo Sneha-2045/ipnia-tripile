@@ -97,7 +97,7 @@ const BookingPaymentPage = () => {
 
       <div className="grid gap-8 lg:grid-cols-2">
         <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-5 md:p-6">
-          <h2 className="text-lg font-semibold text-[#d4a853]">Trip Summary</h2>
+          <h2 className="text-lg font-semibold text-[#e2b552]">Trip Summary</h2>
           <div className="mt-4 space-y-2 text-sm text-white/70">
             {flight && (
               <>
@@ -130,8 +130,8 @@ const BookingPaymentPage = () => {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e] p-5 md:p-6">
-          <h2 className="text-lg font-semibold text-[#d4a853]">Payment Summary</h2>
+        <section className="rounded-2xl border border-[#e2b552]/25 bg-[#0c1a2e] p-5 md:p-6">
+          <h2 className="text-lg font-semibold text-[#e2b552]">Payment Summary</h2>
           <dl className="mt-4 space-y-2 text-sm text-white/70">
             {flight && (
               <>
@@ -163,7 +163,7 @@ const BookingPaymentPage = () => {
               <p className="text-sm text-white/50">
                 {flight ? "TOTAL (charged from live offer)" : "DEPOSIT DUE NOW"}
               </p>
-              <p className="mt-1 text-4xl font-bold text-[#d4a853]">
+              <p className="mt-1 text-4xl font-bold text-[#e2b552]">
                 {formatInr(flight ? pb.flightFare + pb.flightTaxes : grandTotal)}
               </p>
               {flight && hotel && !hotel.isDeposit && (
@@ -177,7 +177,7 @@ const BookingPaymentPage = () => {
           <Button
             disabled={busy}
             onClick={onPay}
-            className="mt-6 w-full bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a] disabled:opacity-50"
+            className="mt-6 w-full bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a] disabled:opacity-50"
           >
             {busy ? statusMsg || "Processing…" : "Proceed to Secure Payment"}
           </Button>

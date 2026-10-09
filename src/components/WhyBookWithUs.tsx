@@ -25,7 +25,7 @@ const benefits = [
 
 export function WhyBookWithUs() {
   return (
-    <section className="travel-bg-section relative border-y border-[#d4a853]/15 py-20">
+    <section className="travel-bg-section reveal-on-scroll relative border-y border-[#e2b552]/15 py-20">
       <div className="travel-bg-media">
         <img
           src="/assets/destinations/hotel-luxury-1.jpg"
@@ -46,13 +46,13 @@ export function WhyBookWithUs() {
           {benefits.map((item) => (
             <div
               key={item.title}
-              className="travel-hover flex flex-col items-center rounded-2xl border border-white/10 bg-[#0c1a2e]/75 px-5 py-8 text-center backdrop-blur-md"
+              className="travel-hover group flex flex-col items-center rounded-2xl border border-white/15 bg-[#152b46]/85 px-5 py-8 text-center backdrop-blur-md"
             >
-              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#d4a853]/30 bg-gradient-to-br from-[#d4a853]/20 to-transparent transition duration-300 group-hover:scale-105">
-                <item.icon className="h-7 w-7 text-[#d4a853]" strokeWidth={1.75} />
+              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#e2b552]/30 bg-gradient-to-br from-[#e2b552]/20 to-transparent transition duration-300 group-hover:scale-105">
+                <item.icon className="h-7 w-7 text-[#e2b552]" strokeWidth={1.75} />
               </div>
               <h3 className="font-heading text-xl font-bold text-white">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/60">{item.text}</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/80">{item.text}</p>
             </div>
           ))}
         </div>

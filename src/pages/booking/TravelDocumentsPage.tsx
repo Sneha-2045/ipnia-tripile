@@ -54,7 +54,7 @@ const TravelDocumentsPage = () => {
       />
       <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
-          <section className="rounded-2xl border border-[#d4a853]/30 bg-[#0c1a2e] p-5">
+          <section className="rounded-2xl border border-[#e2b552]/30 bg-[#0c1a2e] p-5">
             <p className="text-sm text-white/80">
               This booking is international ({origin} → {destination}). Please enter passport details
               exactly as they appear on the travel document.
@@ -66,7 +66,7 @@ const TravelDocumentsPage = () => {
             const doc = t.document;
             return (
               <section key={t.id} className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-5 md:p-6">
-                <h2 className="text-lg font-semibold text-[#d4a853]">
+                <h2 className="text-lg font-semibold text-[#e2b552]">
                   Passport — Traveller {index + 1} ({t.firstName || "Passenger"})
                 </h2>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -110,7 +110,7 @@ const TravelDocumentsPage = () => {
 
           <Button
             onClick={onContinue}
-            className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+            className="bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
           >
             Continue to Hotel
           </Button>

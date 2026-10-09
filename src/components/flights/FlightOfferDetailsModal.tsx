@@ -20,14 +20,14 @@ export function FlightOfferDetailsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto border-[#d4a853]/30 bg-[#0c1a2e] text-white">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto border-slate-200 bg-white text-[#18324b]">
         <DialogHeader>
-          <DialogTitle className="text-[#d4a853]">Offer details</DialogTitle>
+          <DialogTitle className="text-[#805d12]">Offer details</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 text-sm">
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#805d12]">
               Flight
             </h3>
             <p className="text-white/50">Offer ID: {offer.id}</p>
@@ -42,7 +42,7 @@ export function FlightOfferDetailsModal({
 
           {offer.slices.map((slice, sliceIdx) => (
             <section key={slice.id || sliceIdx}>
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#805d12]">
                 {offer.slices.length > 1
                   ? sliceIdx === 0
                     ? "Outbound"
@@ -58,10 +58,10 @@ export function FlightOfferDetailsModal({
                 {slice.segments.map((seg, idx) => (
                   <div
                     key={seg.id || idx}
-                    className="rounded-xl border border-white/10 bg-[#07111f] p-4"
+                    className="rounded-xl border border-slate-200 bg-slate-50 p-4"
                   >
                     {idx > 0 && slice.layovers[idx - 1] && (
-                      <p className="mb-3 text-center text-xs text-[#d4a853]">
+                      <p className="mb-3 text-center text-xs text-[#805d12]">
                         {slice.layovers[idx - 1].label}
                       </p>
                     )}
@@ -86,7 +86,7 @@ export function FlightOfferDetailsModal({
                       </p>
                     )}
                     {seg.flightNumber && (
-                      <p className="mt-1 text-[#d4a853]">{seg.flightNumber}</p>
+                      <p className="mt-1 text-[#805d12]">{seg.flightNumber}</p>
                     )}
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
                       <div>
@@ -132,7 +132,7 @@ export function FlightOfferDetailsModal({
           ))}
 
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#805d12]">
               Fare
             </h3>
             {offer.cabinClass && <p>Cabin: {formatCabinLabel(offer.cabinClass)}</p>}
@@ -145,7 +145,7 @@ export function FlightOfferDetailsModal({
           </section>
 
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#805d12]">
               Price
             </h3>
             {offer.baseAmount != null && (
@@ -154,14 +154,14 @@ export function FlightOfferDetailsModal({
             {offer.taxAmount != null && (
               <p>Taxes: {formatMoney(offer.taxAmount, "INR")}</p>
             )}
-            <p className="text-lg font-bold text-[#d4a853]">
+            <p className="text-lg font-bold text-[#805d12]">
               Total: {formatMoney(offer.totalAmount, "INR")}
             </p>
             <p>Currency: INR</p>
           </section>
 
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#805d12]">
               Conditions
             </h3>
             {offer.conditions.changeBeforeDeparture ? (
@@ -180,7 +180,7 @@ export function FlightOfferDetailsModal({
             offer.paymentRequirements?.paymentRequiredBy ||
             offer.expiresAt) && (
             <section>
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#805d12]">
                 Timing
               </h3>
               <p className="text-white/50">Informational only — IPNIA search does not process payment.</p>

@@ -146,7 +146,7 @@ export function HotelCard({
                   </h3>
                   {hotel.address && (
                     <p className="mt-1.5 flex items-start gap-1.5 text-sm text-slate-500">
-                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#d4a853]" />
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#e2b552]" />
                       {mapsHref ? (
                         <a
                           href={mapsHref}
@@ -238,7 +238,7 @@ export function HotelCard({
                 {visibleAmenities.map((a) => (
                   <span
                     key={a}
-                    className="rounded-full border border-[#d4a853]/30 bg-[#d4a853]/10 px-2.5 py-0.5 text-[11px] text-slate-700"
+                    className="rounded-full border border-[#e2b552]/30 bg-[#e2b552]/10 px-2.5 py-0.5 text-[11px] text-slate-700"
                   >
                     {a}
                   </span>

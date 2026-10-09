@@ -14,7 +14,7 @@ function CarrierBlock({ segment }: { segment: DuffelSegment }) {
           className="h-10 w-10 rounded-md bg-white object-contain p-1"
         />
       ) : (
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#d4a853]/15 text-xs font-bold text-[#d4a853]">
+        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#e2b552]/15 text-xs font-bold text-[#e2b552]">
           {carrier?.iataCode || "—"}
         </div>
       )}
@@ -48,7 +48,7 @@ function PlaceCol({
   return (
     <div className={align === "right" ? "text-right" : "text-left"}>
       <p className="text-2xl font-bold text-white">{time || "—"}</p>
-      <p className="text-sm font-semibold text-[#d4a853]">{place?.iataCode || "—"}</p>
+      <p className="text-sm font-semibold text-[#e2b552]">{place?.iataCode || "—"}</p>
       <p className="text-sm text-white/70">{place?.cityName || "—"}</p>
       {place?.name && <p className="text-xs text-white/40">{place.name}</p>}
     </div>
@@ -63,13 +63,13 @@ function SliceSummary({ slice, label }: { slice: DuffelSlice; label?: string }) 
   return (
     <div className="space-y-4">
       {label && (
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d4a853]">{label}</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e2b552]">{label}</p>
       )}
       <CarrierBlock segment={first} />
       <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-3">
         <PlaceCol time={first.departureTime} place={first.origin} />
         <div className="px-2 pt-2 text-center text-xs text-white/45">
-          <div className="mb-1 h-px w-16 bg-[#d4a853]/50 sm:w-24" />
+          <div className="mb-1 h-px w-16 bg-[#e2b552]/50 sm:w-24" />
           <p>{slice.duration?.label || "—"}</p>
           <p>
             {slice.stopsLabel}
@@ -86,7 +86,7 @@ function SliceSummary({ slice, label }: { slice: DuffelSlice; label?: string }) 
           {slice.segments.map((seg, idx) => (
             <div key={seg.id || `${seg.flightNumber}-${idx}`}>
               {idx > 0 && slice.layovers[idx - 1] && (
-                <p className="mb-2 text-center text-xs text-[#d4a853]/90">
+                <p className="mb-2 text-center text-xs text-[#e2b552]/90">
                   ↓ {slice.layovers[idx - 1].label}
                   {slice.layovers[idx - 1].airport?.iataCode
                     ? ` · ${slice.layovers[idx - 1].airport?.cityName || ""} (${slice.layovers[idx - 1].airport?.iataCode})`
@@ -172,7 +172,7 @@ export function FlightOfferCard({
         <div className="flex shrink-0 flex-col justify-between border-t border-white/10 pt-4 lg:w-52 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
           <div className="lg:text-right">
             <p className="text-sm text-white/50">Total</p>
-            <p className="font-heading text-3xl font-bold text-[#d4a853]">
+            <p className="font-heading text-3xl font-bold text-[#e2b552]">
               {formatMoney(offer.totalAmount, "INR")}
             </p>
             <p className="text-xs text-white/40">INR</p>

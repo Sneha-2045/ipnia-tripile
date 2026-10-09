@@ -23,12 +23,10 @@ export type SitemapUrl = {
 
 const STATIC_INDEXABLE: { path: string; group: SitemapUrl["group"]; priority: number }[] = [
   { path: "/", group: "pages", priority: 1.0 },
-  { path: "/flights", group: "flights", priority: 0.9 },
   { path: "/flights/search", group: "flights", priority: 0.8 },
   { path: "/flights/destinations", group: "flights", priority: 0.8 },
   { path: "/flights/countries", group: "countries", priority: 0.7 },
   { path: "/flights/airlines", group: "airlines", priority: 0.8 },
-  { path: "/hotels", group: "hotels", priority: 0.9 },
   { path: "/hotels/destinations", group: "hotels", priority: 0.8 },
   { path: "/hotels/countries", group: "countries", priority: 0.7 },
   { path: "/destinations", group: "destinations", priority: 0.85 },

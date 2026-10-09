@@ -28,9 +28,9 @@ const BookingReviewPage = () => {
 
       <div className="space-y-6">
         {flight && (
-          <section className="rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e] p-5 md:p-6">
+          <section className="rounded-2xl border border-[#e2b552]/25 bg-[#0c1a2e] p-5 md:p-6">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold text-[#d4a853]">Flight</h2>
+              <h2 className="text-lg font-semibold text-[#e2b552]">Flight</h2>
             </div>
             <p className="mt-3 text-xl font-semibold">
               {flight.airline} · {flight.flightNumber}
@@ -50,17 +50,17 @@ const BookingReviewPage = () => {
               <p>Travellers: {flight.travellerCount}</p>
               <p>Fare: {formatInr(flight.fare)}</p>
               <p>Taxes & Fees: {formatInr(flight.taxes)}</p>
-              <p className="font-semibold text-[#d4a853]">Total: {formatInr(flight.totalAmount)}</p>
+              <p className="font-semibold text-[#e2b552]">Total: {formatInr(flight.totalAmount)}</p>
             </div>
           </section>
         )}
 
         <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-5 md:p-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-[#d4a853]">
+            <h2 className="text-lg font-semibold text-[#e2b552]">
               {isHotelOnly ? "Guests" : "Travellers"}
             </h2>
-            <Link to="/booking/traveller-details" className="text-sm text-[#d4a853] hover:underline">
+            <Link to="/booking/traveller-details" className="text-sm text-[#e2b552] hover:underline">
               Edit
             </Link>
           </div>
@@ -89,9 +89,9 @@ const BookingReviewPage = () => {
 
         <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-5 md:p-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-[#d4a853]">Hotel</h2>
+            <h2 className="text-lg font-semibold text-[#e2b552]">Hotel</h2>
             {!isHotelOnly && !state.hotel && (
-              <Link to="/booking/hotel" className="text-sm text-[#d4a853] hover:underline">
+              <Link to="/booking/hotel" className="text-sm text-[#e2b552] hover:underline">
                 Add Hotel
               </Link>
             )}
@@ -107,7 +107,7 @@ const BookingReviewPage = () => {
                 {hotel.guests > 1 ? "s" : ""}
               </p>
               {hotel.isDeposit ? (
-                <p className="font-semibold text-[#d4a853]">
+                <p className="font-semibold text-[#e2b552]">
                   Booking deposit: {formatInr(hotel.totalPrice)}
                 </p>
               ) : (
@@ -115,7 +115,7 @@ const BookingReviewPage = () => {
                   <p>
                     Room: {formatInr(hotel.roomPrice)} · Taxes: {formatInr(hotel.taxes)}
                   </p>
-                  <p className="font-semibold text-[#d4a853]">Total: {formatInr(hotel.totalPrice)}</p>
+                  <p className="font-semibold text-[#e2b552]">Total: {formatInr(hotel.totalPrice)}</p>
                 </>
               )}
             </div>
@@ -125,7 +125,7 @@ const BookingReviewPage = () => {
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-5 md:p-6">
-          <h2 className="text-lg font-semibold text-[#d4a853]">Price Breakdown</h2>
+          <h2 className="text-lg font-semibold text-[#e2b552]">Price Breakdown</h2>
           <dl className="mt-4 space-y-2 text-sm">
             {flight && (
               <>
@@ -152,7 +152,7 @@ const BookingReviewPage = () => {
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-5 md:p-6">
-          <h2 className="text-lg font-semibold text-[#d4a853]">Important Information</h2>
+          <h2 className="text-lg font-semibold text-[#e2b552]">Important Information</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-white/65">
             <li>Please verify that all names and contact details entered above are correct before continuing.</li>
             {!isHotelOnly && isInternational && (
@@ -173,7 +173,7 @@ const BookingReviewPage = () => {
         <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-[#0c1a2e] p-5">
           <input
             type="checkbox"
-            className="mt-1 h-4 w-4 accent-[#d4a853]"
+            className="mt-1 h-4 w-4 accent-[#e2b552]"
             checked={state.reviewConsent}
             onChange={(e) => setReviewConsent(e.target.checked)}
           />
@@ -185,7 +185,7 @@ const BookingReviewPage = () => {
         <Button
           disabled={!state.reviewConsent}
           onClick={onContinue}
-          className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a] disabled:opacity-40"
+          className="bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a] disabled:opacity-40"
         >
           Continue to Payment
         </Button>
@@ -196,7 +196,7 @@ const BookingReviewPage = () => {
 
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className={`flex items-center justify-between gap-4 ${strong ? "text-lg font-bold text-[#d4a853]" : "text-white/70"}`}>
+    <div className={`flex items-center justify-between gap-4 ${strong ? "text-lg font-bold text-[#e2b552]" : "text-white/70"}`}>
       <dt>{label}</dt>
       <dd>{value}</dd>
     </div>

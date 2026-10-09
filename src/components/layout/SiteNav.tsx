@@ -63,16 +63,16 @@ export function SiteNav() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
-              className="w-60 rounded-xl border-[#d4a853]/25 bg-[#0c1a2e]/98 p-1.5 text-white shadow-travel backdrop-blur-xl"
+              className="w-60 rounded-xl border-slate-200 bg-white p-1.5 text-[#18324b] shadow-travel backdrop-blur-xl"
             >
-              <DropdownMenuItem asChild className="rounded-lg focus:bg-[#d4a853]/15 focus:text-[#d4a853]">
+              <DropdownMenuItem asChild className="rounded-lg focus:bg-amber-50 focus:text-[#805d12]">
                 <Link to="/business-travel">Overview</Link>
               </DropdownMenuItem>
               {businessLinks.map((item) => (
                 <DropdownMenuItem
                   key={item.href}
                   asChild
-                  className="rounded-lg focus:bg-[#d4a853]/15 focus:text-[#d4a853]"
+                  className="rounded-lg focus:bg-amber-50 focus:text-[#805d12]"
                 >
                   <Link to={item.href}>{item.label}</Link>
                 </DropdownMenuItem>
@@ -114,7 +114,7 @@ export function SiteNav() {
         </div>
 
         <button
-          className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-white transition hover:border-[#d4a853]/40 hover:text-[#d4a853] lg:hidden"
+          className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-white transition hover:border-[#e2b552]/40 hover:text-[#e2b552] lg:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
         >
@@ -123,16 +123,16 @@ export function SiteNav() {
       </div>
 
       {open && (
-        <div className="animate-fade-up border-t border-white/10 bg-[#07111f]/98 px-4 py-4 backdrop-blur-xl lg:hidden">
+        <div className="animate-fade-up border-t border-slate-200 bg-white px-4 py-4 backdrop-blur-xl lg:hidden">
           <button
-            className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#d4a853]"
+            className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#e2b552]"
             onClick={() => setBizOpen((v) => !v)}
           >
             Business Travel
             <ChevronDown className={`h-4 w-4 transition-transform ${bizOpen ? "rotate-180" : ""}`} />
           </button>
           {bizOpen && (
-            <div className="mb-2 ml-3 space-y-1 border-l border-[#d4a853]/30 pl-3">
+            <div className="mb-2 ml-3 space-y-1 border-l border-[#e2b552]/30 pl-3">
               <Link
                 to="/business-travel"
                 className="block rounded-lg py-2.5 text-sm text-white/80"
@@ -156,7 +156,7 @@ export function SiteNav() {
             <Link
               key={link.href}
               to={link.href}
-              className="block rounded-xl px-3 py-3 text-sm font-medium text-white/85 hover:bg-white/5"
+              className="block rounded-xl px-3 py-3 text-sm font-medium text-[#30465d] hover:bg-slate-100"
               onClick={() => setOpen(false)}
             >
               {link.label}
@@ -166,7 +166,7 @@ export function SiteNav() {
             {!loading && !user && (
               <Link
                 to="/login"
-                className="px-3 py-2 text-sm text-white/70"
+                className="px-3 py-2 text-sm text-slate-600"
                 onClick={() => setOpen(false)}
               >
                 Sign In

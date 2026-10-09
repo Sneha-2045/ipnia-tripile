@@ -95,14 +95,14 @@ const BookingPaymentStatusPage = () => {
   const failed = remoteStatus === "FAILED" || remoteStatus === "USER_DROPPED";
 
   return (
-    <div className="min-h-screen bg-[#0a1628] text-white">
+    <div className="ipnia-page min-h-screen">
       <SEO title="Payment Status | IPNIA" description="Verifying your IPNIA payment." path="/booking/payment-status" />
       <BookingNav />
       <main className="mx-auto max-w-xl px-4 pb-20 pt-28 sm:px-6">
         <div className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-8 text-center">
           {loading && (
             <>
-              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#d4a853]">Please wait</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#e2b552]">Please wait</p>
               <h1 className="mt-3 text-2xl font-bold">Verifying your payment...</h1>
               <p className="mt-2 text-white/55">Confirming status with our payment server.</p>
             </>
@@ -110,7 +110,7 @@ const BookingPaymentStatusPage = () => {
 
           {!loading && success && (
             <>
-              <p className="text-4xl text-[#d4a853]">✓</p>
+              <p className="text-4xl text-[#e2b552]">✓</p>
               <h1 className="mt-3 text-2xl font-bold">Payment Successful</h1>
               <p className="mt-2 text-white/60">Your payment has been received.</p>
               <div className="mt-6 space-y-2 text-left text-sm text-white/70">
@@ -119,7 +119,7 @@ const BookingPaymentStatusPage = () => {
                 </p>
                 <p>
                   Amount Paid:{" "}
-                  <span className="text-[#d4a853]">
+                  <span className="text-[#e2b552]">
                     {formatInr(amountPaid ?? state.priceBreakdown.grandTotal)}
                   </span>
                 </p>
@@ -129,7 +129,7 @@ const BookingPaymentStatusPage = () => {
               </div>
               <Button
                 asChild
-                className="mt-8 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+                className="mt-8 bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
               >
                 <Link to="/booking/confirmation">View Booking</Link>
               </Button>
@@ -142,7 +142,7 @@ const BookingPaymentStatusPage = () => {
               <p className="mt-2 text-white/60">Your payment was not completed.</p>
               <Button
                 asChild
-                className="mt-8 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+                className="mt-8 bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
               >
                 <Link to="/booking/payment">Try Payment Again</Link>
               </Button>
@@ -157,7 +157,7 @@ const BookingPaymentStatusPage = () => {
               </p>
               <Button
                 onClick={() => window.location.reload()}
-                className="mt-8 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+                className="mt-8 bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
               >
                 Refresh Status
               </Button>

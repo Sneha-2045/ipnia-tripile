@@ -85,7 +85,7 @@ export function HotelDetailsModal({
         <div className="space-y-4 text-sm">
           {hotel.address && (
             <p className="flex items-start gap-2 text-slate-600">
-              <MapPin className="mt-0.5 h-4 w-4 text-[#d4a853]" /> {hotel.address}
+              <MapPin className="mt-0.5 h-4 w-4 text-[#e2b552]" /> {hotel.address}
             </p>
           )}
 
@@ -191,7 +191,7 @@ export function HotelDetailsModal({
           <Button
             type="button"
             onClick={onSelect}
-            className="w-full bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+            className="w-full bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
           >
             Book Stay
           </Button>

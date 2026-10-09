@@ -83,9 +83,9 @@ const BookingHotelPage = () => {
               <button
                 type="button"
                 onClick={() => setWantsHotel(true)}
-                className="rounded-2xl border border-[#d4a853]/40 bg-[#0c1a2e] p-6 text-left transition hover:border-[#d4a853]"
+                className="rounded-2xl border border-[#e2b552]/40 bg-[#0c1a2e] p-6 text-left transition hover:border-[#e2b552]"
               >
-                <p className="text-lg font-semibold text-[#d4a853]">Yes, Add a Hotel</p>
+                <p className="text-lg font-semibold text-[#e2b552]">Yes, Add a Hotel</p>
                 <p className="mt-2 text-sm text-white/55">Browse stays near your destination.</p>
               </button>
               <button
@@ -113,7 +113,7 @@ const BookingHotelPage = () => {
                   <article
                     key={hotel.id}
                     className={`rounded-2xl border p-5 ${
-                      selected ? "border-[#d4a853] bg-[#d4a853]/10" : "border-white/10 bg-[#0c1a2e]"
+                      selected ? "border-[#e2b552] bg-[#e2b552]/10" : "border-white/10 bg-[#0c1a2e]"
                     }`}
                   >
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -126,12 +126,12 @@ const BookingHotelPage = () => {
                         </p>
                       </div>
                       <div className="md:text-right">
-                        <p className="text-xl font-bold text-[#d4a853]">{formatInr(room + taxes)}</p>
+                        <p className="text-xl font-bold text-[#e2b552]">{formatInr(room + taxes)}</p>
                         <p className="text-xs text-white/45">incl. taxes</p>
                         <Button
                           type="button"
                           onClick={() => selectHotel(hotel.id)}
-                          className="mt-2 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+                          className="mt-2 bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
                         >
                           {selected ? "Selected" : "Select"}
                         </Button>
@@ -154,7 +154,7 @@ const BookingHotelPage = () => {
                   type="button"
                   disabled={!state.hotel}
                   onClick={onContinue}
-                  className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a] disabled:opacity-40"
+                  className="bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a] disabled:opacity-40"
                 >
                   Continue to Review
                 </Button>

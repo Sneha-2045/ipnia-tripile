@@ -137,16 +137,16 @@ const TravelEcosystem = () => {
       />
 
       {/* Hero — copy + full creative, no overlay crop */}
-      <section className="border-b border-[#d4a853]/20 bg-[#07111f]">
+      <section className="border-b border-[#e2b552]/20 bg-[#07111f]">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
           <div>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-[#d4a853]">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-[#e2b552]">
               India&apos;s Complete Travel Ecosystem
             </p>
             <h1 className="max-w-4xl text-5xl font-bold tracking-tight text-white md:text-6xl">
               ONE PLATFORM.
               <br />
-              <span className="text-[#d4a853]">EVERY JOURNEY.</span>
+              <span className="text-[#e2b552]">EVERY JOURNEY.</span>
             </h1>
             <p className="mt-5 text-lg font-medium text-white/90 md:text-2xl">
               Business. Education. Experience. Pilgrimage. Forex.
@@ -159,7 +159,7 @@ const TravelEcosystem = () => {
               <Button
                 asChild
                 size="lg"
-                className="bg-[#d4a853] px-8 font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+                className="bg-[#e2b552] px-8 font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
               >
                 <Link to="/contact">
                   Plan Your Journey <ArrowRight className="ml-2 h-4 w-4" />
@@ -169,13 +169,13 @@ const TravelEcosystem = () => {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-[#d4a853]/50 bg-transparent px-8 text-white hover:bg-[#d4a853]/10 hover:text-white"
+                className="border-[#e2b552]/50 bg-transparent px-8 text-white hover:bg-[#e2b552]/10 hover:text-white"
               >
                 <a href="#services">Explore Our Services</a>
               </Button>
             </div>
           </div>
-          <div className="overflow-hidden rounded-2xl border border-[#d4a853]/35 bg-[#0a1628]">
+          <div className="overflow-hidden rounded-2xl border border-[#e2b552]/35 bg-[#0a1628]">
             <img
               src="/assets/ipnia/experience-travel.jpg"
               alt="IPNIA — every journey, one platform"
@@ -213,13 +213,13 @@ const TravelEcosystem = () => {
                     className="h-full w-full object-cover object-center"
                   />
                 </div>
-                <div className="mb-3 flex items-center gap-2 text-[#d4a853]">
+                <div className="mb-3 flex items-center gap-2 text-[#e2b552]">
                   <Icon className="h-5 w-5" />
                   <span className="text-xs font-semibold uppercase tracking-wider">Vertical</span>
                 </div>
                 <h3 className="text-2xl font-bold text-white">{segment.title}</h3>
                 <p className="mt-2 text-white/65">{segment.description}</p>
-                <span className="mt-5 inline-flex items-center text-sm font-semibold text-[#d4a853]">
+                <span className="mt-5 inline-flex items-center text-sm font-semibold text-[#e2b552]">
                   {segment.cta} <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </span>
               </Link>
@@ -229,7 +229,7 @@ const TravelEcosystem = () => {
       </section>
 
       {/* Trust strip */}
-      <section className="border-y border-[#d4a853]/20 bg-[#07111f]">
+      <section className="border-y border-[#e2b552]/20 bg-[#07111f]">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 md:grid-cols-3 lg:px-8">
           {[
             {
@@ -249,7 +249,7 @@ const TravelEcosystem = () => {
             },
           ].map((item) => (
             <div key={item.title} className="flex gap-4">
-              <item.icon className="mt-1 h-6 w-6 shrink-0 text-[#d4a853]" />
+              <item.icon className="mt-1 h-6 w-6 shrink-0 text-[#e2b552]" />
               <div>
                 <h3 className="text-xl font-bold text-white">{item.title}</h3>
                 <p className="mt-2 text-sm text-white/60">{item.text}</p>
@@ -262,7 +262,7 @@ const TravelEcosystem = () => {
       {/* Featured Business spotlight */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="grid items-start gap-10 lg:grid-cols-2">
-          <div className="overflow-hidden rounded-2xl border border-[#d4a853]/30 bg-[#07111f]">
+          <div className="overflow-hidden rounded-2xl border border-[#e2b552]/30 bg-[#07111f]">
             <img
               src="/assets/ipnia/canton-fair-2026.jpg"
               alt="China Business Travel with IPNIA"
@@ -271,7 +271,7 @@ const TravelEcosystem = () => {
             />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d4a853]">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#e2b552]">
               Featured Vertical
             </p>
             <h2 className="mt-3 text-3xl font-bold text-white md:text-5xl">
@@ -288,7 +288,7 @@ const TravelEcosystem = () => {
             </ul>
             <Button
               asChild
-              className="mt-8 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
+              className="mt-8 bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]"
             >
               <Link to="/business-travel">
                 Explore Business Travel <ArrowRight className="ml-2 h-4 w-4" />
@@ -299,10 +299,10 @@ const TravelEcosystem = () => {
       </section>
 
       {/* All China business creatives kept on homepage */}
-      <section className="border-t border-[#d4a853]/20 bg-[#07111f] py-20">
+      <section className="border-t border-[#e2b552]/20 bg-[#07111f] py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d4a853]">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#e2b552]">
               Business Travel Gallery
             </p>
             <h2 className="mt-3 text-3xl font-bold text-white md:text-4xl">
@@ -318,7 +318,7 @@ const TravelEcosystem = () => {
               <Link
                 key={item.src}
                 to={item.href}
-                className="group overflow-hidden rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e] transition-all hover:-translate-y-1 hover:border-[#d4a853]/55"
+                className="group overflow-hidden rounded-2xl border border-[#e2b552]/25 bg-[#0c1a2e] transition-all hover:-translate-y-1 hover:border-[#e2b552]/55"
               >
                 <div className="bg-[#07111f]">
                   <img
@@ -330,7 +330,7 @@ const TravelEcosystem = () => {
                 </div>
                 <div className="flex items-center justify-between gap-3 p-4">
                   <p className="font-semibold text-white">{item.label}</p>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-[#d4a853] transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="h-4 w-4 shrink-0 text-[#e2b552] transition-transform group-hover:translate-x-1" />
                 </div>
               </Link>
             ))}

@@ -353,7 +353,7 @@ const HotelSearch = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a1628] text-white">
+    <div className="ipnia-page min-h-screen">
       <SEO
         title={
           query.destination
@@ -374,8 +374,8 @@ const HotelSearch = () => {
             alt="Book beautiful hotel stays with IPNIA"
             className="h-full w-full scale-105 object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-[#050b14]/95 via-[#07111f]/80 to-[#0a1628]/40" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(212,168,83,0.16),transparent_55%)]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-white/90 to-[#edf3f8]/78" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(226, 181, 82,0.16),transparent_55%)]" />
         </div>
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:items-center lg:px-8 lg:py-20">
           <div>
@@ -397,7 +397,7 @@ const HotelSearch = () => {
                 "IPNIA support for enquiries and trip planning",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#d4a853]" />
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#e2b552]" />
                   {item}
                 </li>
               ))}
@@ -409,7 +409,7 @@ const HotelSearch = () => {
         </div>
       </section>
 
-      <section className="border-y border-[#d4a853]/20 bg-[#07111f]">
+      <section className="border-y border-slate-200 bg-white/80">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
           {[
             { icon: ShieldCheck, text: "Trusted stay partners" },
@@ -418,7 +418,7 @@ const HotelSearch = () => {
             { icon: Coffee, text: "Breakfast & guest perks*" },
           ].map((item) => (
             <div key={item.text} className="flex items-center gap-2 text-sm text-white/80">
-              <item.icon className="h-4 w-4 text-[#d4a853]" />
+              <item.icon className="h-4 w-4 text-[#e2b552]" />
               {item.text}
             </div>
           ))}
@@ -438,7 +438,7 @@ const HotelSearch = () => {
                   key={cat.id}
                   type="button"
                   onClick={scrollToHotelSearch}
-                  className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-[#d4a853]/25 text-left"
+                  className="hotel-mood-card group relative aspect-[4/5] overflow-hidden rounded-2xl border border-[#e2b552]/25 text-left"
                 >
                   <img
                     src={cat.image}
@@ -448,7 +448,7 @@ const HotelSearch = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
                   <div className="absolute bottom-0 p-5">
-                    <h3 className="text-2xl font-bold">{cat.title}</h3>
+                    <h3 className="text-2xl font-bold text-white">{cat.title}</h3>
                     <p className="mt-1 text-sm text-white/75">{cat.text}</p>
                   </div>
                 </button>
@@ -461,7 +461,7 @@ const HotelSearch = () => {
           <section className="bg-slate-100 py-10 text-slate-900">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-wider text-[#d4a853]">Your search</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-[#e2b552]">Your search</p>
                 <div className="mt-3 grid gap-2 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
                   <p>
                     <span className="text-slate-500">Destination:</span>{" "}
@@ -534,7 +534,7 @@ const HotelSearch = () => {
                     </p>
                     <Button
                       type="button"
-                      className="mt-4 bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a]"
+                      className="mt-4 bg-[#e2b552] text-[#0a1628] hover:bg-[#e0b96a]"
                       onClick={scrollToHotelSearch}
                     >
                       Modify Search
@@ -550,7 +550,7 @@ const HotelSearch = () => {
                     </p>
                     <Button
                       type="button"
-                      className="mt-4 bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a]"
+                      className="mt-4 bg-[#e2b552] text-[#0a1628] hover:bg-[#e0b96a]"
                       onClick={scrollToHotelSearch}
                     >
                       Modify Search
@@ -574,7 +574,7 @@ const HotelSearch = () => {
                         <Button
                           type="button"
                           disabled={loadingMore}
-                          className="bg-[#0a1628] text-white hover:bg-[#13233d]"
+                          className="bg-[#17324d] text-white hover:bg-[#254b70]"
                           onClick={loadMore}
                         >
                           {loadingMore ? "Loading more hotels…" : "Load more hotels"}
@@ -605,9 +605,9 @@ const HotelSearch = () => {
                   key={dest.placeId}
                   type="button"
                   onClick={() => searchFromRecent(dest)}
-                  className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-5 text-left transition hover:border-[#d4a853]/40 hover:bg-[#102038]"
+                  className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-[#e2b552]/40 hover:bg-[#102038]"
                 >
-                  <MapPin className="h-5 w-5 text-[#d4a853]" />
+                  <MapPin className="h-5 w-5 text-[#e2b552]" />
                   <p className="mt-3 text-lg font-bold">{dest.mainText || dest.description}</p>
                   <p className="mt-1 text-sm text-white/55">
                     {dest.secondaryText ||
@@ -618,11 +618,11 @@ const HotelSearch = () => {
               ))}
             </div>
           ) : (
-            <div className="mt-8 rounded-2xl border border-dashed border-[#d4a853]/30 bg-[#0c1a2e]/60 px-6 py-10 text-center">
+            <div className="mt-8 rounded-2xl border border-dashed border-[#e2b552]/30 bg-white/80 px-6 py-10 text-center">
               <p className="text-white/70">No recent destinations yet.</p>
               <Button
                 type="button"
-                className="mt-4 bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a]"
+                className="mt-4 bg-[#e2b552] text-[#0a1628] hover:bg-[#e0b96a]"
                 onClick={scrollToHotelSearch}
               >
                 Search destinations worldwide
@@ -634,7 +634,7 @@ const HotelSearch = () => {
         <WhyBookWithUs />
 
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="rounded-3xl border border-[#d4a853]/40 bg-gradient-to-br from-[#0c1a2e] to-[#07111f] px-8 py-12 md:flex md:items-center md:justify-between md:gap-8 md:px-12">
+          <div className="rounded-3xl border border-[#e2b552]/40 bg-gradient-to-br from-[#0c1a2e] to-[#07111f] px-8 py-12 md:flex md:items-center md:justify-between md:gap-8 md:px-12">
             <div>
               <h2 className="text-3xl font-bold md:text-4xl">Need a stay planned for you?</h2>
               <p className="mt-3 max-w-xl text-white/65">
@@ -643,7 +643,7 @@ const HotelSearch = () => {
               </p>
             </div>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row md:mt-0 md:flex-col">
-              <Button asChild className="bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+              <Button asChild className="bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
                 <Link to="/contact">
                   Talk to an Expert <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
@@ -651,7 +651,7 @@ const HotelSearch = () => {
               <Button
                 asChild
                 variant="outline"
-                className="border-[#d4a853]/40 bg-transparent text-white hover:bg-[#d4a853]/10 hover:text-white"
+                className="border-slate-300 bg-white text-[#17324d] hover:bg-amber-50 hover:text-[#805d12]"
               >
                 <Link to="/travel-ecosystem">Explore Travel Ecosystem</Link>
               </Button>

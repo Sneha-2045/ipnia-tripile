@@ -177,7 +177,7 @@ const FlightSearch = () => {
           alt=""
           className="ken-burns h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a1628] via-[#0a1628]/92 to-[#0a1628]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#f4f7fb]/90 via-[#f4f7fb]/96 to-[#f4f7fb]" />
       </div>
       <SEO
         title={`Flights from ${fromCity} to ${toCity} | IPNIA`}
@@ -207,8 +207,8 @@ const FlightSearch = () => {
         </div>
 
         {loading ? (
-          <div className="rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e]/90 p-8 shadow-travel">
-            <p className="text-lg font-semibold text-[#d4a853]">Searching airlines...</p>
+          <div className="rounded-2xl border border-[#e2b552]/25 bg-[#0c1a2e]/90 p-8 shadow-travel">
+            <p className="text-lg font-semibold text-[#e2b552]">Searching airlines...</p>
             <p className="mt-2 text-white/60">Finding available flights for your route.</p>
           </div>
         ) : (
@@ -258,7 +258,7 @@ const FlightSearch = () => {
         )}
 
         <div className="mt-10">
-          <Link to="/travel-ecosystem" className="text-sm font-semibold text-[#d4a853] hover:underline">
+          <Link to="/travel-ecosystem" className="text-sm font-semibold text-[#e2b552] hover:underline">
             Explore IPNIA Travel Ecosystem →
           </Link>
         </div>

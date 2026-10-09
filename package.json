@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "generate:sitemaps": "tsx scripts/generate-sitemaps.ts",
+    "generate:sitemaps": "node --import tsx scripts/generate-sitemaps.ts",
     "prebuild": "npm run generate:sitemaps",
     "build": "vite build",
     "build:dev": "vite build --mode development",

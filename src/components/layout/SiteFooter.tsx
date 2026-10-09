@@ -63,8 +63,8 @@ const socials = [
 
 export function SiteFooter() {
   return (
-    <footer className="relative overflow-hidden border-t border-white/10 bg-[#050b14]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,168,83,0.06),transparent_45%)]" />
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[#091629]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(226, 181, 82,0.06),transparent_45%)]" />
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-4">
           <div className="md:col-span-1">
@@ -78,13 +78,13 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
+            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e2b552]">
               Travel Verticals
             </h4>
             <ul className="space-y-2.5 text-sm text-white/65">
               {segments.map((s) => (
                 <li key={s.href}>
-                  <Link to={s.href} className="transition-colors hover:text-[#d4a853]">
+                  <Link to={s.href} className="transition-colors hover:text-[#e2b552]">
                     {s.label}
                   </Link>
                 </li>
@@ -93,42 +93,42 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
+            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e2b552]">
               Company
             </h4>
             <ul className="space-y-2.5 text-sm text-white/65">
               <li>
-                <Link to="/about" className="hover:text-[#d4a853]">
+                <Link to="/about" className="hover:text-[#e2b552]">
                   About IPNIA
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-[#d4a853]">
+                <Link to="/contact" className="hover:text-[#e2b552]">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link to="/sitemap" className="hover:text-[#d4a853]">
+                <Link to="/sitemap" className="hover:text-[#e2b552]">
                   Sitemap
                 </Link>
               </li>
               <li>
-                <Link to="/pricing" className="hover:text-[#d4a853]">
+                <Link to="/pricing" className="hover:text-[#e2b552]">
                   Pricing
                 </Link>
               </li>
               <li>
-                <Link to="/privacy-policy" className="hover:text-[#d4a853]">
+                <Link to="/privacy-policy" className="hover:text-[#e2b552]">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/terms-and-conditions" className="hover:text-[#d4a853]">
+                <Link to="/terms-and-conditions" className="hover:text-[#e2b552]">
                   Terms & Conditions
                 </Link>
               </li>
               <li>
-                <Link to="/refund-policy" className="hover:text-[#d4a853]">
+                <Link to="/refund-policy" className="hover:text-[#e2b552]">
                   Refund Policy
                 </Link>
               </li>
@@ -136,7 +136,7 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#d4a853]">
+            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e2b552]">
               Contact
             </h4>
             <ul className="space-y-2.5 text-sm text-white/65">

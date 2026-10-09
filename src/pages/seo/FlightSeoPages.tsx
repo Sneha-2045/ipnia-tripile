@@ -72,7 +72,7 @@ export function FlightToDestinationPage() {
     >
       <div className="space-y-6">
         <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-6">
-          <h2 className="text-xl font-semibold text-[#d4a853]">Flying to {dest.name}</h2>
+          <h2 className="text-xl font-semibold text-[#e2b552]">Flying to {dest.name}</h2>
           <p className="mt-3 text-white/75">
             Use IPNIA flight search to compare live offers into {dest.name}
             {airport ? ` (${airport})` : ""}. International journeys require passport details; India
@@ -81,13 +81,13 @@ export function FlightToDestinationPage() {
           <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-white/70">
             <li>
               Destination guide:{" "}
-              <Link className="text-[#d4a853]" to={`/destinations/${dest.slug}`}>
+              <Link className="text-[#e2b552]" to={`/destinations/${dest.slug}`}>
                 {dest.name} travel guide
               </Link>
             </li>
             <li>
               Country hub:{" "}
-              <Link className="text-[#d4a853]" to={`/flights/countries/${dest.countrySlug}`}>
+              <Link className="text-[#e2b552]" to={`/flights/countries/${dest.countrySlug}`}>
                 Flights to {dest.countryName}
               </Link>
             </li>
@@ -148,16 +148,16 @@ export function FlightRoutePage() {
     >
       <div className="grid gap-6 md:grid-cols-2">
         <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-6">
-          <h2 className="text-lg font-semibold text-[#d4a853]">Origin — {from.name}</h2>
+          <h2 className="text-lg font-semibold text-[#e2b552]">Origin — {from.name}</h2>
           <p className="mt-2 text-sm text-white/70">{from.blurb}</p>
-          <Link className="mt-3 inline-block text-sm text-[#d4a853]" to={`/flights/to/${from.slug}`}>
+          <Link className="mt-3 inline-block text-sm text-[#e2b552]" to={`/flights/to/${from.slug}`}>
             More flights involving {from.name}
           </Link>
         </section>
         <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-6">
-          <h2 className="text-lg font-semibold text-[#d4a853]">Destination — {to.name}</h2>
+          <h2 className="text-lg font-semibold text-[#e2b552]">Destination — {to.name}</h2>
           <p className="mt-2 text-sm text-white/70">{to.blurb}</p>
-          <Link className="mt-3 inline-block text-sm text-[#d4a853]" to={`/destinations/${to.slug}`}>
+          <Link className="mt-3 inline-block text-sm text-[#e2b552]" to={`/destinations/${to.slug}`}>
             {to.name} destination guide
           </Link>
         </section>
@@ -237,7 +237,7 @@ export function AirlineDetailPage() {
       }}
     >
       <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-6">
-        <h2 className="text-xl font-semibold text-[#d4a853]">About {airline.name}</h2>
+        <h2 className="text-xl font-semibold text-[#e2b552]">About {airline.name}</h2>
         <p className="mt-3 text-white/75">{airline.blurb}</p>
         <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
           <div>
@@ -270,7 +270,7 @@ export function AirlineDetailPage() {
         </div>
       )}
       <section className="mt-6 rounded-2xl border border-white/10 bg-[#0c1a2e] p-6">
-        <h2 className="text-lg font-semibold text-[#d4a853]">FAQ</h2>
+        <h2 className="text-lg font-semibold text-[#e2b552]">FAQ</h2>
         <div className="mt-3 space-y-3 text-sm text-white/70">
           <p>
             <strong className="text-white">Can I book {airline.name} on IPNIA?</strong>

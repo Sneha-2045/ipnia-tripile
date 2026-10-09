@@ -123,7 +123,7 @@ const SignUp = () => {
 
   return (
     <div className="auth-travel-bg px-4 py-16">
-      <Card className="relative z-10 w-full max-w-md border-white/10 bg-[#0c1a2e]/92 text-white shadow-travel backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-[#d4a853]/35 hover:shadow-[0_30px_70px_rgba(0,0,0,0.45)]">
+      <Card className="relative z-10 w-full max-w-md border-white/10 bg-[#0c1a2e]/92 text-white shadow-travel backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-[#e2b552]/35 hover:shadow-[0_30px_70px_rgba(0,0,0,0.45)]">
         <CardHeader className="text-center">
           <CardTitle className="font-heading text-3xl font-bold text-white">Create Account</CardTitle>
           <CardDescription className="text-white/60">
@@ -134,7 +134,7 @@ const SignUp = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fullName" className="flex items-center text-white/80">
-                <User className="mr-2 h-4 w-4 text-[#d4a853]" />
+                <User className="mr-2 h-4 w-4 text-[#e2b552]" />
                 Full Name
               </Label>
               <Input
@@ -153,7 +153,7 @@ const SignUp = () => {
 
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center text-white/80">
-                <Mail className="mr-2 h-4 w-4 text-[#d4a853]" />
+                <Mail className="mr-2 h-4 w-4 text-[#e2b552]" />
                 Email Address
               </Label>
               <Input
@@ -172,7 +172,7 @@ const SignUp = () => {
 
             <div className="space-y-2">
               <Label htmlFor="phone" className="flex items-center text-white/80">
-                <Phone className="mr-2 h-4 w-4 text-[#d4a853]" />
+                <Phone className="mr-2 h-4 w-4 text-[#e2b552]" />
                 Phone Number (Optional)
               </Label>
               <Input
@@ -193,7 +193,7 @@ const SignUp = () => {
 
             <div className="space-y-2">
               <Label htmlFor="password" className="flex items-center text-white/80">
-                <Lock className="mr-2 h-4 w-4 text-[#d4a853]" />
+                <Lock className="mr-2 h-4 w-4 text-[#e2b552]" />
                 Password
               </Label>
               <div className="relative">
@@ -227,7 +227,7 @@ const SignUp = () => {
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="flex items-center text-white/80">
-                <Lock className="mr-2 h-4 w-4 text-[#d4a853]" />
+                <Lock className="mr-2 h-4 w-4 text-[#e2b552]" />
                 Confirm Password
               </Label>
               <div className="relative">
@@ -271,7 +271,7 @@ const SignUp = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-white/55">
               Already have an account?{' '}
-              <Link to="/login" className="text-[#d4a853] hover:underline">
+              <Link to="/login" className="text-[#e2b552] hover:underline">
                 Sign In
               </Link>
             </p>

@@ -81,7 +81,7 @@ export function DestinationDetailPage() {
     >
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-6 lg:col-span-2">
-          <h2 className="text-xl font-semibold text-[#d4a853]">Why visit {dest.name}</h2>
+          <h2 className="text-xl font-semibold text-[#e2b552]">Why visit {dest.name}</h2>
           <p className="mt-3 text-white/75">{dest.blurb}</p>
           <h3 className="mt-6 font-semibold text-white">Highlights</h3>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-white/70">
@@ -104,22 +104,22 @@ export function DestinationDetailPage() {
           )}
         </section>
         <aside className="space-y-4">
-          <div className="rounded-2xl border border-[#d4a853]/30 bg-[#0c1a2e] p-5">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#d4a853]">Quick links</p>
+          <div className="rounded-2xl border border-[#e2b552]/30 bg-[#0c1a2e] p-5">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#e2b552]">Quick links</p>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <Link className="text-white/85 hover:text-[#d4a853]" to={`/flights/to/${dest.slug}`}>
+                <Link className="text-white/85 hover:text-[#e2b552]" to={`/flights/to/${dest.slug}`}>
                   Cheap flights to {dest.name}
                 </Link>
               </li>
               <li>
-                <Link className="text-white/85 hover:text-[#d4a853]" to={`/hotels/${dest.slug}`}>
+                <Link className="text-white/85 hover:text-[#e2b552]" to={`/hotels/${dest.slug}`}>
                   Cheap hotels in {dest.name}
                 </Link>
               </li>
               <li>
                 <Link
-                  className="text-white/85 hover:text-[#d4a853]"
+                  className="text-white/85 hover:text-[#e2b552]"
                   to={`/flights/countries/${dest.countrySlug}`}
                 >
                   Flights to {dest.countryName}
@@ -127,7 +127,7 @@ export function DestinationDetailPage() {
               </li>
               <li>
                 <Link
-                  className="text-white/85 hover:text-[#d4a853]"
+                  className="text-white/85 hover:text-[#e2b552]"
                   to={`/hotels/countries/${dest.countrySlug}`}
                 >
                   Hotels in {dest.countryName}

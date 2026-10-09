@@ -100,7 +100,7 @@ const ChatWidget = () => {
             "h-16 w-16 rounded-full p-0 shadow-[0_12px_36px_rgba(0,0,0,0.45)] transition-all duration-300 hover:scale-110",
             isOpen
               ? "bg-red-500 hover:bg-red-600"
-              : "border-2 border-[#d4a853] bg-[#0a1628] hover:border-[#e0b96a] hover:bg-[#0c1a2e]"
+              : "border-2 border-[#e2b552] bg-[#0a1628] hover:border-[#e0b96a] hover:bg-[#0c1a2e]"
           )}
         >
           {isOpen ? (
@@ -113,16 +113,16 @@ const ChatWidget = () => {
 
       {isOpen && (
         <div className="fixed bottom-24 right-6 z-50 h-[500px] w-96">
-          <Card className="flex h-full flex-col border-2 border-[#d4a853]/30 bg-[#0c1a2e] text-white shadow-2xl">
+          <Card className="flex h-full flex-col border-2 border-[#e2b552]/30 bg-[#0c1a2e] text-white shadow-2xl">
             <CardContent className="flex h-full flex-col p-0">
-              <div className="rounded-t-lg border-b border-[#d4a853]/25 bg-[#0a1628] p-4">
+              <div className="rounded-t-lg border-b border-[#e2b552]/25 bg-[#0a1628] p-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#d4a853]/40 bg-[#07111f]">
+                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#e2b552]/40 bg-[#07111f]">
                     <BrandLogo size={28} title="IPNIA" markOnly />
                   </div>
                   <div>
                     <h3 className="font-semibold text-white">IPNIA AI Assistant</h3>
-                    <p className="text-sm text-[#d4a853]/90">Online • Ready to help</p>
+                    <p className="text-sm text-[#e2b552]/90">Online • Ready to help</p>
                   </div>
                 </div>
               </div>
@@ -138,7 +138,7 @@ const ChatWidget = () => {
                       )}
                     >
                       {message.sender === 'bot' && (
-                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#d4a853]/30 bg-[#07111f]">
+                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#e2b552]/30 bg-[#07111f]">
                           <BrandLogo size={22} title="IPNIA" markOnly />
                         </div>
                       )}
@@ -146,7 +146,7 @@ const ChatWidget = () => {
                         className={cn(
                           "max-w-[80%] rounded-lg p-3",
                           message.sender === 'user'
-                            ? "bg-[#d4a853] text-[#0a1628]"
+                            ? "bg-[#e2b552] text-[#0a1628]"
                             : "bg-white/10 text-white"
                         )}
                       >
@@ -159,7 +159,7 @@ const ChatWidget = () => {
                         </p>
                       </div>
                       {message.sender === 'user' && (
-                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#d4a853]">
+                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#e2b552]">
                           <User className="h-4 w-4 text-[#0a1628]" />
                         </div>
                       )}
@@ -167,12 +167,12 @@ const ChatWidget = () => {
                   ))}
                   {isLoading && (
                     <div className="flex justify-start gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[#d4a853]/30 bg-[#07111f]">
+                      <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[#e2b552]/30 bg-[#07111f]">
                         <BrandLogo size={22} title="IPNIA" markOnly />
                       </div>
                       <div className="rounded-lg bg-white/10 p-3">
                         <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-[#d4a853]" />
+                          <Loader2 className="h-4 w-4 animate-spin text-[#e2b552]" />
                           <span className="text-sm text-white/80">AI is thinking...</span>
                         </div>
                       </div>
@@ -197,7 +197,7 @@ const ChatWidget = () => {
                     onClick={handleSendMessage}
                     disabled={!inputValue.trim() || isLoading}
                     size="icon"
-                    className="bg-[#d4a853] text-[#0a1628] hover:bg-[#e0b96a]"
+                    className="bg-[#e2b552] text-[#0a1628] hover:bg-[#e0b96a]"
                   >
                     <Send className="h-4 w-4" />
                   </Button>

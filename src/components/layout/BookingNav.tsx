@@ -70,7 +70,7 @@ export function BookingNav() {
         </div>
 
         <button
-          className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-white transition hover:border-[#d4a853]/40 hover:text-[#d4a853] xl:hidden"
+          className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-white transition hover:border-[#e2b552]/40 hover:text-[#e2b552] xl:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Menu"
         >
@@ -79,7 +79,7 @@ export function BookingNav() {
       </div>
 
       {open && (
-        <div className="animate-fade-up border-t border-white/10 bg-[#07111f]/98 px-4 py-4 backdrop-blur-xl xl:hidden">
+        <div className="animate-fade-up border-t border-slate-200 bg-white px-4 py-4 backdrop-blur-xl xl:hidden">
           <div className="mx-auto max-w-7xl space-y-1">
             {links.map((link) => (
               <Link
@@ -87,8 +87,8 @@ export function BookingNav() {
                 to={link.href}
                 className={`block rounded-xl px-3 py-3 text-sm font-medium transition ${
                   isActive(link.href)
-                    ? "bg-[#d4a853]/12 text-[#d4a853]"
-                    : "text-white/85 hover:bg-white/5"
+                    ? "bg-amber-50 text-[#805d12]"
+                    : "text-[#30465d] hover:bg-slate-100"
                 }`}
                 onClick={() => setOpen(false)}
               >
@@ -98,7 +98,7 @@ export function BookingNav() {
             {!loading && !user && (
               <Link
                 to="/login"
-                className="block rounded-xl px-3 py-3 text-sm text-white/70"
+                className="block rounded-xl px-3 py-3 text-sm text-slate-600"
                 onClick={() => setOpen(false)}
               >
                 Sign In

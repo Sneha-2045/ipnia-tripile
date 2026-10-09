@@ -30,7 +30,7 @@ const services = [
 
 const PilgrimTravel = () => {
   return (
-    <PageShell className="bg-[#12150f]">
+    <PageShell>
       <SEO
         title="Pilgrimage Tours & Religious Travel | IPNIA"
         description="IPNIA Pilgrim Travel offers respectful pilgrimage journeys across Char Dham, Ayodhya, Varanasi, Vaishno Devi, Tirupati, Golden Temple, Bodh Gaya, Buddhist circuits and international faith travel."
@@ -39,24 +39,24 @@ const PilgrimTravel = () => {
         image="/assets/ipnia/pilgrim-travel.jpg"
       />
 
-      <section className="border-b border-amber-200/15 bg-[#12150f]">
+      <section className="border-b border-slate-200 bg-gradient-to-br from-white via-slate-50 to-amber-50/60">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-amber-200/80">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#805d12]">
               Pilgrim Travel
             </p>
-            <h1 className="mt-4 max-w-3xl text-4xl font-bold text-[#f7f1e4] md:text-6xl">
+            <h1 className="mt-4 max-w-3xl text-4xl font-bold text-[#18324b] md:text-6xl">
               JOURNEYS OF FAITH.
               <br />
-              <span className="text-amber-200">MEMORIES FOR A LIFETIME.</span>
+              <span className="text-[#805d12]">MEMORIES FOR A LIFETIME.</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[#f7f1e4]/70">
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[#18324b]/70">
               Peaceful, well-coordinated pilgrimages with care for comfort, timing, darshan and the
               people you travel with.
             </p>
             <Button
               asChild
-              className="mt-8 bg-amber-200 font-semibold text-[#1a1f14] hover:bg-amber-100"
+              className="mt-8 bg-[#e2b552] font-semibold text-[#18324b] hover:bg-[#efc96f]"
             >
               <Link to="/contact">
                 Plan My Pilgrimage <ArrowRight className="ml-2 h-4 w-4" />
@@ -74,34 +74,34 @@ const PilgrimTravel = () => {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-[#f7f1e4] md:text-4xl">Sacred destinations</h2>
-        <p className="mt-3 max-w-2xl text-[#f7f1e4]/65">
+        <h2 className="text-3xl font-bold text-[#18324b] md:text-4xl">Sacred destinations</h2>
+        <p className="mt-3 max-w-2xl text-[#18324b]/65">
           Domestic and international pilgrimage routes planned with reverence and practical support.
         </p>
         <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {destinations.map((d) => (
             <div
               key={d.name}
-              className="rounded-2xl border border-amber-200/20 bg-[#1a1f14] px-5 py-6 transition-colors hover:border-amber-200/45"
+              className="rounded-2xl border border-slate-200 bg-white px-5 py-6 transition-colors hover:border-amber-200/45"
             >
-              <h3 className="text-xl font-bold text-amber-100">{d.name}</h3>
-              <p className="mt-1 text-sm text-[#f7f1e4]/60">{d.note}</p>
+              <h3 className="text-xl font-bold text-[#18324b]">{d.name}</h3>
+              <p className="mt-1 text-sm text-[#18324b]/60">{d.note}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="border-y border-amber-200/15 bg-[#0e120c] py-16">
+      <section className="border-y border-slate-200 bg-slate-100/80 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-[#f7f1e4]">Pilgrimage services</h2>
+          <h2 className="text-3xl font-bold text-[#18324b]">Pilgrimage services</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {services.map((s) => (
               <div
                 key={s.title}
-                className="rounded-2xl border border-amber-200/15 bg-[#1a1f14]/80 p-5"
+                className="rounded-2xl border border-slate-200 bg-white p-5"
               >
-                <s.icon className="mb-3 h-6 w-6 text-amber-200" />
-                <h3 className="text-base font-semibold text-[#f7f1e4]">{s.title}</h3>
+                <s.icon className="mb-3 h-6 w-6 text-[#805d12]" />
+                <h3 className="text-base font-semibold text-[#18324b]">{s.title}</h3>
               </div>
             ))}
           </div>
@@ -109,15 +109,15 @@ const PilgrimTravel = () => {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-amber-200/25 bg-[#1a1f14] px-8 py-12 md:px-12">
-          <h2 className="text-3xl font-bold text-[#f7f1e4] md:text-4xl">Travel with care and clarity</h2>
-          <p className="mt-4 max-w-2xl text-[#f7f1e4]/65">
+        <div className="rounded-3xl border border-slate-200 bg-white px-8 py-12 md:px-12">
+          <h2 className="text-3xl font-bold text-[#18324b] md:text-4xl">Travel with care and clarity</h2>
+          <p className="mt-4 max-w-2xl text-[#18324b]/65">
             Share your preferred shrines, travel dates and group needs — including senior citizen
             support — and we&apos;ll propose a respectful itinerary.
           </p>
           <Button
             asChild
-            className="mt-8 bg-amber-200 font-semibold text-[#1a1f14] hover:bg-amber-100"
+            className="mt-8 bg-[#e2b552] font-semibold text-[#18324b] hover:bg-[#efc96f]"
           >
             <Link to="/contact">Plan My Pilgrimage</Link>
           </Button>

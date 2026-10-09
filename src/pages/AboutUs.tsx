@@ -14,7 +14,7 @@ const AboutUs = () => {
       />
 
       <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#d4a853]">About IPNIA</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#e2b552]">About IPNIA</p>
         <h1 className="mt-4 text-4xl font-bold text-white md:text-6xl">One platform. Every journey.</h1>
         <p className="mt-4 max-w-3xl text-lg text-white/70">
           Ipnia Services Pvt Ltd builds purposeful travel across five verticals — helping Indian
@@ -22,7 +22,7 @@ const AboutUs = () => {
           world, pilgrims travel with care, and every journey stay financially prepared.
         </p>
 
-        <div className="mt-10 aspect-[21/9] overflow-hidden rounded-2xl border border-[#d4a853]/30 bg-[#07111f]">
+        <div className="mt-10 aspect-[21/9] overflow-hidden rounded-2xl border border-[#e2b552]/30 bg-[#07111f]">
           <img
             src="/assets/ipnia/experience-travel.jpg"
             alt="IPNIA travel ecosystem"
@@ -38,10 +38,10 @@ const AboutUs = () => {
             { icon: Landmark, title: "Pilgrim Travel", text: "Faith journeys planned with respect and comfort." },
             { icon: Wallet, title: "Forex Travel", text: "Travel money guidance for confident departures." },
           ].map((item) => (
-            <Card key={item.title} className="border-[#d4a853]/25 bg-[#0c1a2e] text-white">
+            <Card key={item.title} className="border-[#e2b552]/25 bg-[#0c1a2e] text-white">
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
-                  <item.icon className="mr-2 h-5 w-5 text-[#d4a853]" />
+                  <item.icon className="mr-2 h-5 w-5 text-[#e2b552]" />
                   {item.title}
                 </CardTitle>
               </CardHeader>
@@ -50,7 +50,7 @@ const AboutUs = () => {
           ))}
         </div>
 
-        <Card className="mt-8 border-[#d4a853]/25 bg-[#0c1a2e] text-white">
+        <Card className="mt-8 border-[#e2b552]/25 bg-[#0c1a2e] text-white">
           <CardHeader>
             <CardTitle>Contact</CardTitle>
           </CardHeader>

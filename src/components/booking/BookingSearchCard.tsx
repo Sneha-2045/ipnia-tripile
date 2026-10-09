@@ -205,8 +205,8 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
           onClick={() => setMode("flights")}
           className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
             mode === "flights"
-              ? "bg-[#d4a853] text-[#0a1628] shadow-gold"
-              : "border border-white/10 bg-white/[0.04] text-white/70 hover:border-white/20 hover:bg-white/[0.08]"
+              ? "bg-[#e2b552] text-[#0a1628] shadow-gold"
+              : "border border-slate-300 bg-slate-100 text-slate-700 hover:border-amber-500/50 hover:bg-amber-50"
           }`}
         >
           <Plane className="h-4 w-4" /> Flights
@@ -216,8 +216,8 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
           onClick={() => setMode("hotels")}
           className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
             mode === "hotels"
-              ? "bg-[#d4a853] text-[#0a1628] shadow-gold"
-              : "border border-white/10 bg-white/[0.04] text-white/70 hover:border-white/20 hover:bg-white/[0.08]"
+              ? "bg-[#e2b552] text-[#0a1628] shadow-gold"
+              : "border border-slate-300 bg-slate-100 text-slate-700 hover:border-amber-500/50 hover:bg-amber-50"
           }`}
         >
           <Hotel className="h-4 w-4" /> Hotels
@@ -225,7 +225,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
       </div>
 
       {mode === "flights" ? (
-        <div className="space-y-4">
+        <div className="space-y-4 search-mode-enter">
           <div className="flex flex-wrap gap-2">
             {(["oneway", "roundtrip"] as TripType[]).map((t) => (
               <button
@@ -234,8 +234,8 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
                 onClick={() => setTripType(t)}
                 className={`rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide transition-all ${
                   tripType === t
-                    ? "bg-[#d4a853]/18 text-[#d4a853] ring-1 ring-[#d4a853]/35"
-                    : "text-white/50 hover:bg-white/5 hover:text-white/80"
+                    ? "bg-amber-50 text-[#805d12] ring-1 ring-amber-500/50"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-[#17324d]"
                 }`}
               >
                 {t === "oneway" ? "One way" : "Round trip"}
@@ -249,7 +249,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
               <button
                 type="button"
                 onClick={swapAirports}
-                className="rounded-full border border-white/15 bg-white/[0.04] p-2.5 text-white/70 transition hover:border-[#d4a853]/50 hover:bg-[#d4a853]/10 hover:text-[#d4a853]"
+                className="rounded-full border border-slate-300 bg-white p-2.5 text-slate-600 transition hover:border-[#e2b552]/50 hover:bg-[#e2b552]/10 hover:text-[#805d12]"
                 aria-label="Swap airports"
               >
                 <ArrowLeftRight className="h-4 w-4" />
@@ -270,7 +270,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
               />
             </div>
             {tripType === "roundtrip" && (
-              <div>
+              <div className="search-mode-enter">
                 <Label className="ipnia-label">Return</Label>
                 <Input
                   type="date"
@@ -287,7 +287,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
             <div>
               <Label className="ipnia-label">Adults</Label>
               <Select value={adults} onValueChange={setAdults}>
-                <SelectTrigger className="ipnia-input">
+                <SelectTrigger className="ipnia-input [&>svg]:text-[#f0ca72] [&>svg]:opacity-90">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -302,7 +302,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
             <div>
               <Label className="ipnia-label">Children</Label>
               <Select value={children} onValueChange={setChildren}>
-                <SelectTrigger className="ipnia-input">
+                <SelectTrigger className="ipnia-input [&>svg]:text-[#f0ca72] [&>svg]:opacity-90">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -317,7 +317,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
             <div>
               <Label className="ipnia-label">Infants</Label>
               <Select value={infants} onValueChange={setInfants}>
-                <SelectTrigger className="ipnia-input">
+                <SelectTrigger className="ipnia-input [&>svg]:text-[#f0ca72] [&>svg]:opacity-90">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -335,7 +335,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
             <div>
               <Label className="ipnia-label">Cabin</Label>
               <Select value={cabin} onValueChange={(v) => setCabin(v as CabinClass)}>
-                <SelectTrigger className="ipnia-input">
+                <SelectTrigger className="ipnia-input [&>svg]:text-[#f0ca72] [&>svg]:opacity-90">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -349,7 +349,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
             <div>
               <Label className="ipnia-label">Stops</Label>
               <Select value={maxConnections} onValueChange={setMaxConnections}>
-                <SelectTrigger className="ipnia-input">
+                <SelectTrigger className="ipnia-input [&>svg]:text-[#f0ca72] [&>svg]:opacity-90">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -365,13 +365,13 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
           <Button
             type="button"
             onClick={searchFlights}
-            className="ipnia-btn-gold h-12 w-full rounded-xl text-base"
+            className="ipnia-btn-gold ipnia-search-submit h-12 w-full rounded-xl text-base"
           >
             Search Flights <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 search-mode-enter">
           <HotelDestinationAutocomplete
             selected={selectedDestination}
             value={selectedDestination?.description || ""}
@@ -407,7 +407,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
             <div>
               <Label className="ipnia-label">Guests</Label>
               <Select value={guests} onValueChange={setGuests}>
-                <SelectTrigger className="ipnia-input">
+                <SelectTrigger className="ipnia-input [&>svg]:text-[#f0ca72] [&>svg]:opacity-90">
                   <SelectValue placeholder={guestLabel} />
                 </SelectTrigger>
                 <SelectContent>
@@ -422,7 +422,7 @@ export function BookingSearchCard({ defaultMode = "flights" }: Props) {
             <div>
               <Label className="ipnia-label">Rooms</Label>
               <Select value={rooms} onValueChange={setRooms}>
-                <SelectTrigger className="ipnia-input">
+                <SelectTrigger className="ipnia-input [&>svg]:text-[#f0ca72] [&>svg]:opacity-90">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

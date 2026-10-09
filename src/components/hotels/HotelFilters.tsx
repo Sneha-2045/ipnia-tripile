@@ -100,7 +100,7 @@ export function HotelFiltersBar({
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="text-xs font-bold uppercase tracking-wider text-[#d4a853]">Sort & filter</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-[#e2b552]">Sort & filter</p>
         <button
           type="button"
           className="text-sm font-semibold text-[#1d4ed8] hover:underline"
@@ -193,7 +193,7 @@ export function HotelFiltersBar({
           <label className="flex h-10 items-center gap-2 text-sm text-slate-700">
             <input
               type="checkbox"
-              className="accent-[#d4a853]"
+              className="accent-[#e2b552]"
               checked={filters.openNow}
               onChange={(e) => set("openNow", e.target.checked)}
             />

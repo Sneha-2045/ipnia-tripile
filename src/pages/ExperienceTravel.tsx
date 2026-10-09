@@ -27,27 +27,27 @@ const ExperienceTravel = () => {
         image="/assets/ipnia/experience-travel.jpg"
       />
 
-      <section className="border-b border-[#d4a853]/20 bg-[#07111f]">
+      <section className="border-b border-[#e2b552]/20 bg-[#07111f]">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#d4a853]">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#e2b552]">
               Experience Travel
             </p>
             <h1 className="mt-4 max-w-4xl text-4xl font-bold text-white md:text-6xl">
               TRAVEL IS MORE THAN A DESTINATION.
               <br />
-              <span className="text-[#d4a853]">IT&apos;S AN EXPERIENCE.</span>
+              <span className="text-[#e2b552]">IT&apos;S AN EXPERIENCE.</span>
             </h1>
             <p className="mt-5 max-w-2xl text-lg text-white/75">
               We design journeys around feeling, place and people — not generic packages.
             </p>
-            <Button asChild className="mt-8 w-fit bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+            <Button asChild className="mt-8 w-fit bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
               <Link to="/contact">
                 Build My Experience <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </div>
-          <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-[#d4a853]/35 bg-[#0a1628]">
+          <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-[#e2b552]/35 bg-[#0a1628]">
             <img
               src="/assets/ipnia/experience-travel.jpg"
               alt="Experiential travel with IPNIA"
@@ -66,9 +66,9 @@ const ExperienceTravel = () => {
           {categories.map((cat) => (
             <div
               key={cat.title}
-              className="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-[#d4a853]/50"
+              className="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-[#e2b552]/50"
             >
-              <cat.icon className="mb-4 h-7 w-7 text-[#d4a853] transition-transform group-hover:scale-110" />
+              <cat.icon className="mb-4 h-7 w-7 text-[#e2b552] transition-transform group-hover:scale-110" />
               <h3 className="text-xl font-bold text-white">{cat.title}</h3>
               <p className="mt-2 text-sm text-white/60">{cat.text}</p>
             </div>
@@ -95,7 +95,7 @@ const ExperienceTravel = () => {
               img: "/assets/ipnia/education-travel.jpg",
             },
           ].map((card) => (
-            <article key={card.title} className="overflow-hidden rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e]">
+            <article key={card.title} className="overflow-hidden rounded-2xl border border-[#e2b552]/25 bg-[#0c1a2e]">
               <div className="aspect-[16/10] bg-[#07111f]">
                 <img
                   src={card.img}
@@ -118,7 +118,7 @@ const ExperienceTravel = () => {
         <p className="mx-auto mt-4 max-w-xl text-white/60">
           Share your dates, companions and must-haves — we&apos;ll shape an experience around them.
         </p>
-        <Button asChild size="lg" className="mt-8 bg-[#d4a853] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
+        <Button asChild size="lg" className="mt-8 bg-[#e2b552] font-semibold text-[#0a1628] hover:bg-[#e0b96a]">
           <Link to="/contact">Build My Experience</Link>
         </Button>
       </section>

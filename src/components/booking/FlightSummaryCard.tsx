@@ -9,8 +9,8 @@ export function FlightSummaryCard({
   compact?: boolean;
 }) {
   return (
-    <aside className="rounded-2xl border border-[#d4a853]/25 bg-[#0c1a2e] p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d4a853]">Selected flight</p>
+    <aside className="rounded-2xl border border-[#e2b552]/25 bg-[#0c1a2e] p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e2b552]">Selected flight</p>
       <p className="mt-2 text-lg font-semibold text-white">
         {flight.airline} · {flight.flightNumber}
       </p>
@@ -31,12 +31,12 @@ export function FlightSummaryCard({
           </p>
           <div className="mt-4 border-t border-white/10 pt-4">
             <p className="text-sm text-white/50">Total</p>
-            <p className="text-2xl font-bold text-[#d4a853]">{formatInr(flight.totalAmount)}</p>
+            <p className="text-2xl font-bold text-[#e2b552]">{formatInr(flight.totalAmount)}</p>
           </div>
         </>
       )}
       {compact && (
-        <p className="mt-3 text-lg font-bold text-[#d4a853]">{formatInr(flight.totalAmount)}</p>
+        <p className="mt-3 text-lg font-bold text-[#e2b552]">{formatInr(flight.totalAmount)}</p>
       )}
     </aside>
   );

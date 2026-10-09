@@ -5,20 +5,20 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4a853]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e2b552]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a1628] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
   {
     variants: {
       variant: {
         default:
-          "bg-[#d4a853] text-[#0a1628] shadow-[0_10px_28px_rgba(212,168,83,0.22)] hover:bg-[#e0b96a] hover:shadow-[0_14px_34px_rgba(212,168,83,0.32)]",
+          "bg-[#e2b552] text-[#0a1628] shadow-[0_10px_28px_rgba(226, 181, 82,0.22)] hover:bg-[#e0b96a] hover:shadow-[0_14px_34px_rgba(226, 181, 82,0.32)]",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-white/15 bg-transparent text-white hover:border-[#d4a853]/40 hover:bg-white/5",
+          "border border-white/15 bg-transparent text-white hover:border-[#e2b552]/40 hover:bg-white/5",
         secondary:
           "bg-[#0c1a2e] text-white border border-white/10 hover:bg-[#12233a]",
-        ghost: "hover:bg-white/5 hover:text-[#d4a853]",
-        link: "text-[#d4a853] underline-offset-4 hover:underline",
+        ghost: "hover:bg-white/5 hover:text-[#e2b552]",
+        link: "text-[#e2b552] underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-4 py-2",
