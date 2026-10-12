@@ -114,6 +114,11 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link to="/blog" className="hover:text-[#e2b552]">
+                  Blogs
+                </Link>
+              </li>
+              <li>
                 <Link to="/pricing" className="hover:text-[#e2b552]">
                   Pricing
                 </Link>

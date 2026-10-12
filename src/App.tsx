@@ -53,6 +53,17 @@ import {
   HotelDestinationsIndexPage,
 } from "./pages/seo/HotelCountryPages";
 import { DealDetailPage, DealsIndexPage } from "./pages/seo/DealPages";
+import HowToFindCheapFlights from "./pages/blog/HowToFindCheapFlights";
+import BestPlacesToTravelInUSA from "./pages/blog/BestPlacesToTravelInUSA";
+import BlogIndex from "./pages/blog/BlogIndex";
+import HowToFindCheapHotels from "./pages/blog/HowToFindCheapHotels";
+import BestAllInclusiveResorts from "./pages/blog/BestAllInclusiveResorts";
+import BestTimeToBookInternationalFlights from "./pages/blog/BestTimeToBookInternationalFlights";
+import BestRoadTripsInUSA from "./pages/blog/BestRoadTripsInUSA";
+import InternationalTravelChecklist from "./pages/blog/InternationalTravelChecklist";
+import HotelVsAirbnb from "./pages/blog/HotelVsAirbnb";
+import BestPlacesToVisitUSAByMonth from "./pages/blog/BestPlacesToVisitUSAByMonth";
+import BudgetVacationPlanning from "./pages/blog/BudgetVacationPlanning";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +79,17 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/travel-ecosystem" element={<TravelEcosystem />} />
               <Route path="/sitemap" element={<HtmlSitemapPage />} />
+              <Route path="/blog" element={<BlogIndex />} />
+              <Route path="/blog/how-to-find-cheap-flights" element={<HowToFindCheapFlights />} />
+              <Route path="/blog/best-places-to-travel-in-usa" element={<BestPlacesToTravelInUSA />} />
+              <Route path="/blog/how-to-find-cheap-hotels" element={<HowToFindCheapHotels />} />
+              <Route path="/blog/best-all-inclusive-resorts" element={<BestAllInclusiveResorts />} />
+              <Route path="/blog/best-time-to-book-international-flights" element={<BestTimeToBookInternationalFlights />} />
+              <Route path="/blog/best-road-trips-in-usa" element={<BestRoadTripsInUSA />} />
+              <Route path="/blog/international-travel-checklist" element={<InternationalTravelChecklist />} />
+              <Route path="/blog/hotel-vs-airbnb" element={<HotelVsAirbnb />} />
+              <Route path="/blog/best-places-to-visit-usa-by-month" element={<BestPlacesToVisitUSAByMonth />} />
+              <Route path="/blog/budget-vacation-planning" element={<BudgetVacationPlanning />} />
 
               {/* Flights SEO */}
               <Route path="/flights" element={<Index />} />

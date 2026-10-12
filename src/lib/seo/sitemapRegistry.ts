@@ -18,6 +18,7 @@ export type SitemapUrl = {
     | "airlines"
     | "countries"
     | "deals"
+    | "blog"
     | "pages";
 };
 
@@ -31,6 +32,17 @@ const STATIC_INDEXABLE: { path: string; group: SitemapUrl["group"]; priority: nu
   { path: "/hotels/countries", group: "countries", priority: 0.7 },
   { path: "/destinations", group: "destinations", priority: 0.85 },
   { path: "/deals", group: "deals", priority: 0.75 },
+  { path: "/blog", group: "blog", priority: 0.75 },
+  { path: "/blog/how-to-find-cheap-flights", group: "blog", priority: 0.7 },
+  { path: "/blog/best-places-to-travel-in-usa", group: "blog", priority: 0.7 },
+  { path: "/blog/how-to-find-cheap-hotels", group: "blog", priority: 0.7 },
+  { path: "/blog/best-all-inclusive-resorts", group: "blog", priority: 0.7 },
+  { path: "/blog/best-time-to-book-international-flights", group: "blog", priority: 0.7 },
+  { path: "/blog/best-road-trips-in-usa", group: "blog", priority: 0.7 },
+  { path: "/blog/international-travel-checklist", group: "blog", priority: 0.7 },
+  { path: "/blog/hotel-vs-airbnb", group: "blog", priority: 0.7 },
+  { path: "/blog/best-places-to-visit-usa-by-month", group: "blog", priority: 0.7 },
+  { path: "/blog/budget-vacation-planning", group: "blog", priority: 0.7 },
   { path: "/sitemap", group: "pages", priority: 0.5 },
   { path: "/travel-ecosystem", group: "pages", priority: 0.7 },
   { path: "/business-travel", group: "pages", priority: 0.7 },
@@ -130,5 +142,6 @@ export const SITEMAP_GROUPS: SitemapUrl["group"][] = [
   "airlines",
   "countries",
   "deals",
+  "blog",
   "pages",
 ];

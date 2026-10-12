@@ -181,6 +181,23 @@ export default function HtmlSitemapPage() {
             description="Browse flight, hotel and travel planning guides."
             items={seoDeals.map((deal) => ({ label: deal.title, to: `/deals/${deal.slug}` }))}
           />
+          <DirectorySection
+            title="Blog Articles"
+            description="Practical advice for planning and booking your next trip."
+            items={[
+              { label: "IPNIA Travel Blog", to: "/blog" },
+              { label: "How to Find Cheap Flights in 2027: 12 Tips to Save Money", to: "/blog/how-to-find-cheap-flights" },
+              { label: "15 Best Places to Travel in the USA for Every Type of Traveler", to: "/blog/best-places-to-travel-in-usa" },
+              { label: "How to Find Cheap Hotels in the USA Without Sacrificing Comfort", to: "/blog/how-to-find-cheap-hotels" },
+              { label: "Best All-Inclusive Resorts Near the USA for a Stress-Free Vacation", to: "/blog/best-all-inclusive-resorts" },
+              { label: "Best Time to Book International Flights from the USA", to: "/blog/best-time-to-book-international-flights" },
+              { label: "10 Best Road Trips in the USA for an Unforgettable Vacation", to: "/blog/best-road-trips-in-usa" },
+              { label: "First-Time International Travel from the USA: The Complete Checklist", to: "/blog/international-travel-checklist" },
+              { label: "Hotel vs. Airbnb: Which Is Better for Your Next Vacation?", to: "/blog/hotel-vs-airbnb" },
+              { label: "Best Places to Travel in the USA by Month: A Month-by-Month Guide", to: "/blog/best-places-to-visit-usa-by-month" },
+              { label: "How to Plan a Vacation on a Budget: Flights, Hotels, and Hidden Costs", to: "/blog/budget-vacation-planning" },
+            ]}
+          />
           <AirlineToolSection
             title="Airlines Web Check-In"
             description="Continue to the airline’s official website to check in."
