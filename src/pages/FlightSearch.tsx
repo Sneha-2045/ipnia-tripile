@@ -265,7 +265,7 @@ const FlightSearch = () => {
               </div>
             )}
 
-            {error && offers.length === 0 ? (
+            {loading && offers.length === 0 ? null : error && offers.length === 0 ? (
               <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                 <p className="text-slate-700">{error}</p>
                 <Button type="button" onClick={() => setRetryKey((value) => value + 1)} className="ipnia-btn-gold mt-4 rounded-xl">Try search again</Button>
