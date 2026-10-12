@@ -1,6 +1,7 @@
 import type { DuffelSegment, DuffelSlice, NormalizedFlightOffer } from "@/types/duffelFlight";
 import { formatCabinLabel, formatMoney } from "@/services/flightSearchApi";
 import { Button } from "@/components/ui/button";
+import { memo } from "react";
 
 function CarrierBlock({ segment }: { segment: DuffelSegment }) {
   const carrier = segment.displayCarrier || segment.operatingCarrier || segment.marketingCarrier;
@@ -112,14 +113,14 @@ function SliceSummary({ slice, label }: { slice: DuffelSlice; label?: string }) 
   );
 }
 
-export function FlightOfferCard({
+export const FlightOfferCard = memo(function FlightOfferCard({
   offer,
   onViewDetails,
   onBookNow,
 }: {
   offer: NormalizedFlightOffer;
-  onViewDetails: () => void;
-  onBookNow: () => void;
+  onViewDetails: (offer: NormalizedFlightOffer) => void;
+  onBookNow: (offer: NormalizedFlightOffer) => void;
 }) {
   const outbound = offer.slices[0];
   const inbound = offer.slices[1];
@@ -184,13 +185,13 @@ export function FlightOfferCard({
             )}
           </div>
           <div className="mt-4 flex flex-col gap-2">
-            <Button type="button" onClick={onBookNow} className="ipnia-btn-gold rounded-xl">
+            <Button type="button" onClick={() => onBookNow(offer)} className="ipnia-btn-gold rounded-xl">
               Book Now
             </Button>
             <Button
               type="button"
               variant="outline"
-              onClick={onViewDetails}
+              onClick={() => onViewDetails(offer)}
               className="rounded-xl border-white/15 bg-transparent text-white hover:bg-white/5"
             >
               View Details
@@ -200,4 +201,4 @@ export function FlightOfferCard({
       </div>
     </article>
   );
-}
+});

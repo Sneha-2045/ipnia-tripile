@@ -157,6 +157,7 @@ export type FlightSearchResponse = {
   meta?: {
     liveMode?: boolean;
     durationMs?: number;
+    providerLatencyMs?: number;
     cabinClass?: string;
   };
 };

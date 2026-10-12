@@ -1,7 +1,7 @@
 const express = require("express");
 const rateLimit = require("express-rate-limit");
 const { validateFlightSearch } = require("../middleware/validateFlightSearch");
-const { searchFlights } = require("../controllers/flightController");
+const { searchFlights, streamFlights } = require("../controllers/flightController");
 
 const router = express.Router();
 
@@ -17,5 +17,6 @@ const flightSearchLimiter = rateLimit({
 });
 
 router.post("/search", flightSearchLimiter, validateFlightSearch, searchFlights);
+router.post("/search/stream", flightSearchLimiter, validateFlightSearch, streamFlights);
 
 module.exports = router;

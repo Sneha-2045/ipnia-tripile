@@ -45,6 +45,154 @@ function buildSlices({ origin, destination, departureDate, returnDate }) {
   return slices;
 }
 
+function buildOfferRequestBody(searchParams) {
+  const cabin_class = mapCabinClass(searchParams.cabinClass);
+  const passengers = buildPassengers(searchParams);
+  const slices = buildSlices(searchParams);
+  const body = { data: { slices, passengers, cabin_class } };
+  if (searchParams.maxConnections !== undefined && searchParams.maxConnections !== null && searchParams.maxConnections !== "") {
+    const max = Number(searchParams.maxConnections);
+    if (Number.isFinite(max) && max >= 0 && max <= 2) body.data.max_connections = max;
+  } else {
+    body.data.max_connections = 2;
+  }
+  return { body, cabin_class, passengers, slices };
+}
+
+function duffelHeaders(config, json = false) {
+  return {
+    Accept: "application/json",
+    "Accept-Encoding": "gzip",
+    "Duffel-Version": config.version,
+    Authorization: `Bearer ${config.apiKey}`,
+    ...(json ? { "Content-Type": "application/json" } : {}),
+  };
+}
+
+async function requestDuffel(config, url, { method = "GET", body, signal } = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), config.httpTimeoutMs);
+  const abortFromCaller = () => controller.abort();
+  if (signal) {
+    if (signal.aborted) controller.abort();
+    else signal.addEventListener("abort", abortFromCaller, { once: true });
+  }
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: duffelHeaders(config, body !== undefined),
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+      signal: controller.signal,
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const first = Array.isArray(payload?.errors) ? payload.errors[0] : null;
+      throw new DuffelApiError(first?.message || "Duffel flight search failed.", {
+        status: response.status,
+        code: first?.code || "DUFFEL_UPSTREAM",
+        details: { title: first?.title },
+      });
+    }
+    return payload;
+  } catch (err) {
+    if (err instanceof DuffelApiError) throw err;
+    if (signal?.aborted) throw err;
+    if (err.name === "AbortError") {
+      throw new DuffelApiError("Flight search timed out. Please try again.", { status: 504, code: "DUFFEL_TIMEOUT" });
+    }
+    throw new DuffelApiError("Unable to search flights right now.", { status: 502, code: "DUFFEL_NETWORK" });
+  } finally {
+    clearTimeout(timer);
+    if (signal) signal.removeEventListener("abort", abortFromCaller);
+  }
+}
+
+/** Stream Duffel batch results as airlines return them. Batch resources expire after one minute. */
+async function streamBatchOfferRequest(searchParams, { signal, onBatch }) {
+  const config = getDuffelConfig();
+  if (!config.isConfigured) throw new DuffelApiError("Flight search is not configured", { status: 503, code: "DUFFEL_NOT_CONFIGURED" });
+
+  const { body, cabin_class, passengers } = buildOfferRequestBody(searchParams);
+  const supplierTimeoutMs = Math.max(2000, Math.min(60000, config.supplierTimeoutMs));
+  const createUrl = `${config.baseUrl}/air/batch_offer_requests?supplier_timeout=${supplierTimeoutMs}`;
+  const startedAt = Date.now();
+  let providerLatencyMs = 0;
+  let batchId = null;
+  let totalOffers = 0;
+  let firstOfferMs = null;
+  const seen = new Set();
+
+  try {
+    const createStarted = Date.now();
+    const created = await requestDuffel(config, createUrl, { method: "POST", body, signal });
+    providerLatencyMs += Date.now() - createStarted;
+    const initial = created?.data || {};
+    batchId = initial.id;
+    if (!batchId) throw new DuffelApiError("Duffel did not return a batch request ID.", { status: 502, code: "DUFFEL_INVALID_RESPONSE" });
+
+    let remaining = Number(initial.remaining_batches ?? initial.total_batches ?? 1);
+    let pollCount = 0;
+    const batchDeadline = startedAt + 55000;
+    while (remaining > 0 && pollCount < 60 && Date.now() < batchDeadline && !signal?.aborted) {
+      pollCount += 1;
+      const pollStarted = Date.now();
+      const response = await requestDuffel(
+        config,
+        `${config.baseUrl}/air/batch_offer_requests/${encodeURIComponent(batchId)}?view=offers`,
+        { signal }
+      );
+      providerLatencyMs += Date.now() - pollStarted;
+      const data = response?.data || {};
+      const batchOffers = Array.isArray(data.offers) ? data.offers : Array.isArray(data) ? data : [];
+      const mapped = batchOffers.map(mapDuffelOfferToFlight).filter((flight) => flight && flight.id && !seen.has(flight.id));
+      mapped.forEach((flight) => seen.add(flight.id));
+      if (mapped.length) {
+        totalOffers += mapped.length;
+        if (firstOfferMs === null) firstOfferMs = Date.now() - startedAt;
+        onBatch({ flights: mapped, batchId, remainingBatches: Number(data.remaining_batches ?? 0), totalBatches: Number(data.total_batches ?? 0) });
+      }
+      remaining = Number(data.remaining_batches ?? 0);
+    }
+    if (remaining > 0 && !signal?.aborted) {
+      throw new DuffelApiError("Some airline results are taking too long. Retry to search again.", {
+        status: 504,
+        code: "DUFFEL_PARTIAL_RESULTS",
+      });
+    }
+
+    const durationMs = Date.now() - startedAt;
+    console.info("[flight-search] completed", {
+      provider: "duffel",
+      offerRequestId: batchId,
+      origin: searchParams.origin,
+      destination: searchParams.destination,
+      durationMs,
+      timeToFirstOfferMs: firstOfferMs,
+      providerLatencyMs,
+      resultCount: totalOffers,
+      pollCount,
+      errors: 0,
+    });
+    return { offerRequestId: batchId, liveMode: Boolean(initial.live_mode), cabinClass: cabin_class, durationMs, providerLatencyMs, count: totalOffers, totalBatches: Number(initial.total_batches ?? 0) };
+  } catch (err) {
+    if (signal?.aborted) throw err;
+    console.error("[flight-search] failed", {
+      provider: "duffel",
+      offerRequestId: batchId,
+      origin: searchParams.origin,
+      destination: searchParams.destination,
+      durationMs: Date.now() - startedAt,
+      timeToFirstOfferMs: firstOfferMs,
+      providerLatencyMs,
+      resultCount: totalOffers,
+      errors: 1,
+      code: err.code || "DUFFEL_ERROR",
+      status: err.status || 502,
+    });
+    throw err;
+  }
+}
+
 async function createOfferRequest(searchParams) {
   const config = getDuffelConfig();
   if (!config.isConfigured) {
@@ -54,31 +202,7 @@ async function createOfferRequest(searchParams) {
     });
   }
 
-  const cabin_class = mapCabinClass(searchParams.cabinClass);
-  const passengers = buildPassengers(searchParams);
-  const slices = buildSlices(searchParams);
-
-  const body = {
-    data: {
-      slices,
-      passengers,
-      cabin_class,
-    },
-  };
-
-  if (
-    searchParams.maxConnections !== undefined &&
-    searchParams.maxConnections !== null &&
-    searchParams.maxConnections !== ""
-  ) {
-    const max = Number(searchParams.maxConnections);
-    if (Number.isFinite(max) && max >= 0 && max <= 2) {
-      body.data.max_connections = max;
-    }
-  } else {
-    // "Any" stops — allow up to 2 connections
-    body.data.max_connections = 2;
-  }
+  const { body, cabin_class, passengers, slices } = buildOfferRequestBody(searchParams);
 
   const qs = new URLSearchParams({
     return_offers: "true",
@@ -253,6 +377,7 @@ async function getOfferById(offerId) {
 
 module.exports = {
   createOfferRequest,
+  streamBatchOfferRequest,
   getOfferById,
   DuffelApiError,
   mapCabinClass,

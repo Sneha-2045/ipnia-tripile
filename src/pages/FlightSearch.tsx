@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { BookingNav } from "@/components/layout/BookingNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BookingSearchCard } from "@/components/booking/BookingSearchCard";
 import { FlightOfferCard } from "@/components/flights/FlightOfferCard";
 import { FlightOfferDetailsModal } from "@/components/flights/FlightOfferDetailsModal";
+import { Button } from "@/components/ui/button";
 import {
   applyFlightFilters,
   defaultFlightFilters,
@@ -15,7 +16,8 @@ import SEO from "@/components/SEO";
 import { useFlightBooking } from "@/contexts/FlightBookingContext";
 import { getAirportByCode } from "@/data/airports";
 import { mapDuffelOfferToSelectedFlight } from "@/lib/mapOfferToBooking";
-import { searchFlightsViaApi, formatCabinLabel } from "@/services/flightSearchApi";
+import { formatCabinLabel } from "@/services/flightSearchApi";
+import { searchFlightsProgressively } from "@/services/progressiveFlightSearch";
 import type { NormalizedFlightOffer } from "@/types/duffelFlight";
 
 const FlightSearch = () => {
@@ -25,6 +27,10 @@ const FlightSearch = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [offers, setOffers] = useState<NormalizedFlightOffer[]>([]);
+  const [progressCount, setProgressCount] = useState(0);
+  const [remainingBatches, setRemainingBatches] = useState<number | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
+  const [visibleOfferCount, setVisibleOfferCount] = useState(24);
   const [filters, setFilters] = useState<FlightFiltersState>(defaultFlightFilters);
   const [selected, setSelected] = useState<NormalizedFlightOffer | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -81,9 +87,12 @@ const FlightSearch = () => {
     setLoading(true);
     setError("");
     setOffers([]);
+    setProgressCount(0);
+    setRemainingBatches(null);
+    setVisibleOfferCount(24);
     setFilters(defaultFlightFilters);
 
-    searchFlightsViaApi(
+    searchFlightsProgressively(
       {
         origin: query.origin,
         destination: query.destination,
@@ -95,19 +104,32 @@ const FlightSearch = () => {
         cabinClass: query.cabinClass,
         maxConnections: query.maxConnections,
       },
-      controller.signal
+      controller.signal,
+      ({ flights, count, remainingBatches: remaining }) => {
+        setOffers((current) => {
+          const byId = new Map(current.map((offer) => [offer.id, offer]));
+          flights.forEach((offer) => byId.set(offer.id, offer));
+          return Array.from(byId.values());
+        });
+        setProgressCount(count);
+        setRemainingBatches(remaining);
+      },
+      (progress) => {
+        if (progress.type === "offers") setRemainingBatches(progress.remainingBatches);
+      }
     )
       .then((res) => {
         if (!active) return;
-        setOffers(res.flights);
-        if (!res.flights.length) {
+        setProgressCount(res.count);
+        setRemainingBatches(0);
+        if (!res.count) {
           setError(res.message || "No flights found for this route and date.");
         }
       })
       .catch((err) => {
         if (!active) return;
         if (err instanceof DOMException && err.name === "AbortError") return;
-        setOffers([]);
+        // Keep any provider batches already received if a later poll fails.
         setError(err instanceof Error ? err.message : "Unable to search flights right now.");
       })
       .finally(() => {
@@ -118,9 +140,12 @@ const FlightSearch = () => {
       active = false;
       controller.abort();
     };
-  }, [query]);
+  }, [query, retryKey]);
 
   const filtered = useMemo(() => applyFlightFilters(offers, filters), [offers, filters]);
+  const visibleOffers = useMemo(() => filtered.slice(0, visibleOfferCount), [filtered, visibleOfferCount]);
+
+  useEffect(() => setVisibleOfferCount(24), [filters]);
 
   const airlineOptions = useMemo(() => {
     const map = new Map<string, string>();
@@ -157,7 +182,7 @@ const FlightSearch = () => {
 
   const travellerCount = Math.max(1, query.adults + query.children + query.infants);
 
-  const handleBookNow = (offer: NormalizedFlightOffer) => {
+  const handleBookNow = useCallback((offer: NormalizedFlightOffer) => {
     const flight = mapDuffelOfferToSelectedFlight(offer, {
       departureDate: query.departureDate,
       travellerCount,
@@ -167,7 +192,12 @@ const FlightSearch = () => {
     });
     setSelectedFlight(flight);
     navigate("/booking/traveller-details");
-  };
+  }, [navigate, query.departureDate, query.adults, query.children, query.infants, travellerCount, setSelectedFlight]);
+
+  const handleViewDetails = useCallback((offer: NormalizedFlightOffer) => {
+    setSelected(offer);
+    setDetailsOpen(true);
+  }, []);
 
   return (
     <div className="ipnia-page relative overflow-hidden">
@@ -193,7 +223,7 @@ const FlightSearch = () => {
           <h1 className="mt-3 font-heading text-4xl font-bold md:text-6xl">
             {query.hasRoute ? `${fromCity} → ${toCity}` : "Search flights"}
           </h1>
-          <p className="mt-3 max-w-2xl text-white/60">
+          <p className="mt-3 max-w-2xl text-slate-600">
             {query.hasRoute
               ? `${query.departureDate || "Select dates"}${
                   query.returnDate ? ` → ${query.returnDate}` : ""
@@ -206,17 +236,23 @@ const FlightSearch = () => {
           <BookingSearchCard defaultMode="flights" flightOnly />
         </div>
 
-        {loading ? (
-          <div className="rounded-2xl border border-[#e2b552]/25 bg-[#0c1a2e]/90 p-8 shadow-travel">
-            <p className="text-lg font-semibold text-[#e2b552]">Searching airlines...</p>
-            <p className="mt-2 text-white/60">Finding available flights for your route.</p>
+        {loading && offers.length === 0 && (
+          <div role="status" aria-live="polite" className="mb-6 rounded-2xl border border-sky-200 bg-white p-6 shadow-sm">
+            <p className="text-lg font-semibold text-[#17324d]">Searching airlines…</p>
+            <p className="mt-1 text-slate-600">We’ll show available flights as soon as airlines respond.</p>
           </div>
-        ) : (
+        )}
+
+        {(
           <>
-            {!error && offers.length > 0 && (
+            {offers.length > 0 && (
               <div className="mb-4 space-y-4">
-                <p className="text-white/70">
-                  {filtered.length === offers.length
+                <p aria-live="polite" className="text-slate-700">
+                  {loading
+                    ? `${progressCount || offers.length} flights found so far · ${remainingBatches && remainingBatches > 0 ? `${remainingBatches} more airline batches pending` : "More results may arrive shortly"}`
+                    : error
+                    ? `${offers.length} flights loaded · Some airline results could not be loaded.`
+                    : filtered.length === offers.length
                     ? `${offers.length} flight${offers.length === 1 ? "" : "s"} found`
                     : `${filtered.length} of ${offers.length} flights`}
                 </p>
@@ -230,28 +266,33 @@ const FlightSearch = () => {
             )}
 
             {error && offers.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-8">
-                <p className="text-white/70">{error}</p>
+              <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+                <p className="text-slate-700">{error}</p>
+                <Button type="button" onClick={() => setRetryKey((value) => value + 1)} className="ipnia-btn-gold mt-4 rounded-xl">Try search again</Button>
               </div>
             ) : filtered.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-[#0c1a2e] p-8">
-                <p className="text-white/70">
+              <div className="rounded-2xl border border-slate-200 bg-white p-8">
+                <p className="text-slate-700">
                   No flights match your filters. Try adjusting stops, airline, or price.
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
-                {filtered.map((offer) => (
+                {visibleOffers.map((offer) => (
                   <FlightOfferCard
                     key={offer.id}
                     offer={offer}
-                    onViewDetails={() => {
-                      setSelected(offer);
-                      setDetailsOpen(true);
-                    }}
-                    onBookNow={() => handleBookNow(offer)}
+                    onViewDetails={handleViewDetails}
+                    onBookNow={handleBookNow}
                   />
                 ))}
+                {filtered.length > visibleOffers.length && (
+                  <Button type="button" variant="outline" onClick={() => setVisibleOfferCount((count) => count + 24)} className="w-full rounded-xl border-slate-300 bg-white text-[#17324d] hover:bg-slate-50">
+                    Show more flights ({filtered.length - visibleOffers.length} remaining)
+                  </Button>
+                )}
+                {loading && offers.length > 0 && <p role="status" className="py-3 text-center text-sm text-slate-600">Loading more airline results…</p>}
+                {!loading && error && offers.length > 0 && <div role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">{error} <button type="button" className="ml-2 font-semibold underline" onClick={() => setRetryKey((value) => value + 1)}>Retry search</button></div>}
               </div>
             )}
           </>

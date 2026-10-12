@@ -1,17 +1,11 @@
 import type { FlightSearchRequest, FlightSearchResponse } from "@/types/duffelFlight";
-import { getApiBase, getFlightSearchUrl } from "@/lib/apiBase";
+import { getFlightSearchUrl } from "@/lib/apiBase";
 
 export async function searchFlightsViaApi(
   payload: FlightSearchRequest,
   signal?: AbortSignal
 ): Promise<FlightSearchResponse> {
   const url = getFlightSearchUrl();
-
-  // Temporary diagnostics for production verification
-  console.log("Flight search API URL:", `${import.meta.env.VITE_API_URL}/api/flights/search`);
-  console.log("Flight search resolved URL:", url);
-  console.log("Flight search payload:", payload);
-  console.log("VITE_API_URL raw:", import.meta.env.VITE_API_URL);
 
   let res: Response;
   try {
@@ -24,7 +18,7 @@ export async function searchFlightsViaApi(
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
     const detail = err instanceof Error ? err.message : "Network error";
-    console.error("[IPNIA] Flight search network failure:", detail, { url, apiBase: getApiBase() });
+    console.error("[flight-search] network failure:", detail);
     throw new Error(`Unable to reach flight search API (${detail}).`);
   }
 

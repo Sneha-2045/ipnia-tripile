@@ -37,3 +37,8 @@ export function getApiBase(): string {
 export function getFlightSearchUrl() {
   return `${getApiBase()}/api/flights/search`;
 }
+
+
+export function getFlightSearchStreamUrl() {
+  return `${getApiBase()}/api/flights/search/stream`;
+}
