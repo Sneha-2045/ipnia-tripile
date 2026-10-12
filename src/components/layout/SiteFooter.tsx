@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { BrandLogo } from "@/components/BrandLogo";
 import { Separator } from "@/components/ui/separator";
+import { Mail, MapPin, Phone, Send } from "lucide-react";
 
 const segments = [
   { label: "Book Flights", href: "/flights/search" },
@@ -66,7 +67,7 @@ export function SiteFooter() {
     <footer className="relative overflow-hidden border-t border-white/10 bg-[#091629]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(226, 181, 82,0.06),transparent_45%)]" />
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-12 md:grid-cols-4">
+        <div className="grid gap-12 md:grid-cols-3">
           <div className="md:col-span-1">
             <div className="mb-5">
               <BrandLogo size={52} className="h-[52px] w-[203px] object-contain object-left" />
@@ -135,21 +136,78 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          <div>
-            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e2b552]">
-              Contact
-            </h4>
-            <ul className="space-y-2.5 text-sm text-white/65">
-              <li>Email: Help@ipnia.com</li>
-              <li>Phone: 01145534440</li>
-              <li>A199 Gujranwala Town Part 01, Delhi 110009</li>
-            </ul>
-          </div>
         </div>
 
         <Separator className="my-10 bg-white/10" />
 
-        <div className="grid gap-8 md:grid-cols-2 md:items-start">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4 lg:items-start">
+          <div>
+            <h4 className="mb-4 text-sm font-semibold text-white">Contact Info</h4>
+            <ul className="space-y-3 text-sm text-white/70">
+              <li>
+                <a href="tel:+911145534440" className="group flex items-start gap-3 transition-colors hover:text-white">
+                  <Phone aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[#e2b552]" />
+                  <span><span className="mb-0.5 block text-xs text-white/55">Call us</span>+91 11 4553 4440</span>
+                </a>
+              </li>
+              <li>
+                <a href="mailto:Help@ipnia.com" className="group flex items-start gap-3 transition-colors hover:text-white">
+                  <Mail aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[#e2b552]" />
+                  <span><span className="mb-0.5 block text-xs text-white/55">Email us</span>Help@ipnia.com</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://maps.google.com/?q=A199+Gujranwala+Town+Part+01+Delhi+110009+India"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-start gap-3 transition-colors hover:text-white"
+                >
+                  <MapPin aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[#e2b552]" />
+                  <span><span className="mb-0.5 block text-xs text-white/55">Visit us</span>A199 Gujranwala Town Part 01,<br />Delhi 110009, India</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="mb-4 text-sm font-semibold text-white">Subscribe Now</h4>
+            <p className="mb-3 text-sm leading-relaxed text-white/65">
+              Get travel inspiration and updates in your inbox.
+            </p>
+            <form
+              className="flex max-w-sm"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const formData = new FormData(event.currentTarget);
+                const email = String(formData.get("subscriberEmail") ?? "").trim();
+                if (!email) return;
+                const subject = encodeURIComponent("IPNIA newsletter subscription");
+                const body = encodeURIComponent(`Please subscribe ${email} to IPNIA travel updates.`);
+                window.location.href = `mailto:Help@ipnia.com?subject=${subject}&body=${body}`;
+                event.currentTarget.reset();
+              }}
+            >
+              <label htmlFor="footer-subscriber-email" className="sr-only">Email address</label>
+              <input
+                id="footer-subscriber-email"
+                name="subscriberEmail"
+                type="email"
+                autoComplete="email"
+                required
+                placeholder="Enter your email"
+                className="min-w-0 flex-1 rounded-l-md border border-white/25 bg-white px-3 py-2 text-sm text-[#17324d] placeholder:text-slate-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-[#e2b552]"
+              />
+              <button
+                type="submit"
+                aria-label="Send newsletter subscription request"
+                className="inline-flex h-10 w-11 shrink-0 items-center justify-center rounded-r-md bg-[#e2b552] text-[#091629] transition-colors hover:bg-[#f0c96b] focus:outline-none focus:ring-2 focus:ring-[#e2b552] focus:ring-offset-2 focus:ring-offset-[#091629]"
+              >
+                <Send aria-hidden="true" className="h-4 w-4" />
+              </button>
+            </form>
+          </div>
+
           <div>
             <h4 className="mb-4 text-sm font-semibold text-white">Follow us on:</h4>
             <div className="flex flex-wrap gap-3">
