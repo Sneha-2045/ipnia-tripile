@@ -74,6 +74,41 @@ const posts = [
     imageAlt: "Travel budget and trip essentials beside an airport window",
     path: "/blog/budget-vacation-planning",
   },
+  {
+    title: "How to Plan a Family Vacation: Flights, Hotels, and Activities",
+    description: "Plan a family trip with advice on choosing a destination, comparing travel options, and building a relaxed itinerary.",
+    image: "/assets/blog/family-vacation-hero.png",
+    imageAlt: "A family enjoying a seaside holiday together",
+    path: "/blog/family-vacation-planning",
+  },
+  {
+    title: "Solo Travel Tips: How to Plan a Memorable Trip on Your Own",
+    description: "Prepare for solo travel with practical planning tips for your destination, flights, accommodation, and itinerary.",
+    image: "/assets/blog/solo-travel-hero.png",
+    imageAlt: "A solo traveler looking out over a historic city",
+    path: "/blog/solo-travel-tips",
+  },
+  {
+    title: "Weekend Getaways in the USA: 10 Trip Ideas and Planning Tips",
+    description: "Explore US weekend break ideas, from city escapes to coastal and mountain trips, with tips for making short trips count.",
+    image: "/assets/blog/weekend-getaways-hero.png",
+    imageAlt: "A scenic American road trip at a mountain overlook",
+    path: "/blog/weekend-getaways-usa",
+  },
+  {
+    title: "Travel Packing Checklist: What to Pack for Your Next Trip",
+    description: "Organize travel documents, clothes, toiletries, medication, electronics, and carry-on essentials with this practical packing guide.",
+    image: "/assets/blog/packing-checklist-hero.png",
+    imageAlt: "A suitcase organized with clothes and travel essentials",
+    path: "/blog/travel-packing-checklist",
+  },
+  {
+    title: "Airport Tips for a Smoother Trip: Check-In, Security, and Connections",
+    description: "Prepare for check-in, baggage, screening, flight connections, delays, and navigating the airport with practical travel tips.",
+    image: "/assets/blog/airport-tips-hero.png",
+    imageAlt: "A traveler checking flight details in an airport terminal",
+    path: "/blog/airport-travel-tips",
+  },
 ];
 
 const blogIndexJsonLd = {

@@ -196,6 +196,11 @@ export default function HtmlSitemapPage() {
               { label: "Hotel vs. Airbnb: Which Is Better for Your Next Vacation?", to: "/blog/hotel-vs-airbnb" },
               { label: "Best Places to Travel in the USA by Month: A Month-by-Month Guide", to: "/blog/best-places-to-visit-usa-by-month" },
               { label: "How to Plan a Vacation on a Budget: Flights, Hotels, and Hidden Costs", to: "/blog/budget-vacation-planning" },
+              { label: "How to Plan a Family Vacation: Flights, Hotels, and Activities", to: "/blog/family-vacation-planning" },
+              { label: "Solo Travel Tips: How to Plan a Memorable Trip on Your Own", to: "/blog/solo-travel-tips" },
+              { label: "Weekend Getaways in the USA: 10 Trip Ideas and Planning Tips", to: "/blog/weekend-getaways-usa" },
+              { label: "Travel Packing Checklist: What to Pack for Your Next Trip", to: "/blog/travel-packing-checklist" },
+              { label: "Airport Tips for a Smoother Trip: Check-In, Security, and Connections", to: "/blog/airport-travel-tips" },
             ]}
           />
           <AirlineToolSection

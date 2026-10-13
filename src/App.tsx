@@ -64,6 +64,7 @@ import InternationalTravelChecklist from "./pages/blog/InternationalTravelCheckl
 import HotelVsAirbnb from "./pages/blog/HotelVsAirbnb";
 import BestPlacesToVisitUSAByMonth from "./pages/blog/BestPlacesToVisitUSAByMonth";
 import BudgetVacationPlanning from "./pages/blog/BudgetVacationPlanning";
+import { AirportTravelTips, FamilyVacationPlanning, SoloTravelTips, TravelPackingChecklist, WeekendGetawaysUSA } from "./pages/blog/AdditionalTravelGuides";
 
 const queryClient = new QueryClient();
 
@@ -90,6 +91,11 @@ const App = () => (
               <Route path="/blog/hotel-vs-airbnb" element={<HotelVsAirbnb />} />
               <Route path="/blog/best-places-to-visit-usa-by-month" element={<BestPlacesToVisitUSAByMonth />} />
               <Route path="/blog/budget-vacation-planning" element={<BudgetVacationPlanning />} />
+              <Route path="/blog/family-vacation-planning" element={<FamilyVacationPlanning />} />
+              <Route path="/blog/solo-travel-tips" element={<SoloTravelTips />} />
+              <Route path="/blog/weekend-getaways-usa" element={<WeekendGetawaysUSA />} />
+              <Route path="/blog/travel-packing-checklist" element={<TravelPackingChecklist />} />
+              <Route path="/blog/airport-travel-tips" element={<AirportTravelTips />} />
 
               {/* Flights SEO */}
               <Route path="/flights" element={<Index />} />
