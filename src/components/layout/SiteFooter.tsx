@@ -135,7 +135,17 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link to="/refund-policy" className="hover:text-[#e2b552]">
-                  Refund Policy
+                  Cancellation & Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/cookie-policy" className="hover:text-[#e2b552]">
+                  Cookie Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/disclaimer" className="hover:text-[#e2b552]">
+                  Website Disclaimer
                 </Link>
               </li>
             </ul>

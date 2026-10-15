@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { BookingPageShell } from "@/components/booking/BookingPageShell";
 import { Button } from "@/components/ui/button";
@@ -182,6 +183,9 @@ const BookingPaymentPage = () => {
             {busy ? statusMsg || "Processing…" : "Proceed to Secure Payment"}
           </Button>
           <p className="mt-3 text-center text-xs text-white/45">Secure payment powered by Cashfree</p>
+          <p className="mt-3 text-center text-xs leading-5 text-white/50">
+            Before paying, review our <Link className="underline hover:text-[#e2b552]" to="/terms-and-conditions">Terms & Conditions</Link>, <Link className="underline hover:text-[#e2b552]" to="/privacy-policy">Privacy Policy</Link>, and <Link className="underline hover:text-[#e2b552]" to="/refund-policy">Cancellation & Refund Policy</Link>.
+          </p>
           {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
         </section>
       </div>

@@ -30,6 +30,8 @@ import Pricing from "./pages/Pricing";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
+import CookiePolicy from "./pages/CookiePolicy";
+import Disclaimer from "./pages/Disclaimer";
 import BusinessTravel from "./pages/BusinessTravel";
 import EducationTravel from "./pages/EducationTravel";
 import ExperienceTravel from "./pages/ExperienceTravel";
@@ -143,6 +145,9 @@ const App = () => (
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/cancellation-refund-policy" element={<RefundPolicy />} />
+              <Route path="/cookie-policy" element={<CookiePolicy />} />
+              <Route path="/disclaimer" element={<Disclaimer />} />
               <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
               <Route
                 path="/dashboard"

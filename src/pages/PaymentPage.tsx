@@ -12,12 +12,27 @@ const courseNames: Record<string, string> = {
 
 // Remove the hardcoded key and use Vite env variable
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
+let razorpaySdkPromise: Promise<void> | null = null;
 
 declare global {
   interface Window {
-    Razorpay?: any;
+    Razorpay?: new (options: RazorpayOptions) => { open: () => void };
   }
 }
+
+type RazorpayPaymentResponse = Record<string, unknown>;
+type RazorpayOptions = {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  handler: (response: RazorpayPaymentResponse) => void;
+  prefill: { email: string; contact: string };
+  theme: { color: string };
+  modal: { ondismiss: () => void };
+};
 
 const PaymentPage = () => {
   const { course } = useParams<{ course: string }>();
@@ -26,6 +41,23 @@ const PaymentPage = () => {
   const navigate = useNavigate();
 
   const displayName = courseNames[course || ""] || "Course";
+
+  const loadRazorpaySdk = () => {
+    if (window.Razorpay) return Promise.resolve();
+    if (razorpaySdkPromise) return razorpaySdkPromise;
+    razorpaySdkPromise = new Promise<void>((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => window.Razorpay ? resolve() : reject(new Error("Razorpay checkout did not initialize."));
+      script.onerror = () => reject(new Error("Razorpay checkout could not be loaded."));
+      document.body.appendChild(script);
+    }).catch((error) => {
+      razorpaySdkPromise = null;
+      throw error;
+    });
+    return razorpaySdkPromise;
+  };
 
   // Debug function to test backend connectivity
   const testBackendConnection = async () => {
@@ -42,6 +74,9 @@ const PaymentPage = () => {
 
   const handleRazorpayPayment = async () => {
     try {
+      if (!RAZORPAY_KEY_ID) {
+        throw new Error("This payment option is not configured.");
+      }
       // Example: ₹999 (replace with your actual amount logic)
       let amount = 99900; // default in paise
       if (course === "ml-course") amount = 999900;
@@ -64,12 +99,10 @@ const PaymentPage = () => {
         throw new Error('Order ID not received from server');
       }
 
+      // Load the provider only after an order has been returned for this payment attempt.
+      await loadRazorpaySdk();
+
       // 2. Open Razorpay modal
-      if (typeof window.Razorpay === 'undefined') {
-        alert('Razorpay script not loaded. Please check your internet connection or try again.');
-        return;
-      }
-      
       const options = {
         key: RAZORPAY_KEY_ID,
         amount: data.amount,
@@ -77,7 +110,7 @@ const PaymentPage = () => {
         name: "IPNIA",
         description: `${displayName} Payment`,
         order_id: data.id,
-        handler: function (response: any) {
+        handler: function (response: RazorpayPaymentResponse) {
           console.log('Payment successful:', response);
           navigate(`/thankyou/${course}`);
         },
@@ -93,7 +126,6 @@ const PaymentPage = () => {
         }
       };
       
-      // @ts-ignore
       const rzp = new window.Razorpay(options);
       rzp.open();
       
@@ -149,4 +181,4 @@ const PaymentPage = () => {
   );
 };
 
-export default PaymentPage; 
+export default PaymentPage;

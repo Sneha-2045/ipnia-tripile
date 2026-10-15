@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,8 @@ export function HotelDetailsModal({
   onSelect: () => void;
 }) {
   const [idx, setIdx] = useState(0);
+  const [mapEnabled, setMapEnabled] = useState(false);
+  useEffect(() => setMapEnabled(false), [hotel?.id, open]);
   if (!hotel) return null;
 
   const images = (hotel.images || [])
@@ -179,13 +181,22 @@ export function HotelDetailsModal({
           </div>
 
           {maps && hotel.latitude != null && hotel.longitude != null && (
-            <iframe
-              title={`Map of ${hotel.name}`}
-              className="h-48 w-full rounded-xl border border-slate-200"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              src={`https://maps.google.com/maps?q=${hotel.latitude},${hotel.longitude}&z=15&output=embed`}
-            />
+            mapEnabled ? (
+              <iframe
+                title={`Map of ${hotel.name}`}
+                className="h-48 w-full rounded-xl border border-slate-200"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                src={`https://maps.google.com/maps?q=${hotel.latitude},${hotel.longitude}&z=15&output=embed`}
+              />
+            ) : (
+              <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs leading-5 text-slate-600">Load a map from Google? Google will receive your connection details and this hotel's location.</p>
+                <Button type="button" variant="outline" onClick={() => setMapEnabled(true)}>
+                  I agree — load map from Google
+                </Button>
+              </div>
+            )
           )}
 
           <Button

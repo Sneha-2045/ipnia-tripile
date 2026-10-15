@@ -60,6 +60,8 @@ const STATIC_INDEXABLE: { path: string; group: SitemapUrl["group"]; priority: nu
   { path: "/pricing", group: "pages", priority: 0.4 },
   { path: "/privacy-policy", group: "pages", priority: 0.2 },
   { path: "/refund-policy", group: "pages", priority: 0.2 },
+  { path: "/cookie-policy", group: "pages", priority: 0.2 },
+  { path: "/disclaimer", group: "pages", priority: 0.2 },
   { path: "/terms-and-conditions", group: "pages", priority: 0.2 },
 ];
 
