@@ -109,7 +109,7 @@ export function SiteNav() {
             </button>
           )}
           <Button asChild className="ipnia-btn-gold rounded-full px-5">
-            <Link to="/contact">Plan Your Journey</Link>
+              <Link to="/plan-journey">Plan Your Journey</Link>
           </Button>
         </div>
 
@@ -173,7 +173,7 @@ export function SiteNav() {
               </Link>
             )}
             <Button asChild className="ipnia-btn-gold w-full rounded-full">
-              <Link to="/contact" onClick={() => setOpen(false)}>
+              <Link to="/plan-journey" onClick={() => setOpen(false)}>
                 Plan Your Journey
               </Link>
             </Button>

@@ -389,7 +389,7 @@ const Index = () => {
       </section>
 
       <SiteFooter />
-      <StickyCTA label="Plan Your Journey" to="/contact" />
+      <StickyCTA label="Plan Your Journey" to="/plan-journey" />
     </div>
   );
 };

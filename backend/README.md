@@ -130,12 +130,14 @@ CASHFREE_CLIENT_SECRET=your_sandbox_client_secret
 CASHFREE_ENV=sandbox
 CASHFREE_API_VERSION=2025-01-01
 CASHFREE_WEBHOOK_SECRET=
+GEMINI_API_KEY=your_server_side_gemini_api_key
 ```
 
 **Security rules**
 
 - Never put `MONGODB_URI` or `CASHFREE_CLIENT_SECRET` in `VITE_*` frontend vars.
 - Never expose secrets to the browser.
+- Keep `GEMINI_API_KEY` on the API server only; itinerary generation and refinement call Gemini from the backend.
 - `.env` is gitignored.
 
 ---

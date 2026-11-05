@@ -8,6 +8,7 @@ import { FlightBookingProvider } from "@/contexts/FlightBookingContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ChatWidget from "@/components/ChatWidget";
 import Index from "./pages/Index";
+import PlanJourney from "./pages/PlanJourney";
 import TravelEcosystem from "./pages/TravelEcosystem";
 import FlightSearch from "./pages/FlightSearch";
 import HotelSearch from "./pages/HotelSearch";
@@ -80,6 +81,7 @@ const App = () => (
           <FlightBookingProvider>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/plan-journey" element={<PlanJourney />} />
               <Route path="/travel-ecosystem" element={<TravelEcosystem />} />
               <Route path="/sitemap" element={<HtmlSitemapPage />} />
               <Route path="/blog" element={<BlogIndex />} />
