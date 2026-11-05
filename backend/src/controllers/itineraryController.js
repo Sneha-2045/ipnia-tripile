@@ -18,12 +18,33 @@ function validTrip(trip) {
 async function askGemini(prompt, trip) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw Object.assign(new Error("AI travel planning is not configured yet. Please contact IPNIA support."), { status: 503 });
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`, {
-    method: "POST", headers: { "Content-Type": "application/json" },
+  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", {
+    method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key },
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.45, responseMimeType: "application/json", maxOutputTokens: 5000 } }),
     signal: AbortSignal.timeout(35000),
   });
-  if (!response.ok) throw Object.assign(new Error("The travel planner could not create a plan right now. Please try again."), { status: 502 });
+  if (!response.ok) {
+    const providerError = await response.json().catch(() => ({}));
+    const providerMessage = String(providerError?.error?.message || "").slice(0, 500);
+    const providerStatus = Number(response.status);
+    // Keep credentials and request payloads out of logs; provider error details help diagnose
+    // invalid keys, disabled APIs, request configuration, and quota failures.
+    console.error("[itinerary] Gemini request failed", {
+      status: providerStatus,
+      code: providerError?.error?.status || null,
+      message: providerMessage,
+    });
+    if (providerStatus === 401 || providerStatus === 403) {
+      throw Object.assign(new Error("Gemini rejected the server API key or its permissions. Check GEMINI_API_KEY and Generative Language API access in the backend environment."), { status: 503 });
+    }
+    if (providerStatus === 429) {
+      throw Object.assign(new Error("Gemini API quota or rate limit reached. Check the Google AI Studio quota and billing for this API key."), { status: 503 });
+    }
+    if (providerStatus === 400) {
+      throw Object.assign(new Error(`Gemini rejected the planner request: ${providerMessage || "invalid request"}`), { status: 502 });
+    }
+    throw Object.assign(new Error("Gemini is temporarily unavailable. Check the IPNIA API logs for the provider status."), { status: 502 });
+  }
   const data = await response.json();
   const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("");
   if (!text) throw Object.assign(new Error("The travel planner returned an incomplete plan. Please try again."), { status: 502 });
