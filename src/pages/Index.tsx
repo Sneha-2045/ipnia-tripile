@@ -18,6 +18,7 @@ import StickyCTA from "@/components/StickyCTA";
 import { WhyBookWithUs } from "@/components/WhyBookWithUs";
 import { Button } from "@/components/ui/button";
 import { hotels } from "@/data/hotels";
+import { TourPackagesSection } from "@/components/TourPackagesSection";
 
 const destinations = [
   { name: "New Delhi", image: "/assets/destinations/dest-delhi.jpg", code: "DEL" },
@@ -167,6 +168,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <TourPackagesSection />
 
       <section className="travel-bg-section relative border-y border-[#e2b552]/15 py-10">
         <div className="travel-bg-media">

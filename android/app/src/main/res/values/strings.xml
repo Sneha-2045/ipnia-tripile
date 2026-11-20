@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ipnia</string>
+    <string name="title_activity_main">ipnia</string>
+    <string name="package_name">ipnia.com</string>
+    <string name="custom_url_scheme">ipnia.com</string>
+</resources>

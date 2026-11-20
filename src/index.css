@@ -102,6 +102,46 @@
 }
 
 @layer components {
+  .tour-section {
+    background: radial-gradient(ellipse at 90% 5%, rgba(226, 181, 82, 0.1), transparent 32%), linear-gradient(180deg, #f7f9fc 0%, #eef3f8 100%);
+    animation: tour-enter both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 20%;
+  }
+
+  .tour-select {
+    display: block;
+    width: 100%;
+    min-height: 2.75rem;
+    border: 1px solid #d7e0e8;
+    border-radius: 0.75rem;
+    background-color: #fff;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    color: #17324d;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .tour-select:focus-visible {
+    outline: 2px solid #e2b552;
+    outline-offset: 2px;
+  }
+
+  .tour-cta {
+    background: radial-gradient(ellipse at 85% 0%, rgba(226, 181, 82, 0.26), transparent 36%), linear-gradient(115deg, #0d2036, #1c3b59 70%, #244967);
+    box-shadow: 0 18px 42px rgba(18, 43, 68, 0.2);
+  }
+
+  @keyframes tour-enter {
+    from { opacity: 0.6; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tour-section { animation: none; }
+    .tour-card, .tour-card img { transition: none; }
+  }
+
   .gradient-bg {
     background: linear-gradient(145deg, #f7f9fc 0%, #edf3f8 48%, #f8f6ef 100%);
   }
