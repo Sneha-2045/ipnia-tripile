@@ -1,5 +1,15 @@
 # IPNIA Payment API (Cashfree + MongoDB Atlas)
 
+## Careers recruitment API
+
+The careers feature uses MongoDB collections `careerjobs` and `careerapplications`.
+Vacancies start as drafts and only records with `status: "published"` appear publicly.
+New user accounts receive the `candidate` role and cannot administer recruitment. An existing trusted account must be promoted out of band by an operator with database access (set `role` to `recruiter` or `admin` on that user's record); never expose role assignment through signup or a public endpoint.
+
+Candidate resumes are accepted as PDF, DOC, or DOCX up to 5 MB, checked against the extension, declared MIME type and file signature, then stored in MongoDB. Resume download and application review require a recruiter/admin account. Consider your MongoDB access controls and retention policy when operating this feature.
+
+To notify a recruitment channel, configure `RECRUITMENT_WEBHOOK_URL` and optionally `RECRUITMENT_WEBHOOK_SECRET` on the API service. The API sends a small `career_application_received` event containing the application ID, role, department and timestamp; it does not send candidate contact details or the resume to the webhook. Without a configured webhook, applications remain available in the recruiter dashboard.
+
 Production-ready **payment-only** backend for the IPNIA travel website.
 
 > This service does **not** replace or modify the existing React/Vite frontend on S3 + CloudFront.  

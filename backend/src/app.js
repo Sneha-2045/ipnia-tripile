@@ -7,6 +7,7 @@ const flightRoutes = require("./routes/flightRoutes");
 const hotelRoutes = require("./routes/hotelRoutes");
 const authRoutes = require("./routes/authRoutes");
 const itineraryRoutes = require("./routes/itineraryRoutes");
+const careerRoutes = require("./routes/careerRoutes");
 const { notFoundHandler, errorHandler } = require("./middleware/errorHandler");
 
 function createApp() {
@@ -36,7 +37,7 @@ function createApp() {
         if (allowedOrigins.includes(origin)) return callback(null, true);
         return callback(new Error(`CORS blocked for origin: ${origin}`));
       },
-      methods: ["GET", "POST", "OPTIONS"],
+      methods: ["GET", "POST", "PATCH", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
       credentials: true,
     })
@@ -66,6 +67,7 @@ function createApp() {
   app.use("/api/payments", paymentRoutes);
   app.use("/api/auth", authRoutes);
   app.use("/api/itineraries", itineraryRoutes);
+  app.use("/api/careers", careerRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

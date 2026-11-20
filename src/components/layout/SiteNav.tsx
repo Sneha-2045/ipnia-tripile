@@ -30,6 +30,7 @@ const navLinks = [
   { label: "Pilgrim Travel", href: "/pilgrim-travel" },
   { label: "Forex", href: "/forex" },
   { label: "About IPNIA", href: "/about" },
+  { label: "Careers", href: "/careers" },
   { label: "Contact", href: "/contact" },
 ];
 

@@ -109,6 +109,11 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link to="/careers" className="hover:text-[#e2b552]">
+                  Careers
+                </Link>
+              </li>
+              <li>
                 <Link to="/sitemap" className="hover:text-[#e2b552]">
                   Sitemap
                 </Link>

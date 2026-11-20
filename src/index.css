@@ -109,6 +109,28 @@
     animation-range: entry 0% entry 20%;
   }
 
+  .career-input {
+    display: block;
+    width: 100%;
+    min-height: 2.75rem;
+    border: 1px solid rgba(148, 163, 184, 0.38);
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 0.6rem 0.8rem;
+    color: #17324d;
+    font-size: 0.875rem;
+  }
+
+  .career-input:focus-visible { outline: 2px solid #e2b552; outline-offset: 2px; }
+  .career-file { display:block; width:100%; border:1px dashed rgba(226,181,82,.55); border-radius:.75rem; padding:.75rem; color:rgba(255,255,255,.78); }
+  .career-file::file-selector-button { margin-right:.75rem; border:0; border-radius:9999px; background:#e2b552; padding:.45rem .8rem; color:#10253b; font-size:.75rem; font-weight:600; }
+  .career-culture-image { animation: career-photo-in 420ms ease-out both; }
+
+  @keyframes career-photo-in {
+    from { opacity: .55; transform: scale(1.025); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
   .tour-select {
     display: block;
     width: 100%;
@@ -140,6 +162,7 @@
   @media (prefers-reduced-motion: reduce) {
     .tour-section { animation: none; }
     .tour-card, .tour-card img { transition: none; }
+    .career-culture-image { animation: none; }
   }
 
   .gradient-bg {

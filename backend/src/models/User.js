@@ -31,6 +31,12 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: "email_password",
     },
+    role: {
+      type: String,
+      enum: ["candidate", "recruiter", "admin"],
+      default: "candidate",
+      select: false,
+    },
     lastSignInAt: {
       type: Date,
       default: null,

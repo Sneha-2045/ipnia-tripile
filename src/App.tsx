@@ -27,6 +27,7 @@ import PaymentPage from "./pages/PaymentPage";
 import ThankYou from "./pages/ThankYou";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
+import Careers from "./pages/Careers";
 import Pricing from "./pages/Pricing";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
@@ -144,6 +145,9 @@ const App = () => (
               <Route path="/signup" element={<SignUp />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/contact" element={<ContactUs />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/careers/admin" element={<Careers />} />
+              <Route path="/careers/:slug" element={<Careers />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
