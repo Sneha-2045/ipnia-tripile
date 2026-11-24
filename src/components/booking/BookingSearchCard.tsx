@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeftRight, ArrowRight, Hotel, Plane } from "lucide-react";
-import { Airport } from "@/data/airports";
+import { Airport, getAirportByCode } from "@/data/airports";
 import { CabinClass, TripType } from "@/services/bookingApi";
 import { AirportAutocomplete } from "./AirportAutocomplete";
 import { HotelDestinationAutocomplete } from "./HotelDestinationAutocomplete";
@@ -32,9 +32,21 @@ type Mode = "flights" | "hotels";
 type Props = {
   defaultMode?: Mode;
   flightOnly?: boolean;
+  initialSearch?: {
+    origin: string;
+    destination: string;
+    departureDate: string;
+    returnDate: string | null;
+    adults: number;
+    children: number;
+    infants: number;
+    cabinClass: string;
+    tripType: string;
+    maxConnections: number | null;
+  };
 };
 
-export function BookingSearchCard({ defaultMode = "flights", flightOnly = false }: Props) {
+export function BookingSearchCard({ defaultMode = "flights", flightOnly = false, initialSearch }: Props) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [mode, setMode] = useState<Mode>(defaultMode);
@@ -42,16 +54,16 @@ export function BookingSearchCard({ defaultMode = "flights", flightOnly = false 
   const last = useMemo(() => loadLastFlightSearch(), []);
   const lastAirports = useMemo(() => airportsFromLastSearch(), []);
 
-  const [tripType, setTripType] = useState<TripType>((last?.tripType as TripType) || "oneway");
-  const [from, setFrom] = useState<Airport | null>(() => lastAirports.from);
-  const [to, setTo] = useState<Airport | null>(() => lastAirports.to);
-  const [departure, setDeparture] = useState(last?.departure || plusDaysISO(1));
-  const [returnDate, setReturnDate] = useState(last?.returnDate || plusDaysISO(4));
-  const [adults, setAdults] = useState(last?.adults || "1");
-  const [children, setChildren] = useState(last?.children || "0");
-  const [infants, setInfants] = useState(last?.infants || "0");
-  const [cabin, setCabin] = useState<CabinClass>((last?.cabin as CabinClass) || "economy");
-  const [maxConnections, setMaxConnections] = useState(last?.maxConnections || "any");
+  const [tripType, setTripType] = useState<TripType>((initialSearch?.tripType as TripType) || (last?.tripType as TripType) || "oneway");
+  const [from, setFrom] = useState<Airport | null>(() => getAirportByCode(initialSearch?.origin) || lastAirports.from);
+  const [to, setTo] = useState<Airport | null>(() => getAirportByCode(initialSearch?.destination) || lastAirports.to);
+  const [departure, setDeparture] = useState(initialSearch?.departureDate || last?.departure || plusDaysISO(1));
+  const [returnDate, setReturnDate] = useState(initialSearch?.returnDate || last?.returnDate || plusDaysISO(4));
+  const [adults, setAdults] = useState(initialSearch ? String(initialSearch.adults) : last?.adults || "1");
+  const [children, setChildren] = useState(initialSearch ? String(initialSearch.children) : last?.children || "0");
+  const [infants, setInfants] = useState(initialSearch ? String(initialSearch.infants) : last?.infants || "0");
+  const [cabin, setCabin] = useState<CabinClass>((initialSearch?.cabinClass as CabinClass) || (last?.cabin as CabinClass) || "economy");
+  const [maxConnections, setMaxConnections] = useState(initialSearch?.maxConnections == null ? (last?.maxConnections || "any") : String(initialSearch.maxConnections));
 
   const [selectedDestination, setSelectedDestination] = useState<SelectedHotelDestination | null>(null);
   const [checkIn, setCheckIn] = useState(plusDaysISO(1));

@@ -233,7 +233,11 @@ const FlightSearch = () => {
         </div>
 
         <div className="mb-12 max-w-5xl">
-          <BookingSearchCard defaultMode="flights" flightOnly />
+          <BookingSearchCard
+            defaultMode="flights"
+            flightOnly
+            initialSearch={query.hasRoute ? query : undefined}
+          />
         </div>
 
         {loading && offers.length === 0 && (
