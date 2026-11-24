@@ -1,5 +1,4 @@
 const { getDuffelConfig } = require("../config/duffel");
-const { getJwtSecret } = require("./authToken");
 const { mapDuffelOfferToFlight } = require("./mapDuffelOffer");
 const { randomUUID } = require("node:crypto");
 let featuredDealsCache = null;
@@ -426,11 +425,6 @@ async function getFeaturedFlightDeals() {
   const config = getDuffelConfig();
   if (!config.isConfigured || config.isTestKey) {
     throw new DuffelApiError("Live flight deals are not configured.", { status: 503, code: "DUFFEL_LIVE_NOT_CONFIGURED" });
-  }
-  try {
-    getJwtSecret();
-  } catch {
-    throw new DuffelApiError("Live flight price verification is not configured.", { status: 503, code: "FLIGHT_PRICE_VERIFICATION_NOT_CONFIGURED" });
   }
   const cachedOffersCurrent = featuredDealsCache && [
     ...featuredDealsCache.monthlyDeals.map((deal) => deal.offer),

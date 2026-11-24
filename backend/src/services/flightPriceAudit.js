@@ -1,6 +1,24 @@
 const crypto = require("node:crypto");
 const { getJwtSecret } = require("./authToken");
 
+function getFlightPriceAuditSecret() {
+  const configured = String(process.env.FLIGHT_PRICE_AUDIT_SECRET || process.env.JWT_SECRET || "").trim();
+  if (configured) return configured;
+
+  // Flight price snapshots are independent of user-login tokens. In production,
+  // derive a separate signing key from Duffel's server-side API credential when
+  // a dedicated audit key has not been configured. Domain separation ensures
+  // the Duffel credential is never used directly as the HMAC key.
+  if ((process.env.NODE_ENV || "development") === "production") {
+    const { apiKey } = require("../config/duffel").getDuffelConfig();
+    if (apiKey) {
+      return crypto.createHmac("sha256", apiKey).update("ipnia/flight-price-audit/v1").digest();
+    }
+    throw new Error("Flight price audit signing is not configured.");
+  }
+  return getJwtSecret();
+}
+
 function signFlightPriceSnapshot(offer) {
   const nowSeconds = Math.floor(Date.now() / 1000);
   const parsedExpiry = offer.expires_at ? Math.floor(new Date(offer.expires_at).getTime() / 1000) : NaN;
@@ -19,7 +37,7 @@ function signFlightPriceSnapshot(offer) {
   };
   const encodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64url");
   const signature = crypto
-    .createHmac("sha256", getJwtSecret())
+    .createHmac("sha256", getFlightPriceAuditSecret())
     .update(encodedPayload)
     .digest("base64url");
   return `${encodedPayload}.${signature}`;
@@ -29,7 +47,7 @@ function verifyFlightPriceSnapshot(token) {
   const [encodedPayload, receivedSignature, extra] = String(token || "").split(".");
   if (!encodedPayload || !receivedSignature || extra) return null;
   const expectedSignature = crypto
-    .createHmac("sha256", getJwtSecret())
+    .createHmac("sha256", getFlightPriceAuditSecret())
     .update(encodedPayload)
     .digest();
   let suppliedSignature;
@@ -52,4 +70,4 @@ function verifyFlightPriceSnapshot(token) {
   }
 }
 
-module.exports = { signFlightPriceSnapshot, verifyFlightPriceSnapshot };
+module.exports = { getFlightPriceAuditSecret, signFlightPriceSnapshot, verifyFlightPriceSnapshot };
