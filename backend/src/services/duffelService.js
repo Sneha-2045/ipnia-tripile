@@ -437,7 +437,7 @@ async function getFeaturedFlightDeals() {
     const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
     const [currentYear, currentMonth] = today.split("-").map(Number);
     const routes = [{ origin: "DEL", destination: "BOM" }, { origin: "DEL", destination: "DXB" }];
-    const searchedDates = [10, 20, 28];
+    const searchedDates = [15, 28];
     const requests = [];
     for (let offset = 0; offset < 3; offset += 1) {
       const date = new Date(Date.UTC(currentYear, currentMonth - 1 + offset, 1));
@@ -455,20 +455,35 @@ async function getFeaturedFlightDeals() {
       }
     }
 
-    const results = await Promise.all(requests.map(async (request) => {
-      try {
-        const response = await createOfferRequest(request);
-        const offers = response.liveMode
-          ? response.flights.filter((offer) => offer.liveMode).sort((a, b) => {
-            if (a.providerCurrency !== b.providerCurrency) return a.providerCurrency.localeCompare(b.providerCurrency);
-            return Number(a.providerAmount) - Number(b.providerAmount);
-          })
-          : [];
-        return { request, offerRequestId: response.offerRequestId, offers, error: response.liveMode ? null : "NON_LIVE_MODE" };
-      } catch (error) {
-        return { request, offerRequestId: null, offers: [], error: error.code || "DUFFEL_SEARCH_FAILED" };
+    const results = new Array(requests.length);
+    let nextSearch = 0;
+    const workers = Array.from({ length: Math.min(4, requests.length) }, async () => {
+      while (nextSearch < requests.length) {
+        const index = nextSearch++;
+        const request = requests[index];
+        let errorCode = null;
+        for (let attempt = 0; attempt < 3; attempt += 1) {
+          try {
+            const response = await createOfferRequest(request);
+            const offers = response.liveMode
+              ? response.flights.filter((offer) => offer.liveMode).sort((a, b) => {
+                if (a.providerCurrency !== b.providerCurrency) return a.providerCurrency.localeCompare(b.providerCurrency);
+                return Number(a.providerAmount) - Number(b.providerAmount);
+              })
+              : [];
+            results[index] = { request, offerRequestId: response.offerRequestId, offers, error: response.liveMode ? null : "NON_LIVE_MODE" };
+            errorCode = null;
+            break;
+          } catch (error) {
+            errorCode = error.code || "DUFFEL_SEARCH_FAILED";
+            if (error.status !== 429 || attempt === 2) break;
+            await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+          }
+        }
+        if (!results[index]) results[index] = { request, offerRequestId: null, offers: [], error: errorCode };
       }
-    }));
+    });
+    await Promise.all(workers);
 
     if (results.length && results.every((result) => result.error)) {
       throw new DuffelApiError("Unable to load live flight deals right now.", { status: 502, code: "DUFFEL_DEALS_FAILED" });
