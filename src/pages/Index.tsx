@@ -19,6 +19,7 @@ import { WhyBookWithUs } from "@/components/WhyBookWithUs";
 import { Button } from "@/components/ui/button";
 import { hotels } from "@/data/hotels";
 import { TourPackagesSection } from "@/components/TourPackagesSection";
+import { plusDaysISO } from "@/lib/lastFlightSearch";
 
 const destinations = [
   { name: "New Delhi", image: "/assets/destinations/dest-delhi.jpg", code: "DEL" },
@@ -87,9 +88,7 @@ const verticals = [
 ];
 
 const Index = () => {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const departure = tomorrow.toISOString().slice(0, 10);
+  const departure = plusDaysISO(1);
 
   return (
     <div className="ipnia-page">

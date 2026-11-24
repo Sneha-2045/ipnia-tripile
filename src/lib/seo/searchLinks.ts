@@ -1,4 +1,5 @@
 import type { SeoDestination } from "@/data/seo/destinations";
+import { plusDaysISO } from "@/lib/lastFlightSearch";
 
 /** Build flight search deep-link using primary airport codes when available. */
 export function flightSearchPath(fromCode?: string, toCode?: string) {
@@ -19,7 +20,5 @@ export function primaryAirport(dest: SeoDestination): string | undefined {
 }
 
 export function tomorrowISO() {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10);
+  return plusDaysISO(1);
 }

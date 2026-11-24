@@ -70,6 +70,7 @@ function duffelHeaders(config, json = false) {
 }
 
 async function requestDuffel(config, url, { method = "GET", body, signal } = {}) {
+  const requestStartedAt = Date.now();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), config.httpTimeoutMs);
   const abortFromCaller = () => controller.abort();
@@ -93,6 +94,12 @@ async function requestDuffel(config, url, { method = "GET", body, signal } = {})
         details: { title: first?.title },
       });
     }
+    console.info("[duffel] request ok", {
+      method,
+      endpoint: new URL(url).pathname,
+      status: response.status,
+      durationMs: Date.now() - requestStartedAt,
+    });
     return payload;
   } catch (err) {
     if (err instanceof DuffelApiError) throw err;
@@ -119,6 +126,8 @@ async function streamBatchOfferRequest(searchParams, { signal, onBatch }) {
   let providerLatencyMs = 0;
   let batchId = null;
   let totalOffers = 0;
+  let providerOfferCount = 0;
+  let mappedOfferCount = 0;
   let firstOfferMs = null;
   const seen = new Set();
 
@@ -144,7 +153,10 @@ async function streamBatchOfferRequest(searchParams, { signal, onBatch }) {
       providerLatencyMs += Date.now() - pollStarted;
       const data = response?.data || {};
       const batchOffers = Array.isArray(data.offers) ? data.offers : Array.isArray(data) ? data : [];
-      const mapped = batchOffers.map(mapDuffelOfferToFlight).filter((flight) => flight && flight.id && !seen.has(flight.id));
+      providerOfferCount += batchOffers.length;
+      const normalized = batchOffers.map(mapDuffelOfferToFlight).filter((flight) => flight && flight.id);
+      mappedOfferCount += normalized.length;
+      const mapped = normalized.filter((flight) => !seen.has(flight.id));
       mapped.forEach((flight) => seen.add(flight.id));
       if (mapped.length) {
         totalOffers += mapped.length;
@@ -170,6 +182,10 @@ async function streamBatchOfferRequest(searchParams, { signal, onBatch }) {
       timeToFirstOfferMs: firstOfferMs,
       providerLatencyMs,
       resultCount: totalOffers,
+      providerOfferCount,
+      mappedOfferCount,
+      droppedOfferCount: Math.max(0, providerOfferCount - mappedOfferCount),
+      duplicateOfferCount: Math.max(0, mappedOfferCount - totalOffers),
       pollCount,
       errors: 0,
     });
@@ -185,6 +201,10 @@ async function streamBatchOfferRequest(searchParams, { signal, onBatch }) {
       timeToFirstOfferMs: firstOfferMs,
       providerLatencyMs,
       resultCount: totalOffers,
+      providerOfferCount,
+      mappedOfferCount,
+      droppedOfferCount: Math.max(0, providerOfferCount - mappedOfferCount),
+      duplicateOfferCount: Math.max(0, mappedOfferCount - totalOffers),
       errors: 1,
       code: err.code || "DUFFEL_ERROR",
       status: err.status || 502,
@@ -296,6 +316,7 @@ async function createOfferRequest(searchParams) {
   const flights = rawOffers.map(mapDuffelOfferToFlight).filter(Boolean);
 
   console.info("[duffel] offer_request ok", {
+    status: response.status,
     offerRequestId: data.id,
     origin: searchParams.origin,
     destination: searchParams.destination,
@@ -303,6 +324,9 @@ async function createOfferRequest(searchParams) {
     returnDate: searchParams.returnDate || null,
     passengers: passengers.length,
     cabin_class,
+    providerOfferCount: rawOffers.length,
+    mappedOfferCount: flights.length,
+    droppedOfferCount: Math.max(0, rawOffers.length - flights.length),
     max_connections: body.data.max_connections ?? null,
     offers: flights.length,
     durationMs,

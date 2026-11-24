@@ -1,4 +1,5 @@
 import type { Traveller, TravellerType } from "@/types/booking";
+import { todayISO } from "@/lib/lastFlightSearch";
 
 const NAME_RE = /^[A-Za-z][A-Za-z\s'.-]{0,49}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -31,7 +32,7 @@ export function validateTravellerBasics(
   travelDate = ""
 ): FieldErrors {
   const errors: FieldErrors = {};
-  const onDate = travelDate || new Date().toISOString().slice(0, 10);
+  const onDate = travelDate || todayISO();
 
   travellers.forEach((t, i) => {
     const p = `t${i}`;

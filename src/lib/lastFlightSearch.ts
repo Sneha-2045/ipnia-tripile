@@ -46,11 +46,13 @@ export function airportsFromLastSearch(): { from: Airport | null; to: Airport | 
 }
 
 export function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
 }
 
 export function plusDaysISO(days: number, from = todayISO()) {
-  const d = new Date(`${from}T00:00:00`);
+  const [year, month, day] = from.split("-").map(Number);
+  const d = new Date(year, month - 1, day);
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, "0"), String(d.getDate()).padStart(2, "0")].join("-");
 }
