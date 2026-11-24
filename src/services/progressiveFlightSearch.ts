@@ -1,5 +1,6 @@
 import type { FlightSearchRequest, FlightSearchResponse } from "@/types/duffelFlight";
 import { getFlightSearchStreamUrl } from "@/lib/apiBase";
+import { searchFlightsViaApi } from "@/services/flightSearchApi";
 
 type OfferEvent = { type: "offers"; flights: FlightSearchResponse["flights"]; count: number; remainingBatches: number; totalBatches: number };
 type ProgressEvent = { type: "started" } | OfferEvent;
@@ -44,6 +45,26 @@ async function consume(key: string, search: SharedSearch, payload: FlightSearchR
     });
     if (!response.ok || !response.body) {
       const data = await response.json().catch(() => ({}));
+      // Older deployed API instances may not have the streaming route yet.
+      // Fall back only when that route is missing; preserve real Duffel errors.
+      if ([404, 405].includes(response.status)) {
+        const fallback = await searchFlightsViaApi(payload, search.controller.signal);
+        if (fallback.flights.length) {
+          const event: OfferEvent = {
+            type: "offers",
+            flights: fallback.flights,
+            count: fallback.count,
+            remainingBatches: 0,
+            totalBatches: 1,
+          };
+          search.subscribers.forEach((subscriber) => {
+            subscriber.onOffers(event);
+            subscriber.onProgress(event);
+          });
+        }
+        search.subscribers.forEach((subscriber) => subscriber.resolve(fallback));
+        return;
+      }
       throw new Error(data.message || `Flight search failed (${response.status}).`);
     }
 
