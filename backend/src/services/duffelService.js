@@ -1,5 +1,6 @@
 const { getDuffelConfig } = require("../config/duffel");
 const { mapDuffelOfferToFlight } = require("./mapDuffelOffer");
+const { randomUUID } = require("node:crypto");
 
 class DuffelApiError extends Error {
   constructor(message, { status = 502, code = "DUFFEL_ERROR", details = null } = {}) {
@@ -53,10 +54,19 @@ function buildOfferRequestBody(searchParams) {
   if (searchParams.maxConnections !== undefined && searchParams.maxConnections !== null && searchParams.maxConnections !== "") {
     const max = Number(searchParams.maxConnections);
     if (Number.isFinite(max) && max >= 0 && max <= 2) body.data.max_connections = max;
-  } else {
-    body.data.max_connections = 2;
   }
   return { body, cabin_class, passengers, slices };
+}
+
+function getRemainingBatches(data, stage) {
+  const remaining = data?.remaining_batches;
+  if (!Number.isInteger(remaining) || remaining < 0) {
+    throw new DuffelApiError(`Duffel returned an invalid batch completion state (${stage}).`, {
+      status: 502,
+      code: "DUFFEL_INVALID_BATCH_STATE",
+    });
+  }
+  return remaining;
 }
 
 function duffelHeaders(config, json = false) {
@@ -69,7 +79,7 @@ function duffelHeaders(config, json = false) {
   };
 }
 
-async function requestDuffel(config, url, { method = "GET", body, signal } = {}) {
+async function requestDuffel(config, url, { method = "GET", body, signal, searchId = null, offerRequestId = null } = {}) {
   const requestStartedAt = Date.now();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), config.httpTimeoutMs);
@@ -95,6 +105,8 @@ async function requestDuffel(config, url, { method = "GET", body, signal } = {})
       });
     }
     console.info("[duffel] request ok", {
+      searchId,
+      offerRequestId,
       method,
       endpoint: new URL(url).pathname,
       status: response.status,
@@ -122,6 +134,7 @@ async function streamBatchOfferRequest(searchParams, { signal, onBatch }) {
   const { body, cabin_class, passengers } = buildOfferRequestBody(searchParams);
   const supplierTimeoutMs = Math.max(2000, Math.min(60000, config.supplierTimeoutMs));
   const createUrl = `${config.baseUrl}/air/batch_offer_requests?supplier_timeout=${supplierTimeoutMs}`;
+  const searchId = randomUUID();
   const startedAt = Date.now();
   let providerLatencyMs = 0;
   let batchId = null;
@@ -129,29 +142,38 @@ async function streamBatchOfferRequest(searchParams, { signal, onBatch }) {
   let providerOfferCount = 0;
   let mappedOfferCount = 0;
   let firstOfferMs = null;
+  let totalBatches = 0;
+  let remainingBatches = null;
+  let supplierErrors = [];
+  let pollCount = 0;
   const seen = new Set();
 
   try {
     const createStarted = Date.now();
-    const created = await requestDuffel(config, createUrl, { method: "POST", body, signal });
+    const created = await requestDuffel(config, createUrl, { method: "POST", body, signal, searchId });
     providerLatencyMs += Date.now() - createStarted;
     const initial = created?.data || {};
     batchId = initial.id;
     if (!batchId) throw new DuffelApiError("Duffel did not return a batch request ID.", { status: 502, code: "DUFFEL_INVALID_RESPONSE" });
 
-    let remaining = Number(initial.remaining_batches ?? initial.total_batches ?? 1);
-    let pollCount = 0;
+    remainingBatches = getRemainingBatches(initial, "create");
+    totalBatches = Number.isInteger(initial.total_batches) ? initial.total_batches : 0;
     const batchDeadline = startedAt + 55000;
-    while (remaining > 0 && pollCount < 60 && Date.now() < batchDeadline && !signal?.aborted) {
+    while (remainingBatches > 0 && pollCount < 60 && Date.now() < batchDeadline && !signal?.aborted) {
       pollCount += 1;
       const pollStarted = Date.now();
       const response = await requestDuffel(
         config,
         `${config.baseUrl}/air/batch_offer_requests/${encodeURIComponent(batchId)}?view=offers`,
-        { signal }
+        { signal, searchId, offerRequestId: batchId }
       );
       providerLatencyMs += Date.now() - pollStarted;
       const data = response?.data || {};
+      remainingBatches = getRemainingBatches(data, "poll");
+      totalBatches = Number.isInteger(data.total_batches) ? data.total_batches : totalBatches;
+      supplierErrors = Array.isArray(data.errors)
+        ? data.errors.map((error) => ({ code: error?.code || null, title: error?.title || null })).slice(0, 20)
+        : supplierErrors;
       const batchOffers = Array.isArray(data.offers) ? data.offers : Array.isArray(data) ? data : [];
       providerOfferCount += batchOffers.length;
       const normalized = batchOffers.map(mapDuffelOfferToFlight).filter((flight) => flight && flight.id);
@@ -161,11 +183,10 @@ async function streamBatchOfferRequest(searchParams, { signal, onBatch }) {
       if (mapped.length) {
         totalOffers += mapped.length;
         if (firstOfferMs === null) firstOfferMs = Date.now() - startedAt;
-        onBatch({ flights: mapped, batchId, remainingBatches: Number(data.remaining_batches ?? 0), totalBatches: Number(data.total_batches ?? 0) });
+        onBatch({ flights: mapped, batchId, remainingBatches, totalBatches });
       }
-      remaining = Number(data.remaining_batches ?? 0);
     }
-    if (remaining > 0 && !signal?.aborted) {
+    if (remainingBatches > 0 && !signal?.aborted) {
       throw new DuffelApiError("Some airline results are taking too long. Retry to search again.", {
         status: 504,
         code: "DUFFEL_PARTIAL_RESULTS",
@@ -175,9 +196,19 @@ async function streamBatchOfferRequest(searchParams, { signal, onBatch }) {
     const durationMs = Date.now() - startedAt;
     console.info("[flight-search] completed", {
       provider: "duffel",
+      searchId,
       offerRequestId: batchId,
       origin: searchParams.origin,
       destination: searchParams.destination,
+      departureDate: searchParams.departureDate,
+      returnDate: searchParams.returnDate || null,
+      cabinClass: cabin_class,
+      passengerCount: passengers.length,
+      supplierTimeoutMs,
+      totalBatches,
+      finalRemainingBatches: remainingBatches,
+      supplierErrors,
+      finalStatus: totalOffers ? "offers_returned" : "completed_no_offers",
       durationMs,
       timeToFirstOfferMs: firstOfferMs,
       providerLatencyMs,
@@ -189,14 +220,41 @@ async function streamBatchOfferRequest(searchParams, { signal, onBatch }) {
       pollCount,
       errors: 0,
     });
-    return { offerRequestId: batchId, liveMode: Boolean(initial.live_mode), cabinClass: cabin_class, durationMs, providerLatencyMs, count: totalOffers, totalBatches: Number(initial.total_batches ?? 0) };
+    return {
+      searchId,
+      offerRequestId: batchId,
+      liveMode: Boolean(initial.live_mode),
+      cabinClass: cabin_class,
+      supplierTimeoutMs,
+      durationMs,
+      providerLatencyMs,
+      count: totalOffers,
+      providerOfferCount,
+      mappedOfferCount,
+      droppedOfferCount: Math.max(0, providerOfferCount - mappedOfferCount),
+      duplicateOfferCount: Math.max(0, mappedOfferCount - totalOffers),
+      pollCount,
+      totalBatches,
+      searchComplete: remainingBatches === 0,
+    };
   } catch (err) {
     if (signal?.aborted) throw err;
     console.error("[flight-search] failed", {
       provider: "duffel",
+      searchId,
       offerRequestId: batchId,
       origin: searchParams.origin,
       destination: searchParams.destination,
+      departureDate: searchParams.departureDate,
+      returnDate: searchParams.returnDate || null,
+      cabinClass: cabin_class,
+      passengerCount: passengers.length,
+      supplierTimeoutMs,
+      totalBatches,
+      finalRemainingBatches: remainingBatches,
+      supplierErrors,
+      pollCount,
+      finalStatus: "failed",
       durationMs: Date.now() - startedAt,
       timeToFirstOfferMs: firstOfferMs,
       providerLatencyMs,
@@ -208,6 +266,7 @@ async function streamBatchOfferRequest(searchParams, { signal, onBatch }) {
       errors: 1,
       code: err.code || "DUFFEL_ERROR",
       status: err.status || 502,
+      supplierError: err.code || "DUFFEL_ERROR",
     });
     throw err;
   }
@@ -223,6 +282,7 @@ async function createOfferRequest(searchParams) {
   }
 
   const { body, cabin_class, passengers, slices } = buildOfferRequestBody(searchParams);
+  const searchId = randomUUID();
 
   const qs = new URLSearchParams({
     return_offers: "true",
@@ -277,11 +337,16 @@ async function createOfferRequest(searchParams) {
 
     // Log server-side only (never include Authorization / API key)
     console.error("[duffel] offer_request failed", {
+      searchId,
       status,
       durationMs,
       origin: searchParams.origin,
       destination: searchParams.destination,
       departureDate: searchParams.departureDate,
+      cabinClass: cabin_class,
+      passengerCount: passengers.length,
+      supplierTimeoutMs: config.supplierTimeoutMs,
+      maxConnections: body.data.max_connections ?? null,
       code: first?.code,
       title: first?.title,
       message: first?.message,
@@ -316,6 +381,7 @@ async function createOfferRequest(searchParams) {
   const flights = rawOffers.map(mapDuffelOfferToFlight).filter(Boolean);
 
   console.info("[duffel] offer_request ok", {
+    searchId,
     status: response.status,
     offerRequestId: data.id,
     origin: searchParams.origin,
@@ -324,6 +390,7 @@ async function createOfferRequest(searchParams) {
     returnDate: searchParams.returnDate || null,
     passengers: passengers.length,
     cabin_class,
+    supplierTimeoutMs: config.supplierTimeoutMs,
     providerOfferCount: rawOffers.length,
     mappedOfferCount: flights.length,
     droppedOfferCount: Math.max(0, rawOffers.length - flights.length),
@@ -340,6 +407,11 @@ async function createOfferRequest(searchParams) {
     passengers: data.passengers || passengers,
     slices: data.slices || slices,
     count: flights.length,
+    providerOfferCount: rawOffers.length,
+    mappedOfferCount: flights.length,
+    droppedOfferCount: Math.max(0, rawOffers.length - flights.length),
+    duplicateOfferCount: 0,
+    searchComplete: true,
     flights,
     durationMs,
   };

@@ -12,9 +12,18 @@ async function searchFlights(req, res, next) {
         count: 0,
         flights: [],
         meta: {
+          searchId: result.searchId,
           liveMode: result.liveMode,
           durationMs: result.durationMs,
           cabinClass: result.cabinClass,
+          searchComplete: result.searchComplete,
+          supplierTimeoutMs: result.supplierTimeoutMs,
+          pollCount: result.pollCount,
+          totalBatches: result.totalBatches,
+          providerOfferCount: result.providerOfferCount,
+          mappedOfferCount: result.mappedOfferCount,
+          droppedOfferCount: result.droppedOfferCount,
+          duplicateOfferCount: result.duplicateOfferCount,
         },
       });
     }
@@ -25,9 +34,18 @@ async function searchFlights(req, res, next) {
       count: result.count,
       flights: result.flights,
       meta: {
+        searchId: result.searchId,
         liveMode: result.liveMode,
         durationMs: result.durationMs,
         cabinClass: result.cabinClass,
+        searchComplete: result.searchComplete,
+        supplierTimeoutMs: result.supplierTimeoutMs,
+        pollCount: result.pollCount,
+        totalBatches: result.totalBatches,
+        providerOfferCount: result.providerOfferCount,
+        mappedOfferCount: result.mappedOfferCount,
+        droppedOfferCount: result.droppedOfferCount,
+        duplicateOfferCount: result.duplicateOfferCount,
       },
     });
   } catch (err) {
@@ -107,10 +125,19 @@ async function streamFlights(req, res) {
       offerRequestId: result.offerRequestId,
       count,
       meta: {
+        searchId: result.searchId,
         liveMode: result.liveMode,
         durationMs: Date.now() - startedAt,
         providerLatencyMs: result.providerLatencyMs ?? result.durationMs,
         cabinClass: result.cabinClass,
+        searchComplete: result.searchComplete,
+        supplierTimeoutMs: result.supplierTimeoutMs,
+        pollCount: result.pollCount,
+        totalBatches: result.totalBatches,
+        providerOfferCount: result.providerOfferCount,
+        mappedOfferCount: result.mappedOfferCount,
+        droppedOfferCount: result.droppedOfferCount,
+        duplicateOfferCount: result.duplicateOfferCount,
       },
     });
   } catch (err) {
