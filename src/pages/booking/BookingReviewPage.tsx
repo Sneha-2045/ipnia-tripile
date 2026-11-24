@@ -1,16 +1,19 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { BookingPageShell } from "@/components/booking/BookingPageShell";
 import { Button } from "@/components/ui/button";
 import { useFlightBooking } from "@/contexts/FlightBookingContext";
 import { formatInr, travellerFullName } from "@/lib/bookingValidation";
+import { formatMoney } from "@/services/flightSearchApi";
 
 const BookingReviewPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { state, setReviewConsent, isInternational, isHotelOnly } = useFlightBooking();
   const flight = state.selectedFlight;
   const hotel = state.hotel;
   const pb = state.priceBreakdown;
+  const flightPriceChanged = Boolean((location.state as { flightPriceChanged?: boolean } | null)?.flightPriceChanged);
 
   const onContinue = () => {
     if (!state.reviewConsent) return;
@@ -27,6 +30,11 @@ const BookingReviewPage = () => {
       <SEO title="Review Booking | IPNIA" description="Review your IPNIA booking before payment." path="/booking/review" />
 
       <div className="space-y-6">
+        {flightPriceChanged && (
+          <div role="alert" className="rounded-2xl border border-amber-300/40 bg-amber-500/10 p-4 text-sm text-amber-100">
+            The airline fare changed during verification. The latest Duffel price is shown below. Review it and confirm again before continuing to payment.
+          </div>
+        )}
         {flight && (
           <section className="rounded-2xl border border-[#e2b552]/25 bg-[#0c1a2e] p-5 md:p-6">
             <div className="flex items-center justify-between gap-3">
@@ -48,9 +56,10 @@ const BookingReviewPage = () => {
               <p>Date: {flight.departureDate || "TBC"}</p>
               <p>Cabin: {flight.cabin}</p>
               <p>Travellers: {flight.travellerCount}</p>
-              <p>Fare: {formatInr(flight.fare)}</p>
-              <p>Taxes & Fees: {formatInr(flight.taxes)}</p>
-              <p className="font-semibold text-[#e2b552]">Total: {formatInr(flight.totalAmount)}</p>
+              {flight.fare != null && <p>Provider base fare: {formatMoney(String(flight.fare), flight.fareCurrency)}</p>}
+              {flight.taxes != null && <p>Provider taxes & fees: {formatMoney(String(flight.taxes), flight.taxesCurrency)}</p>}
+              <p className="font-semibold text-[#e2b552]">Duffel total: {formatMoney(flight.totalAmountRaw, flight.currency)}</p>
+              <p>Price source: Duffel {flight.liveMode ? "Live" : "Test"} API · IPNIA markup: {formatMoney(flight.ipniaMarkupAmount, flight.currency)}</p>
             </div>
           </section>
         )}
@@ -129,8 +138,7 @@ const BookingReviewPage = () => {
           <dl className="mt-4 space-y-2 text-sm">
             {flight && (
               <>
-                <Row label="Flight" value={formatInr(pb.flightFare)} />
-                <Row label="Taxes & Fees" value={formatInr(pb.flightTaxes)} />
+                <Row label="Flight total (Duffel)" value={formatMoney(flight.totalAmountRaw, flight.currency)} />
               </>
             )}
             {hotel && (
@@ -144,7 +152,7 @@ const BookingReviewPage = () => {
             <div className="border-t border-white/15 pt-3">
               <Row
                 label={flight ? "Grand Total" : "Deposit Due Now"}
-                value={formatInr(flight ? pb.flightFare + pb.flightTaxes : pb.grandTotal)}
+                value={flight ? formatMoney(flight.totalAmountRaw, flight.currency) : formatInr(pb.grandTotal)}
                 strong
               />
             </div>

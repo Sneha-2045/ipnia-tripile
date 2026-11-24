@@ -6,11 +6,12 @@ import { BookingPageShell } from "@/components/booking/BookingPageShell";
 import { Button } from "@/components/ui/button";
 import { useFlightBooking } from "@/contexts/FlightBookingContext";
 import { formatInr, travellerFullName, validateTravelDocuments, validateTravellerBasics } from "@/lib/bookingValidation";
-import { createPaymentOrder, openCashfreeCheckout } from "@/lib/paymentApi";
+import { createPaymentOrder, FlightPriceChangedError, openCashfreeCheckout } from "@/lib/paymentApi";
+import { formatMoney } from "@/services/flightSearchApi";
 
 const BookingPaymentPage = () => {
   const navigate = useNavigate();
-  const { state, setPaymentInfo, isInternational, isHotelOnly, grandTotal } = useFlightBooking();
+  const { state, setPaymentInfo, updateSelectedFlightPrice, setReviewConsent, isInternational, isHotelOnly, grandTotal } = useFlightBooking();
   const [busy, setBusy] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
   const [error, setError] = useState("");
@@ -56,13 +57,34 @@ const BookingPaymentPage = () => {
       const order = await createPaymentOrder({
         flightOfferId: flight?.id || null,
         hotelPlaceId: !flight?.id ? hotel?.placeId || hotel?.id || null : null,
-        currency: "INR",
+        currency: flight?.currency || "INR",
+        priceAuditToken: flight?.priceAuditToken || null,
         customer: {
           name: travellerFullName(primary),
           email: primary.email.trim(),
           phone: primary.phone.replace(/\D/g, "").slice(-10),
         },
       });
+
+      if (flight && order.priceVerification) {
+        const verified = order.priceVerification;
+        updateSelectedFlightPrice({
+          totalAmount: Number(verified.providerAmount),
+          totalAmountRaw: verified.providerAmount,
+          currency: verified.providerCurrency,
+          fare: verified.providerBaseAmount == null ? null : Number(verified.providerBaseAmount),
+          fareCurrency: verified.providerBaseCurrency,
+          taxes: verified.providerTaxAmount == null ? null : Number(verified.providerTaxAmount),
+          taxesCurrency: verified.providerTaxCurrency,
+          offerExpiresAt: verified.offerExpiresAt,
+          providerAmount: verified.providerAmount,
+          providerCurrency: verified.providerCurrency,
+          finalDisplayedAmount: verified.finalAmount,
+          finalDisplayedCurrency: verified.finalCurrency,
+          priceVerifiedAt: verified.verifiedAt,
+          revalidationStatus: "revalidated",
+        });
+      }
 
       setPaymentInfo({
         cashfreeOrderId: order.orderId,
@@ -76,6 +98,31 @@ const BookingPaymentPage = () => {
       await openCashfreeCheckout(order.paymentSessionId);
       navigate(`/booking/payment-status?order_id=${encodeURIComponent(order.orderId)}`);
     } catch (e) {
+      if (e instanceof FlightPriceChangedError && flight) {
+        const latest = e.latest;
+        updateSelectedFlightPrice({
+          totalAmount: Number(latest.providerAmount),
+          totalAmountRaw: latest.providerAmount,
+          currency: latest.providerCurrency,
+          fare: latest.baseAmount == null ? null : Number(latest.baseAmount),
+          fareCurrency: latest.baseCurrency,
+          taxes: latest.taxAmount == null ? null : Number(latest.taxAmount),
+          taxesCurrency: latest.taxCurrency,
+          offerExpiresAt: latest.offerExpiresAt,
+          providerAmount: latest.providerAmount,
+          providerCurrency: latest.providerCurrency,
+          finalDisplayedAmount: latest.providerAmount,
+          finalDisplayedCurrency: latest.providerCurrency,
+          priceVerifiedAt: latest.verifiedAt,
+          priceAuditToken: latest.priceAuditToken,
+          revalidationStatus: "revalidated",
+        }, true);
+        setReviewConsent(false);
+        navigate("/booking/review", { state: { flightPriceChanged: true } });
+        setBusy(false);
+        setStatusMsg("");
+        return;
+      }
       setError(e instanceof Error ? e.message : "Payment could not be started");
       setBusy(false);
       setStatusMsg("");
@@ -138,11 +185,11 @@ const BookingPaymentPage = () => {
               <>
                 <div className="flex justify-between">
                   <dt>Flight fare</dt>
-                  <dd>{formatInr(pb.flightFare)}</dd>
+                  <dd>{flight.fare == null ? "Included in provider total" : formatMoney(String(flight.fare), flight.fareCurrency)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt>Taxes & fees</dt>
-                  <dd>{formatInr(pb.flightTaxes)}</dd>
+                  <dd>{flight.taxes == null ? "Included in provider total" : formatMoney(String(flight.taxes), flight.taxesCurrency)}</dd>
                 </div>
               </>
             )}
@@ -162,10 +209,10 @@ const BookingPaymentPage = () => {
             )}
             <div className="border-t border-white/15 pt-4">
               <p className="text-sm text-white/50">
-                {flight ? "TOTAL (charged from live offer)" : "DEPOSIT DUE NOW"}
+                {flight ? "TOTAL (latest Duffel offer)" : "DEPOSIT DUE NOW"}
               </p>
               <p className="mt-1 text-4xl font-bold text-[#e2b552]">
-                {formatInr(flight ? pb.flightFare + pb.flightTaxes : grandTotal)}
+                {flight ? formatMoney(flight.totalAmountRaw, flight.currency) : formatInr(grandTotal)}
               </p>
               {flight && hotel && !hotel.isDeposit && (
                 <p className="mt-2 text-xs text-white/45">

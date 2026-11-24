@@ -41,12 +41,12 @@ const cityImage: Record<string, string> = {
 };
 
 const routes = [
-  { from: "DEL", to: "BOM", label: "Delhi → Mumbai", price: 5908 },
-  { from: "BOM", to: "DEL", label: "Mumbai → Delhi", price: 6120 },
-  { from: "DEL", to: "BLR", label: "Delhi → Bangalore", price: 6450 },
-  { from: "BOM", to: "BLR", label: "Mumbai → Bangalore", price: 5380 },
-  { from: "DEL", to: "DXB", label: "Delhi → Dubai", price: 14890 },
-  { from: "BOM", to: "DXB", label: "Mumbai → Dubai", price: 13950 },
+  { from: "DEL", to: "BOM", label: "Delhi → Mumbai" },
+  { from: "BOM", to: "DEL", label: "Mumbai → Delhi" },
+  { from: "DEL", to: "BLR", label: "Delhi → Bangalore" },
+  { from: "BOM", to: "BLR", label: "Mumbai → Bangalore" },
+  { from: "DEL", to: "DXB", label: "Delhi → Dubai" },
+  { from: "BOM", to: "DXB", label: "Mumbai → Dubai" },
 ];
 
 const verticals = [
@@ -268,10 +268,7 @@ const Index = () => {
                   </div>
                   <div>
                     <p className="font-heading text-2xl font-bold text-white">{route.label}</p>
-                    <p className="mt-3 text-sm text-white/75">Starting from</p>
-                    <p className="text-2xl font-bold text-[#e2b552]">
-                      ₹ {route.price.toLocaleString("en-IN")}
-                    </p>
+                    <p className="mt-3 text-sm font-semibold text-[#e2b552]">Search live fares →</p>
                   </div>
                 </div>
               </Link>

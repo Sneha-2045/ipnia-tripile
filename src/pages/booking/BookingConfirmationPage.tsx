@@ -4,7 +4,8 @@ import { BookingNav } from "@/components/layout/BookingNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { useFlightBooking } from "@/contexts/FlightBookingContext";
-import { formatInr, travellerFullName } from "@/lib/bookingValidation";
+import { travellerFullName } from "@/lib/bookingValidation";
+import { formatMoney } from "@/services/flightSearchApi";
 
 const BookingConfirmationPage = () => {
   const { state } = useFlightBooking();
@@ -72,7 +73,7 @@ const BookingConfirmationPage = () => {
 
           <section className="mt-6 border-t border-white/10 pt-6">
             <h2 className="font-semibold text-[#e2b552]">Payment</h2>
-            <p className="mt-2">Amount: {formatInr(state.priceBreakdown.grandTotal)}</p>
+            <p className="mt-2">Amount: {formatMoney(flight.totalAmountRaw, flight.currency)}</p>
             <p className="text-white/70">Status: SUCCESS</p>
             {state.cashfreeOrderId && (
               <p className="text-sm text-white/50">Order: {state.cashfreeOrderId}</p>

@@ -84,6 +84,10 @@ const paymentSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    flightPriceVerification: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
     webhookReceived: {
       type: Boolean,
       default: false,

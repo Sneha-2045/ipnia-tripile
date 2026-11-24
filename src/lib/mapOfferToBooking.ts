@@ -1,6 +1,5 @@
 import type { CabinClass } from "@/services/bookingApi";
 import type { SelectedFlight } from "@/types/booking";
-import { splitFare } from "@/types/booking";
 import type { NormalizedFlightOffer } from "@/types/duffelFlight";
 import { getAirportByCode } from "@/data/airports";
 
@@ -63,20 +62,11 @@ export function mapDuffelOfferToSelectedFlight(
   const firstSeg = outbound?.segments[0];
   const lastSeg = outbound?.segments[(outbound?.segments.length || 1) - 1];
 
-  const totalAmount = Number(offer.totalAmount);
-  const safeTotal = Number.isFinite(totalAmount) && totalAmount > 0 ? totalAmount : 0;
-
-  let fare = Number(offer.baseAmount);
-  let taxes = Number(offer.taxAmount);
-  if (!Number.isFinite(fare) || !Number.isFinite(taxes) || fare < 0 || taxes < 0) {
-    const split = splitFare(safeTotal);
-    fare = split.fare;
-    taxes = split.taxes;
-  } else if (Math.abs(fare + taxes - safeTotal) > 1) {
-    const split = splitFare(safeTotal);
-    fare = split.fare;
-    taxes = split.taxes;
-  }
+  const safeTotal = Number(offer.providerAmount);
+  const fareValue = offer.baseAmount == null ? Number.NaN : Number(offer.baseAmount);
+  const taxValue = offer.taxAmount == null ? Number.NaN : Number(offer.taxAmount);
+  const fare = Number.isFinite(fareValue) ? fareValue : null;
+  const taxes = Number.isFinite(taxValue) ? taxValue : null;
 
   const originIata = outbound?.origin?.iataCode || firstSeg?.origin?.iataCode || "";
   const destIata =
@@ -122,8 +112,24 @@ export function mapDuffelOfferToSelectedFlight(
     stops: offer.stops ?? outbound?.stops ?? 0,
     cabin: mapCabin(offer.cabinClass || firstSeg?.cabinClass),
     fare,
+    fareCurrency: offer.baseCurrency || offer.providerCurrency,
     taxes,
+    taxesCurrency: offer.taxCurrency || offer.providerCurrency,
     totalAmount: safeTotal,
+    totalAmountRaw: offer.providerAmount,
+    currency: offer.providerCurrency,
+    offerExpiresAt: offer.expiresAt,
+    priceSource: offer.priceSource,
+    liveMode: offer.liveMode,
+    providerOfferId: offer.id,
+    providerAmount: offer.providerAmount,
+    providerCurrency: offer.providerCurrency,
+    ipniaMarkupAmount: offer.ipniaMarkupAmount,
+    finalDisplayedAmount: offer.finalDisplayedAmount,
+    finalDisplayedCurrency: offer.finalDisplayedCurrency,
+    priceVerifiedAt: offer.priceVerifiedAt,
+    priceAuditToken: offer.priceAuditToken,
+    revalidationStatus: offer.revalidationStatus,
     travellerCount,
     adults,
     children,

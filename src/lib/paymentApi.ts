@@ -7,8 +7,44 @@ export type CreateOrderResponse = {
   amount: number;
   currency: string;
   paymentStatus: string;
+  priceVerification?: {
+    priceSource: "duffel_api";
+    providerOfferId: string;
+    providerAmount: string;
+    providerCurrency: string;
+    providerBaseAmount: string | null;
+    providerBaseCurrency: string | null;
+    providerTaxAmount: string | null;
+    providerTaxCurrency: string | null;
+    offerExpiresAt: string | null;
+    ipniaMarkupAmount: string;
+    finalAmount: string;
+    finalCurrency: string;
+    verifiedAt: string;
+    revalidationStatus: "revalidated";
+  } | null;
   message?: string;
 };
+
+export class FlightPriceChangedError extends Error {
+  latest: {
+    providerAmount: string;
+    providerCurrency: string;
+    baseAmount: string | null;
+    baseCurrency: string | null;
+    taxAmount: string | null;
+    taxCurrency: string | null;
+    offerExpiresAt: string | null;
+    verifiedAt: string;
+    priceAuditToken: string;
+  };
+
+  constructor(latest: FlightPriceChangedError["latest"]) {
+    super("The flight price changed. Review the latest price before paying.");
+    this.name = "FlightPriceChangedError";
+    this.latest = latest;
+  }
+}
 
 export type PaymentStatusResponse = {
   success: boolean;
@@ -29,6 +65,7 @@ export type PaymentStatusResponse = {
 
 export async function createPaymentOrder(payload: {
   flightOfferId?: string | null;
+  priceAuditToken?: string | null;
   hotelPlaceId?: string | null;
   currency?: string;
   customer: { name: string; email: string; phone: string };
@@ -38,6 +75,7 @@ export async function createPaymentOrder(payload: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       flightOfferId: payload.flightOfferId || null,
+      priceAuditToken: payload.priceAuditToken || null,
       hotelPlaceId: payload.hotelPlaceId || null,
       currency: payload.currency || "INR",
       customer: payload.customer,
@@ -45,6 +83,9 @@ export async function createPaymentOrder(payload: {
   });
 
   const data = await res.json();
+  if (res.status === 409 && data.code === "FLIGHT_PRICE_CHANGED" && data.latestOffer) {
+    throw new FlightPriceChangedError(data.latestOffer);
+  }
   if (!res.ok || !data.success) {
     throw new Error(data.message || data.errors?.[0] || "Failed to create payment order");
   }

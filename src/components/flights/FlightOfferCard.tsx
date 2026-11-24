@@ -174,15 +174,18 @@ export const FlightOfferCard = memo(function FlightOfferCard({
           <div className="lg:text-right">
             <p className="text-sm text-white/50">Total</p>
             <p className="font-heading text-3xl font-bold text-[#e2b552]">
-              {formatMoney(offer.totalAmount, "INR")}
+              {formatMoney(offer.totalAmount, offer.totalCurrency)}
             </p>
-            <p className="text-xs text-white/40">INR</p>
-            {offer.baseAmount != null && offer.taxAmount != null && (
+            <p className="text-xs text-white/40">Provider currency · {offer.priceSource}</p>
+            {offer.baseAmount != null && (
               <p className="mt-1 text-xs text-white/40">
-                Base {formatMoney(offer.baseAmount, "INR")} · Tax{" "}
-                {formatMoney(offer.taxAmount, "INR")}
+                Base {formatMoney(offer.baseAmount, offer.baseCurrency || offer.totalCurrency)}
               </p>
             )}
+            {offer.taxAmount != null && (
+              <p className="text-xs text-white/40">Tax {formatMoney(offer.taxAmount, offer.taxCurrency || offer.totalCurrency)}</p>
+            )}
+            <p className="text-xs text-white/40">Duffel total includes taxes</p>
           </div>
           <div className="mt-4 flex flex-col gap-2">
             <Button type="button" onClick={() => onBookNow(offer)} className="ipnia-btn-gold rounded-xl">

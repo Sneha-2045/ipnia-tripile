@@ -1,5 +1,5 @@
 import type { SelectedFlight } from "@/types/booking";
-import { formatInr } from "@/lib/bookingValidation";
+import { formatMoney } from "@/services/flightSearchApi";
 
 export function FlightSummaryCard({
   flight,
@@ -31,12 +31,12 @@ export function FlightSummaryCard({
           </p>
           <div className="mt-4 border-t border-white/10 pt-4">
             <p className="text-sm text-white/50">Total</p>
-            <p className="text-2xl font-bold text-[#e2b552]">{formatInr(flight.totalAmount)}</p>
+            <p className="text-2xl font-bold text-[#e2b552]">{formatMoney(flight.totalAmountRaw, flight.currency)}</p>
           </div>
         </>
       )}
       {compact && (
-        <p className="mt-3 text-lg font-bold text-[#e2b552]">{formatInr(flight.totalAmount)}</p>
+        <p className="mt-3 text-lg font-bold text-[#e2b552]">{formatMoney(flight.totalAmountRaw, flight.currency)}</p>
       )}
     </aside>
   );

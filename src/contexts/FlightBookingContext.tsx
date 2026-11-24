@@ -22,6 +22,7 @@ import { isInternationalIndiaRoute } from "@/lib/mapOfferToBooking";
 type FlightBookingContextValue = {
   state: FlightBookingState;
   setSelectedFlight: (flight: SelectedFlight) => void;
+  updateSelectedFlightPrice: (price: Pick<SelectedFlight, "totalAmount" | "totalAmountRaw" | "currency" | "fare" | "fareCurrency" | "taxes" | "taxesCurrency" | "offerExpiresAt" | "providerAmount" | "providerCurrency" | "finalDisplayedAmount" | "finalDisplayedCurrency" | "priceVerifiedAt" | "priceAuditToken" | "revalidationStatus">, requireReview?: boolean) => void;
   startHotelBooking: (hotel: NonNullable<SelectedHotelBooking>, guestCount: number) => void;
   setTravellers: (travellers: Traveller[]) => void;
   updateTraveller: (index: number, patch: Partial<Traveller>) => void;
@@ -61,6 +62,15 @@ function loadState(): FlightBookingState {
     const raw = sessionStorage.getItem(BOOKING_STORAGE_KEY);
     if (!raw) return initialState;
     const parsed = JSON.parse(raw) as FlightBookingState;
+    if (parsed.selectedFlight && (
+      parsed.selectedFlight.priceSource !== "duffel_api" ||
+      !parsed.selectedFlight.providerOfferId ||
+      !parsed.selectedFlight.providerAmount ||
+      !parsed.selectedFlight.providerCurrency ||
+      !parsed.selectedFlight.priceAuditToken
+    )) {
+      return initialState;
+    }
     return {
       ...initialState,
       ...parsed,
@@ -91,6 +101,19 @@ export function FlightBookingProvider({ children }: { children: ReactNode }) {
       selectedFlight: flight,
       travellers,
       priceBreakdown: computePriceBreakdown(flight, null),
+    });
+  }, []);
+
+  const updateSelectedFlightPrice = useCallback((price: Parameters<FlightBookingContextValue["updateSelectedFlightPrice"]>[0], requireReview = false) => {
+    setState((prev) => {
+      if (!prev.selectedFlight) return prev;
+      const selectedFlight = { ...prev.selectedFlight, ...price };
+      return {
+        ...prev,
+        selectedFlight,
+        reviewConsent: requireReview ? false : prev.reviewConsent,
+        priceBreakdown: computePriceBreakdown(selectedFlight, prev.hotel),
+      };
     });
   }, []);
 
@@ -183,6 +206,7 @@ export function FlightBookingProvider({ children }: { children: ReactNode }) {
     () => ({
       state,
       setSelectedFlight,
+      updateSelectedFlightPrice,
       startHotelBooking,
       setTravellers,
       updateTraveller,
@@ -205,6 +229,7 @@ export function FlightBookingProvider({ children }: { children: ReactNode }) {
     [
       state,
       setSelectedFlight,
+      updateSelectedFlightPrice,
       startHotelBooking,
       setTravellers,
       updateTraveller,

@@ -18,6 +18,15 @@ function generateIpniaOrderId() {
   return `IPNIA_${stamp}_${rand}`;
 }
 
+function canonicalAmount(value) {
+  const raw = String(value ?? "").trim();
+  if (!/^\d+(?:\.\d+)?$/.test(raw)) return null;
+  const [whole, fraction = ""] = raw.split(".");
+  const normalizedWhole = whole.replace(/^0+(?=\d)/, "");
+  const normalizedFraction = fraction.replace(/0+$/, "");
+  return normalizedFraction ? `${normalizedWhole}.${normalizedFraction}` : normalizedWhole;
+}
+
 function isLocalhostUrl(url) {
   return /localhost|127\.0\.0\.1|\[::1\]/i.test(String(url || ""));
 }
@@ -85,34 +94,91 @@ function publicPaymentView(payment) {
  * POST /api/payments/create-order
  *
  * Payable amount is resolved server-side only:
- * - Flight: live Duffel offer total (INR)
+ * - Flight: latest live Duffel offer total in the provider's currency
  * - Hotel-only (no flight): fixed booking deposit from HOTEL_BOOKING_DEPOSIT_INR
  * Client-supplied `amount` / `hotelAmount` are never trusted for charging.
  */
 async function createOrder(req, res, next) {
   try {
-    const { currency, customer, flightOfferId, hotelPlaceId } = req.body;
+    const { currency, customer, flightOfferId, hotelPlaceId, priceAuditToken } = req.body;
 
     let amount = 0;
+    let paymentCurrency = currency || "INR";
     let sourceAmountFromBooking = false;
     let amountKind = null;
+    let priceVerification = null;
 
     if (flightOfferId) {
       const { getOfferById, DuffelApiError } = require("../services/duffelService");
-      const { mapDuffelOfferToFlight } = require("../services/mapDuffelOffer");
+      const { verifyFlightPriceSnapshot, signFlightPriceSnapshot } = require("../services/flightPriceAudit");
       try {
         const rawOffer = await getOfferById(flightOfferId);
-        const mapped = mapDuffelOfferToFlight(rawOffer);
-        const flightTotal = Math.round(Number(mapped?.totalAmount || 0));
-        if (!Number.isFinite(flightTotal) || flightTotal < 1) {
+        const displayedSnapshot = verifyFlightPriceSnapshot(priceAuditToken);
+        if (!displayedSnapshot || displayedSnapshot.offerId !== flightOfferId) {
           return res.status(400).json({
             success: false,
-            message: "Unable to determine payable flight amount from the selected offer.",
+            message: "The displayed flight price could not be verified. Search again and select a current offer.",
+            code: "FLIGHT_PRICE_SNAPSHOT_INVALID",
           });
         }
-        amount += flightTotal;
+        const latestAmount = rawOffer?.total_amount == null ? "" : String(rawOffer.total_amount);
+        const latestCurrency = String(rawOffer?.total_currency || "").toUpperCase();
+        const offerExpired = rawOffer?.expires_at && new Date(rawOffer.expires_at).getTime() <= Date.now();
+        if (rawOffer?.id !== flightOfferId || !rawOffer?.live_mode || offerExpired || !/^[A-Z]{3}$/.test(latestCurrency) || !/^\d+(?:\.\d+)?$/.test(latestAmount) || Number(latestAmount) <= 0) {
+          return res.status(400).json({
+            success: false,
+            message: "The selected live flight offer is no longer valid for payment. Search again and select a current offer.",
+            code: "FLIGHT_OFFER_INVALID",
+          });
+        }
+        const expectedMatches = canonicalAmount(displayedSnapshot.amount) === canonicalAmount(latestAmount)
+          && displayedSnapshot.currency === latestCurrency;
+        if (!expectedMatches) {
+          return res.status(409).json({
+            success: false,
+            message: "The airline price changed. Review the latest price before continuing.",
+            code: "FLIGHT_PRICE_CHANGED",
+            latestOffer: {
+              providerAmount: latestAmount,
+              providerCurrency: latestCurrency,
+              baseAmount: rawOffer.base_amount == null ? null : String(rawOffer.base_amount),
+              baseCurrency: rawOffer.base_currency || latestCurrency,
+              taxAmount: rawOffer.tax_amount == null ? null : String(rawOffer.tax_amount),
+              taxCurrency: rawOffer.tax_currency || latestCurrency,
+              offerExpiresAt: rawOffer.expires_at || null,
+              verifiedAt: new Date().toISOString(),
+              priceAuditToken: signFlightPriceSnapshot(rawOffer),
+            },
+          });
+        }
+        const cashfreeCurrencies = new Set(["AUD", "BRL", "CAD", "CNY", "CZK", "EUR", "HKD", "HUF", "ILS", "JPY", "MYR", "MXN", "TWD", "NZD", "NOK", "PHP", "PLN", "GBP", "SGD", "SEK", "CHF", "THB", "USD", "INR"]);
+        if (!cashfreeCurrencies.has(latestCurrency)) {
+          return res.status(422).json({
+            success: false,
+            message: `Cashfree is not configured for the current Duffel offer currency (${latestCurrency}). No payment order was created.`,
+            code: "CASHFREE_CURRENCY_UNSUPPORTED",
+          });
+        }
+        amount = Number(latestAmount);
+        paymentCurrency = latestCurrency;
         sourceAmountFromBooking = true;
         amountKind = "flight_offer";
+        priceVerification = {
+          priceSource: "duffel_api",
+          providerOfferId: rawOffer.id,
+          providerAmount: latestAmount,
+          providerCurrency: latestCurrency,
+          providerBaseAmount: rawOffer.base_amount == null ? null : String(rawOffer.base_amount),
+          providerBaseCurrency: rawOffer.base_currency || latestCurrency,
+          providerTaxAmount: rawOffer.tax_amount == null ? null : String(rawOffer.tax_amount),
+          providerTaxCurrency: rawOffer.tax_currency || latestCurrency,
+          offerExpiresAt: rawOffer.expires_at || null,
+          ipniaMarkupAmount: "0.00",
+          finalAmount: latestAmount,
+          finalCurrency: latestCurrency,
+          verifiedAt: new Date().toISOString(),
+          revalidationStatus: "revalidated",
+        };
       } catch (err) {
         if (err instanceof DuffelApiError) {
           return res.status(err.status || 502).json({
@@ -174,16 +240,18 @@ async function createOrder(req, res, next) {
       flightOfferId: flightOfferId || null,
       hotelPlaceId: hotelPlaceId || null,
       sourceAmountFromBooking,
+      priceVerification,
     });
 
     const payment = await Payment.create({
       ipniaOrderId,
       customer,
       amount,
-      currency,
+      currency: paymentCurrency,
       paymentStatus: "PENDING",
       bookingId: flightOfferId || hotelPlaceId || null,
       sourceAmountFromBooking,
+      flightPriceVerification: priceVerification,
       webhookReceived: false,
     });
 
@@ -192,7 +260,7 @@ async function createOrder(req, res, next) {
       cashfreeOrder = await createCashfreeOrder({
         orderId: ipniaOrderId,
         amount,
-        currency,
+        currency: paymentCurrency,
         customer,
         returnUrl,
         notifyUrl,
@@ -232,6 +300,7 @@ async function createOrder(req, res, next) {
       paymentSessionId,
       amount: payment.amount,
       currency: payment.currency,
+      priceVerification,
       paymentStatus: payment.paymentStatus,
     });
   } catch (err) {

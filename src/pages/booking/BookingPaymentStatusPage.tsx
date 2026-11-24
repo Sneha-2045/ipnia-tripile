@@ -5,7 +5,7 @@ import { BookingNav } from "@/components/layout/BookingNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { useFlightBooking } from "@/contexts/FlightBookingContext";
-import { formatInr } from "@/lib/bookingValidation";
+import { formatMoney } from "@/services/flightSearchApi";
 import { getPaymentStatus } from "@/lib/paymentApi";
 
 const BookingPaymentStatusPage = () => {
@@ -16,6 +16,7 @@ const BookingPaymentStatusPage = () => {
   const [error, setError] = useState("");
   const [remoteStatus, setRemoteStatus] = useState<string>("PENDING");
   const [amountPaid, setAmountPaid] = useState<number | null>(null);
+  const [amountCurrency, setAmountCurrency] = useState<string | null>(null);
 
   const orderId =
     params.get("order_id") ||
@@ -45,6 +46,7 @@ const BookingPaymentStatusPage = () => {
         const status = String(res.payment?.paymentStatus || "PENDING").toUpperCase();
         setRemoteStatus(status);
         setAmountPaid(res.payment?.amount ?? null);
+        setAmountCurrency(res.payment?.currency ?? null);
         setPaymentStatus(
           status === "SUCCESS"
             ? "SUCCESS"
@@ -120,7 +122,11 @@ const BookingPaymentStatusPage = () => {
                 <p>
                   Amount Paid:{" "}
                   <span className="text-[#e2b552]">
-                    {formatInr(amountPaid ?? state.priceBreakdown.grandTotal)}
+                    {amountPaid != null
+                      ? formatMoney(String(amountPaid), amountCurrency || state.selectedFlight?.currency || "INR")
+                      : state.selectedFlight
+                        ? formatMoney(state.selectedFlight.totalAmountRaw, state.selectedFlight.currency)
+                        : "—"}
                   </span>
                 </p>
                 <p>

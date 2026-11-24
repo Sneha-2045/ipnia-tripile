@@ -19,9 +19,25 @@ export type SelectedFlight = {
   duration: string;
   stops: number;
   cabin: CabinClass;
-  fare: number;
-  taxes: number;
+  fare: number | null;
+  fareCurrency: string | null;
+  taxes: number | null;
+  taxesCurrency: string | null;
   totalAmount: number;
+  totalAmountRaw: string;
+  currency: string;
+  offerExpiresAt: string | null;
+  priceSource: "duffel_api";
+  liveMode: boolean;
+  providerOfferId: string;
+  providerAmount: string;
+  providerCurrency: string;
+  ipniaMarkupAmount: string;
+  finalDisplayedAmount: string;
+  finalDisplayedCurrency: string;
+  priceVerifiedAt: string;
+  priceAuditToken: string;
+  revalidationStatus: "search" | "revalidated";
   travellerCount: number;
   adults: number;
   children: number;
@@ -144,12 +160,6 @@ export function computePriceBreakdown(
     hotelRoom,
     hotelTaxes,
     discount,
-    grandTotal: flightFare + flightTaxes + hotelRoom + hotelTaxes - discount,
+    grandTotal: flight ? flight.totalAmount : hotelRoom + hotelTaxes - discount,
   };
-}
-
-export function splitFare(total: number) {
-  const fare = Math.round(total * 0.84);
-  const taxes = Math.max(0, total - fare);
-  return { fare, taxes };
 }

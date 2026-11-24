@@ -62,16 +62,16 @@ export function formatMoney(amount: string | null, currency: string | null) {
   if (amount == null || amount === "") return "—";
   const num = Number(amount);
   if (!Number.isFinite(num)) return amount;
-  // IPNIA flight search always presents fares in INR
-  const code = (currency || "INR").toUpperCase() === "INR" ? "INR" : currency || "INR";
+  const code = String(currency || "").toUpperCase();
+  if (!/^[A-Z]{3}$/.test(code)) return `${amount} ${code || ""}`.trim();
   try {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: code === "INR" ? "INR" : code,
-      maximumFractionDigits: 0,
+      currency: code,
+      maximumFractionDigits: 4,
     }).format(num);
   } catch {
-    return `₹${num.toLocaleString("en-IN")}`;
+    return `${code} ${num.toFixed(2)}`;
   }
 }
 

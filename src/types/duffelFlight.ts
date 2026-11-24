@@ -103,10 +103,19 @@ export type NormalizedFlightOffer = {
   liveMode: boolean;
   totalAmount: string | null;
   totalCurrency: string | null;
-  /** Present when Duffel returned a non-INR currency that was converted */
-  originalCurrency?: string | null;
   baseAmount: string | null;
+  baseCurrency?: string | null;
   taxAmount: string | null;
+  taxCurrency?: string | null;
+  priceSource: "duffel_api";
+  providerAmount: string;
+  providerCurrency: string;
+  ipniaMarkupAmount: string;
+  finalDisplayedAmount: string;
+  finalDisplayedCurrency: string;
+  priceVerifiedAt: string;
+  priceAuditToken: string;
+  revalidationStatus: "search" | "revalidated";
   airlines: DuffelCarrier[];
   slices: DuffelSlice[];
   stops: number;
@@ -159,5 +168,6 @@ export type FlightSearchResponse = {
     durationMs?: number;
     providerLatencyMs?: number;
     cabinClass?: string;
+    priceSource?: "duffel_live_api";
   };
 };

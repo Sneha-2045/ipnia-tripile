@@ -1,18 +1,25 @@
 function validateCreatePayment(req, res, next) {
   const errors = [];
-  const { currency, customer, flightOfferId, hotelPlaceId } = req.body || {};
+  const { currency, customer, flightOfferId, hotelPlaceId, priceAuditToken } = req.body || {};
 
   // Amount is resolved server-side only. Client-supplied `amount` / `hotelAmount` are ignored.
-
-  const curr = (currency || "INR").toUpperCase();
-  if (curr !== "INR") {
-    errors.push("only INR currency is supported currently");
-  }
 
   const offerId = flightOfferId != null ? String(flightOfferId).trim() : "";
   const placeId = hotelPlaceId != null ? String(hotelPlaceId).trim() : "";
   if (!offerId && !placeId) {
     errors.push("flightOfferId or hotelPlaceId is required");
+  }
+
+  const curr = String(currency || "INR").toUpperCase();
+  if (offerId) {
+    if (!/^[A-Z]{3}$/.test(curr)) {
+      errors.push("expectedProviderCurrency must be an ISO currency code");
+    }
+    if (typeof priceAuditToken !== "string" || priceAuditToken.length < 20 || priceAuditToken.length > 2000) {
+      errors.push("A valid signed flight price snapshot is required");
+    }
+  } else if (curr !== "INR") {
+    errors.push("hotel deposits are charged in INR");
   }
 
   if (!customer || typeof customer !== "object") {
@@ -42,6 +49,7 @@ function validateCreatePayment(req, res, next) {
   req.body.currency = curr;
   req.body.flightOfferId = offerId || null;
   req.body.hotelPlaceId = placeId || null;
+  req.body.priceAuditToken = priceAuditToken == null ? null : String(priceAuditToken);
   req.body.customer = {
     name: String(customer.name).trim(),
     email: String(customer.email).trim().toLowerCase(),
