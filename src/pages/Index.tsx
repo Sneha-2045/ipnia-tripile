@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { hotels } from "@/data/hotels";
 import { TourPackagesSection } from "@/components/TourPackagesSection";
 import { plusDaysISO } from "@/lib/lastFlightSearch";
+import { CheapestFlightDealCards } from "@/components/flights/CheapestFlightDealCards";
 
 const destinations = [
   { name: "New Delhi", image: "/assets/destinations/dest-delhi.jpg", code: "DEL" },
@@ -167,6 +168,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <CheapestFlightDealCards compact />
 
       <TourPackagesSection />
 

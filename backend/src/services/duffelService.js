@@ -1,6 +1,9 @@
 const { getDuffelConfig } = require("../config/duffel");
 const { mapDuffelOfferToFlight } = require("./mapDuffelOffer");
 const { randomUUID } = require("node:crypto");
+let featuredDealsCache = null;
+let featuredDealsExpiresAt = 0;
+let featuredDealsInFlight = null;
 
 class DuffelApiError extends Error {
   constructor(message, { status = 502, code = "DUFFEL_ERROR", details = null } = {}) {
@@ -417,6 +420,96 @@ async function createOfferRequest(searchParams) {
   };
 }
 
+/** Shared card-feed data: sampled future dates, grouped into real monthly and daily offers. */
+async function getFeaturedFlightDeals() {
+  const config = getDuffelConfig();
+  if (!config.isConfigured || config.isTestKey) {
+    throw new DuffelApiError("Live flight deals are not configured.", { status: 503, code: "DUFFEL_LIVE_NOT_CONFIGURED" });
+  }
+  const cachedOffersCurrent = featuredDealsCache && [
+    ...featuredDealsCache.monthlyDeals.map((deal) => deal.offer),
+    ...featuredDealsCache.dailyDeals.flatMap((deal) => deal.offers),
+  ].every((offer) => !offer.expiresAt || new Date(offer.expiresAt).getTime() > Date.now());
+  if (featuredDealsCache && featuredDealsExpiresAt > Date.now() && cachedOffersCurrent) return { ...featuredDealsCache, cached: true };
+  if (featuredDealsInFlight) return featuredDealsInFlight;
+
+  featuredDealsInFlight = (async () => {
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
+    const [currentYear, currentMonth] = today.split("-").map(Number);
+    const routes = [{ origin: "DEL", destination: "BOM" }, { origin: "DEL", destination: "DXB" }];
+    const searchedDates = [10, 20, 28];
+    const requests = [];
+    for (let offset = 0; offset < 3; offset += 1) {
+      const date = new Date(Date.UTC(currentYear, currentMonth - 1 + offset, 1));
+      const year = date.getUTCFullYear();
+      const month = date.getUTCMonth() + 1;
+      const monthKey = `${year}-${String(month).padStart(2, "0")}`;
+      const lastDay = new Date(year, month, 0).getDate();
+      for (const route of routes) {
+        for (const day of searchedDates) {
+          if (day > lastDay) continue;
+          const departureDate = `${monthKey}-${String(day).padStart(2, "0")}`;
+          if (departureDate < today) continue;
+          requests.push({ ...route, departureDate, month: monthKey, returnDate: null, adults: 1, children: 0, infants: 0, cabinClass: "economy", maxConnections: null });
+        }
+      }
+    }
+
+    const results = await Promise.all(requests.map(async (request) => {
+      try {
+        const response = await createOfferRequest(request);
+        const offers = response.liveMode
+          ? response.flights.filter((offer) => offer.liveMode).sort((a, b) => {
+            if (a.providerCurrency !== b.providerCurrency) return a.providerCurrency.localeCompare(b.providerCurrency);
+            return Number(a.providerAmount) - Number(b.providerAmount);
+          })
+          : [];
+        return { request, offerRequestId: response.offerRequestId, offers, error: response.liveMode ? null : "NON_LIVE_MODE" };
+      } catch (error) {
+        return { request, offerRequestId: null, offers: [], error: error.code || "DUFFEL_SEARCH_FAILED" };
+      }
+    }));
+
+    if (results.length && results.every((result) => result.error)) {
+      throw new DuffelApiError("Unable to load live flight deals right now.", { status: 502, code: "DUFFEL_DEALS_FAILED" });
+    }
+    const dailyDeals = [];
+    const monthlyGroups = new Map();
+    for (const result of results) {
+      if (result.error || !result.offers.length) continue;
+      const { origin, destination, departureDate, month } = result.request;
+      const offers = result.offers.slice(0, 8);
+      const groupKey = `${origin}-${destination}-${month}-${offers[0].providerCurrency}`;
+      dailyDeals.push({ origin, destination, date: departureDate, offers, offerRequestId: result.offerRequestId });
+      const group = monthlyGroups.get(groupKey) || { origin, destination, month, checked: [] };
+      group.checked.push({ date: departureDate, offer: offers[0] });
+      monthlyGroups.set(groupKey, group);
+    }
+    const monthlyDeals = Array.from(monthlyGroups.values()).map((group) => {
+      const cheapest = group.checked.sort((a, b) => {
+        if (a.offer.providerCurrency !== b.offer.providerCurrency) return a.offer.providerCurrency.localeCompare(b.offer.providerCurrency);
+        return Number(a.offer.providerAmount) - Number(b.offer.providerAmount);
+      })[0];
+      return { origin: group.origin, destination: group.destination, month: group.month, searchedDates: group.checked.map((item) => item.date), date: cheapest.date, offer: cheapest.offer };
+    }).sort((a, b) => a.month.localeCompare(b.month) || a.origin.localeCompare(b.origin));
+    dailyDeals.sort((a, b) => a.date.localeCompare(b.date) || a.origin.localeCompare(b.origin) || Number(a.offers[0].providerAmount) - Number(b.offers[0].providerAmount));
+    const failedSearchCount = results.filter((result) => result.error).length;
+    const value = { success: true, liveMode: true, monthlyDeals, dailyDeals, failedSearchCount, cached: false, generatedAt: new Date().toISOString() };
+    featuredDealsCache = value;
+    featuredDealsExpiresAt = Date.now() + 10 * 60 * 1000;
+    console.info("[flight-deals] refreshed", {
+      searches: requests.length,
+      datesWithOffers: dailyDeals.length,
+      monthlyDealCount: monthlyDeals.length,
+      failedSearchCount,
+      generatedAt: value.generatedAt,
+    });
+    return value;
+  })();
+  try { return await featuredDealsInFlight; }
+  finally { featuredDealsInFlight = null; }
+}
+
 async function getOfferById(offerId) {
   const config = getDuffelConfig();
   if (!config.isConfigured) {
@@ -474,6 +567,7 @@ async function getOfferById(offerId) {
 module.exports = {
   createOfferRequest,
   streamBatchOfferRequest,
+  getFeaturedFlightDeals,
   getOfferById,
   DuffelApiError,
   mapCabinClass,

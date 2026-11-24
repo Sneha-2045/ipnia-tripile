@@ -19,6 +19,7 @@ import { mapDuffelOfferToSelectedFlight } from "@/lib/mapOfferToBooking";
 import { formatCabinLabel } from "@/services/flightSearchApi";
 import { searchFlightsProgressively } from "@/services/progressiveFlightSearch";
 import type { NormalizedFlightOffer } from "@/types/duffelFlight";
+import { readCachedDealSearch } from "@/services/flightDealCards";
 
 const FlightSearch = () => {
   const navigate = useNavigate();
@@ -59,6 +60,7 @@ const FlightSearch = () => {
       cabinClass: params.get("cabin") || "economy",
       maxConnections: Number.isFinite(maxConnections as number) ? maxConnections : null,
       tripType: params.get("tripType") || (params.get("return") ? "roundtrip" : "oneway"),
+      preferredOfferId: params.get("offerId") || "",
       hasRoute: Boolean(from && to),
     };
   }, [params]);
@@ -92,8 +94,7 @@ const FlightSearch = () => {
     setVisibleOfferCount(24);
     setFilters(defaultFlightFilters);
 
-    searchFlightsProgressively(
-      {
+    const searchRequest = {
         origin: query.origin,
         destination: query.destination,
         departureDate: query.departureDate,
@@ -103,7 +104,20 @@ const FlightSearch = () => {
         infants: query.infants,
         cabinClass: query.cabinClass,
         maxConnections: query.maxConnections,
-      },
+      };
+    const cachedDeals = readCachedDealSearch(searchRequest);
+    if (cachedDeals) {
+      const cachedOffers = [...cachedDeals.flights].sort((a, b) => Number(b.id === query.preferredOfferId) - Number(a.id === query.preferredOfferId));
+      setOffers(cachedOffers);
+      setProgressCount(cachedOffers.length);
+      setRemainingBatches(0);
+      setLoading(false);
+      if (!cachedOffers.length) setError("No cached live offers remain available. Search again for current flights.");
+      return () => { active = false; controller.abort(); };
+    }
+
+    searchFlightsProgressively(
+      searchRequest,
       controller.signal,
       ({ flights, count, remainingBatches: remaining }) => {
         setOffers((current) => {
@@ -142,7 +156,7 @@ const FlightSearch = () => {
     };
   }, [query, retryKey]);
 
-  const filtered = useMemo(() => applyFlightFilters(offers, filters), [offers, filters]);
+  const filtered = useMemo(() => applyFlightFilters(offers, filters).sort((a, b) => Number(b.id === query.preferredOfferId) - Number(a.id === query.preferredOfferId)), [offers, filters, query.preferredOfferId]);
   const visibleOffers = useMemo(() => filtered.slice(0, visibleOfferCount), [filtered, visibleOfferCount]);
 
   useEffect(() => setVisibleOfferCount(24), [filters]);

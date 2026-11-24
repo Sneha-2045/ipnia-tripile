@@ -1,6 +1,7 @@
 import { Navigate, useParams } from "react-router-dom";
 import { SeoLinkGrid, SeoPageLayout } from "@/components/seo/SeoPageLayout";
 import { dealsByCategory, getDealBySlug, seoDeals } from "@/data/seo/deals";
+import { CheapestFlightDealCards } from "@/components/flights/CheapestFlightDealCards";
 
 export function DealsIndexPage() {
   return (
@@ -16,6 +17,7 @@ export function DealsIndexPage() {
       secondaryCta={{ label: "Search hotels", to: "/hotels/search" }}
     >
       <div className="space-y-6">
+        <CheapestFlightDealCards />
         <SeoLinkGrid
           title="Flight deals"
           links={dealsByCategory("flights").map((d) => ({

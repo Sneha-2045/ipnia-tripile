@@ -1,4 +1,14 @@
-const { createOfferRequest, streamBatchOfferRequest, DuffelApiError } = require("../services/duffelService");
+const { createOfferRequest, streamBatchOfferRequest, getFeaturedFlightDeals, DuffelApiError } = require("../services/duffelService");
+
+async function getFlightDeals(req, res, next) {
+  try {
+    const deals = await getFeaturedFlightDeals();
+    return res.status(200).json(deals);
+  } catch (err) {
+    if (err instanceof DuffelApiError) return res.status(err.status).json({ success: false, message: err.message, code: err.code });
+    return next(err);
+  }
+}
 
 async function searchFlights(req, res, next) {
   try {
@@ -153,6 +163,7 @@ async function streamFlights(req, res) {
 }
 
 module.exports = {
+  getFlightDeals,
   searchFlights,
   streamFlights,
 };
